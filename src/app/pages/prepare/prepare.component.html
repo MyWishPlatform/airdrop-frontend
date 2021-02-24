@@ -1,0 +1,191 @@
+<form class="form" #airdropForm="ngForm" (ngSubmit)="proceedAirdrop()">
+
+  <div class="form_group">
+    <div class="form_group_content">
+      <div class="form_group_content_title">
+        <app-page-header></app-page-header>
+        Airdrop setup
+      </div>
+      <div class="form_group_content_section">
+        <div class="form_controls-group">
+          <div class="form_control choose-blockchain-control">
+            <div class="form_control_label form_control_label__bold">
+              Select blockchain
+            </div>
+
+            <div class="form_control_buttons">
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="ethereum"
+                       name="blockchain">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/ethereum.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Ethereum
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="binance">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/binance.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Binance
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="tron">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/tron.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    TRON
+                  </span>
+                </span>
+              </label>
+
+            </div>
+          </div>
+          <div class="form_control testnet-control">
+            <div class="form_control_label">
+              Test Network
+            </div>
+            <div class="form_control_buttons">
+              <label class="checkbox-control">
+                <input type="checkbox"
+                       [(ngModel)]="airdropParams.testnet"
+                       class="checkbox-control_input"
+                       name="testnet"/>
+                <span class="checkbox-control_text checkbox-control_text__on">Yes</span>
+                <span class="checkbox-control_text checkbox-control_text__off">No</span>
+                <span class="checkbox-control_rect"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form_group_content_section">
+        <div class="form_controls-group enter-token-control">
+          <div class="form_control">
+            <div class="form_control_label">
+              Enter token address
+            </div>
+            <span class="text-control"
+                  [ngClass]="{
+                  'text-control__error': airdropParams.token?.address && (airdropForm.controls.token?.errors || !airdropParams.blockchain),
+                  'text-control__pending': airdropForm.controls.token?.pending
+                  }">
+              <input class="text-control_input" type="text"
+                     spellcheck="false"
+                     appTokenInput
+                     autocomplete="off"
+                     required="required"
+                     [readonly]="airdropForm.controls.token?.pending"
+                     [(ngModel)]="airdropParams.token"
+                     name="token">
+
+              <span class="lds-ellipsis text-control_waiting">
+                <span class="lds-ellipsis_container">
+                  <span></span><span></span><span></span><span></span>
+                </span>
+              </span>
+            </span>
+          </div>
+
+          <div class="form_control form_control__error"
+               *ngIf="airdropParams.token?.address && !airdropForm.controls.token?.pending && (airdropForm.controls.token?.errors || !airdropParams.blockchain)">
+
+            <div class="form_control__error_text"
+                 *ngIf="airdropForm.controls.token?.valid && !airdropParams.blockchain">
+              No network selected
+            </div>
+            <div class="form_control__error_text"
+                 *ngIf="airdropForm.controls.token?.errors?.invalidAddress">
+              Wrong address
+            </div>
+            <div class="form_control__error_text"
+                 *ngIf="airdropForm.controls.token?.errors?.invalidContractAddress">
+              Token address is not valid
+            </div>
+
+          </div>
+
+          <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
+            <div class="form_control_label">
+              Token symbol:
+            </div>
+            <a class="text-control as-link"
+               [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
+               target="_blank">
+              <span class="text-control_input">
+                {{ airdropParams.token.symbol }}
+              </span>
+            </a>
+          </div>
+          <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
+            <div class="form_control_label">
+              Decimals:
+            </div>
+            <span class="text-control">
+              <div class="text-control_input text-center">
+                {{ airdropParams.token.decimals }}
+              </div>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form_group_content_section">
+        <div class="form_control">
+          <div class="form_control_label">
+            Upload distribution list in .csv format
+          </div>
+          <label class="file-control" [ngClass]="{'file-control__error': csvData.error}">
+            <span class="file-control_button">
+              Upload CSV file
+            </span>
+            <span class="file-control_text" *ngIf="!airdropParams.fileName">
+              Enter list of addresses
+            </span>
+            <span class="file-control_text file-control_text__black"
+                  [title]="airdropParams.fileName"
+                  *ngIf="airdropParams.fileName">
+              {{this.airdropParams.fileName}}
+              <span class="file-control_text_additional" *ngIf="csvData.changed">
+                (edited)
+              </span>
+            </span>
+            <input type="file" class="file-control_input"
+                   [(ngModel)]="airdropParams.addresses"
+                   (change)="parseCsvFile($event.target)"
+                   accept=".csv"
+                   name="addresses">
+          </label>
+          <div class="example-link text-right">
+            <a [href]="selectChainState?.csvExample" target="_blank" class="dashed">
+              Sample file
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form_group">
+    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || !csvData.data">
+      <span class="btn_text">Proceed</span>
+    </button>
+  </div>
+
+</form>

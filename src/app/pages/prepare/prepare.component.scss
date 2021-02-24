@@ -1,0 +1,42 @@
+.choose-blockchain-control {
+  width: 100%;
+  .radio-control {
+    width: 31.5%;
+    max-width: 145px;
+  }
+}
+.testnet-control {
+  white-space: nowrap;
+}
+.wallets-control {
+  .wallet-button {
+    width: 24%;
+  }
+}
+
+.enter-token-control {
+  .form_control + .form_control {
+    margin-left: 2.5%;
+  }
+  .form_control {
+    &:nth-child(1) {
+      width: 67%;
+    }
+    &:not(.form_control__error) {
+      &:nth-child(2) {
+        width: 18%;
+      }
+      &:nth-child(3) {
+        width: 10%;
+      }
+    }
+    &.form_control__error {
+      width: 30%;
+    }
+  }
+}
+
+.example-link {
+  font-size: 12px;
+  margin-top: 15px;
+}

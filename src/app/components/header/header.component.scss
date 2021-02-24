@@ -1,0 +1,27 @@
+.header {
+  box-shadow: 0 2px 23px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  background-color: #ffffff;
+  z-index: 4;
+  &_content {
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    height: 50px;
+  }
+  &_logotype {
+    display: inline-block;
+    vertical-align: middle;
+    img {
+      display: block;
+      height: 31px;
+    }
+  }
+}
+
+
