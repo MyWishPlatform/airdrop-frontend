@@ -37,6 +37,11 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     changed?: boolean;
   } = {};
 
+  public testNets = {
+    ethereum: 'Kovan Test Network',
+    binance: 'Test Network',
+    tron: 'Shasta Test Network'
+  };
 
   public selectChainState: any;
   private subscribers = new Subscriber();

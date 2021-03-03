@@ -37,8 +37,10 @@ export class PageHeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.walletSubscriber.unsubscribe();
-    this.blockchainSubscriber.unsubscribe();
+    if (this.walletSubscriber) {
+      this.walletSubscriber.unsubscribe();
+      this.blockchainSubscriber.unsubscribe();
+    }
   }
 
   public selectWallet(): void {

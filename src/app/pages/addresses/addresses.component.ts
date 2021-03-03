@@ -191,15 +191,18 @@ export class AddressesComponent implements OnInit, OnDestroy {
 
   private showAddressesError(): void {
     let errorText = 'All errors must be corrected and/or removed';
+    let errorTitle = 'File errors';
+
     if (!this.tableData.valid.length) {
-      errorText = 'Список пуст. Нужен другой файл';
+      errorText = 'List is empty, load another list';
+      errorTitle = 'File errors';
     }
 
     this.addressesErrorsModal = this.dialog.open(ModalMessageComponent, {
-      width: '550px',
+      width: '372px',
       panelClass: 'custom-dialog-container',
       data: {
-        title: 'File errors',
+        title: errorTitle,
         text: errorText,
         buttonText: 'Ok'
       }

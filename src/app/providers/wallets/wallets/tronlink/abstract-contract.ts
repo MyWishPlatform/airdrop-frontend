@@ -6,6 +6,8 @@ export class AbstractContract {
   protected web3 = new Web3();
   protected walletAddress;
   protected contractAddress;
+  private httpClient;
+
   constructor(
     protected tronLink,
     contractABI,
@@ -17,6 +19,11 @@ export class AbstractContract {
       contractABI,
       this.contractAddress
     );
+  }
+
+
+  public setHttpClient(httpClient): void {
+    this.httpClient = httpClient;
   }
 
 

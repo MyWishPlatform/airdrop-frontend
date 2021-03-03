@@ -27,7 +27,13 @@ export class AirdropContract extends AbstractContract {
     const addressesLengthTest = 500;
 
     const fee = await this.getFee();
-    const blockGasLimit = await this.gasLimit();
+    let blockGasLimit = await this.gasLimit();
+
+    const chainId = +this.web3Provider.chainId;
+    if (chainId === 56 || chainId === 97) {
+      blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
+    }
+
     const web3 = new Web3();
     const accounts = Array(addressesLengthTest).fill(null);
     const promises = [];
@@ -54,9 +60,17 @@ export class AirdropContract extends AbstractContract {
 
       const data = tx.encodeABI();
       // console.trace();
-      console.log('Fee: ', fee);
-      console.log('walletAddress: ', this.walletAddress);
-      console.log('contractAddress: ', this.contractAddress);
+      // console.log('Fee: ', fee);
+      // console.log('walletAddress: ', this.walletAddress);
+      // console.log('contractAddress: ', this.contractAddress);
+
+      // if ((index === (addressesLengthTest - 1))) {
+      //   let fileText = '';
+      //   addresses.forEach((addr) => {
+      //     fileText += addr + ',' + '0.005' + '\n';
+      //   });
+      //   window.open('data:text/csv;charset=utf-8,' + escape(fileText));
+      // }
 
       promises.push(
         this.web3.eth.estimateGas({

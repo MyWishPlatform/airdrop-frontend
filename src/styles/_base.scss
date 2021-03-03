@@ -1,5 +1,6 @@
 a, button, input {
   outline: none;
+  font-family: inherit;
 }
 
 a {
@@ -16,6 +17,13 @@ a {
   }
 }
 
+input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+input:focus::placeholder {
+  color: transparent;
+}
+
 .content {
   padding: 0 5%;
   &_wrapper {
@@ -26,8 +34,7 @@ a {
 }
 
 .page-wrapper {
-  margin-top: 51px;
-  padding: 50px 0;
+  padding: 102px 0 50px;
 }
 
 .text-right {
@@ -49,4 +56,8 @@ a {
 }
 .uppercase {
   text-transform: uppercase;
+}
+
+.blue-text {
+  color: #206EFF;
 }

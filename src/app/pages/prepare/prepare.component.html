@@ -9,7 +9,7 @@
       <div class="form_group_content_section">
         <div class="form_controls-group">
           <div class="form_control choose-blockchain-control">
-            <div class="form_control_label form_control_label__bold">
+            <div class="form_control_label">
               Select blockchain
             </div>
 
@@ -42,9 +42,10 @@
                 </span>
               </label>
 
-              <label class="radio-control">
-                <input type="radio" class="radio-control_input" name="blockchain"
+              <label class="radio-control" data-coming-soon="Coming Soon">
+                <input type="radio" class="radio-control_input" name="blockchain_dis"
                        required
+                       disabled
                        [(ngModel)]="airdropParams.blockchain"
                        value="tron">
                 <span class="radio-control_content">
@@ -59,7 +60,7 @@
           </div>
           <div class="form_control testnet-control">
             <div class="form_control_label">
-              Test Network
+              {{ airdropParams.blockchain ? testNets[airdropParams.blockchain] : "Test Network"}}
             </div>
             <div class="form_control_buttons">
               <label class="checkbox-control">
@@ -91,6 +92,7 @@
                      appTokenInput
                      autocomplete="off"
                      required="required"
+                     placeholder="0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518"
                      [readonly]="airdropForm.controls.token?.pending"
                      [(ngModel)]="airdropParams.token"
                      name="token">
@@ -173,7 +175,7 @@
                    name="addresses">
           </label>
           <div class="example-link text-right">
-            <a [href]="selectChainState?.csvExample" target="_blank" class="dashed">
+            <a [href]="selectChainState?.csvExample || './assets/csv-examples/ethereum.csv'" target="_blank" class="dashed">
               Sample file
             </a>
           </div>
@@ -189,3 +191,18 @@
   </div>
 
 </form>
+
+<div class="bottom-banner">
+  <div class="bottom-banner_content">
+    <div class="bottom-banner_title">
+      <span>Over</span>
+      <div>200</div>
+      <span>Airdrops</span>
+    </div>
+    <div class="bottom-banner_text">
+      $20 million in tokens distributed by MyWish
+    </div>
+  </div>
+</div>
+
+

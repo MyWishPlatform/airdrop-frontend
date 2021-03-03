@@ -24,14 +24,27 @@ export class TokenContract extends AbstractContract {
   }
 
   public sendApprove(amount): Promise<string> {
-    return this.contract.methods
+    let gasPrice;
+    const chainId = +this.web3Provider.chainId;
+    if (chainId === 56 || chainId === 97) {
+      gasPrice = 20000000000;
+    }
+    const txSend = this.contract.methods
       .approve(this.airdropAddress, amount)
       .send({
-        from: this.walletAddress
-      })
-      .then((result) => {
-        return this.checkTransaction(result.transactionHash);
+        from: this.walletAddress,
+        gasPrice
       });
+
+    return new Promise((resolve, reject) => {
+      txSend.once('transactionHash', (txHash) => {
+        this.checkTransaction(txHash).then(resolve, reject);
+      });
+      txSend.catch((res) => {
+        reject(res);
+      });
+    });
+
   }
 
   public async getBalance(): Promise<any> {

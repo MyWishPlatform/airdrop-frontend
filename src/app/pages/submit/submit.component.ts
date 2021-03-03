@@ -9,8 +9,6 @@ import {ModalWalletsComponent} from '../../components/modal-wallets/modal-wallet
 import {MatDialog} from '@angular/material/dialog';
 import {ModalMessageComponent} from '../../components/modal-message/modal-message.component';
 
-const gasPriceRange = 0.2;
-
 @Component({
   selector: 'app-submit',
   templateUrl: './submit.component.html',
@@ -19,6 +17,7 @@ const gasPriceRange = 0.2;
 export class SubmitComponent implements OnInit, OnDestroy {
 
   public sendingInProgress: boolean;
+  private gasPricesInterval;
 
   constructor(
     private dialog: MatDialog,
@@ -73,6 +72,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.tokenContract = undefined;
       this.airdropContract = undefined;
       this.tokensBalanceError = false;
+      if (this.gasPricesInterval) {
+        clearInterval(this.gasPricesInterval);
+      }
 
       this.iniStartAirdropInfoData();
 
@@ -83,9 +85,17 @@ export class SubmitComponent implements OnInit, OnDestroy {
           this.tokenContract = this.walletsProvider.getTokenContract(
             this.airdropParams.token.address
           );
-          // this.tokenContract.sendApprove(0);
+
+          // this.tokenContract.sendApprove(0).then((res) => {
+          //   console.log(res);
+          // });
+
           this.airdropContract = this.walletsProvider.getAirdropContract();
           this.getInformationProgress = true;
+
+          this.gasPricesInterval = setInterval(() => {
+            this.updateGasPrices();
+          }, 30000);
 
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
@@ -149,9 +159,14 @@ export class SubmitComponent implements OnInit, OnDestroy {
   private checkTokensErrors(balance, allowance, tokens): any {
     let error;
     if (balance.minus(tokens).isNegative()) {
+
+      const formatNumberParams = {groupSeparator: ',', groupSize: 3, decimalSeparator: '.'};
+      const insufficientBalance = new BigNumber(tokens).minus(balance).div(Math.pow(10, this.airdropParams.token.decimals));
+      const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
+
       error = {
         code: 1,
-        message: `Insufficient tokens balance.<br/><br/>
+        message: `Insufficient balance, not enough <b class="blue-text">${insufficientBalanceString}</b> tokens.<br/><br/>
                   Top up your wallet or choose another wallet<br/><br/>`
       };
     } else if (allowance.minus(tokens).isNegative()) {
@@ -207,20 +222,45 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  private getGasPrice(): Promise<any> {
+    if (this.airdropParams.blockchain === 'binance') {
+      return Promise.resolve({
+        gasPrices: [20000000000, 20000000000],
+        selectedGasPrice: 20000000000
+      });
+    }
+    return this.airdropContract.getGasPrice().then((responseGasPrices) => {
+      const gasPrices = [
+        responseGasPrices[0],
+        responseGasPrices[2]
+      ];
+      return {
+        gasPrices,
+        selectedGasPrice: responseGasPrices[1]
+      };
+    });
+  }
+
+  private updateGasPrices(): void {
+    this.getGasPrice().then((result) => {
+      this.airdropInfoData.gasPrices[0] = result.gasPrices[0];
+      this.airdropInfoData.gasPrices[1] = result.gasPrices[1];
+      this.airdropInfoData.selectedGasPrice = BigNumber.max(
+        BigNumber.min(
+          this.airdropInfoData.selectedGasPrice,
+          result.gasPrices[1]
+        ),
+        result.gasPrices[0]
+      );
+      this.calculateCost();
+    });
+  }
+
   private async iniAirdropInfo(): Promise<any> {
     const promises = [
       this.iniAirdropInfoData(),
-      this.airdropContract.getGasPrice().then((gasPrice) => {
-        const gasPriceBN = new BigNumber(gasPrice);
-        const gasPrices = [
-          gasPriceBN.times(1 - gasPriceRange).dp(0).toString(10),
-          gasPriceBN.times(1 + gasPriceRange).dp(0).toString(10)
-        ];
-        return {
-          gasPrices,
-          selectedGasPrice: gasPriceBN.toString(10)
-        };
-      }),
+      this.getGasPrice(),
       this.getTokenBalance()
     ];
 
@@ -275,6 +315,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.walletSubscriber) {
       this.walletSubscriber.unsubscribe();
+    }
+    if (this.gasPricesInterval) {
+      clearInterval(this.gasPricesInterval);
     }
   }
 
@@ -365,7 +408,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       switch (error.code) {
         case 1:
           this.dialog.open(ModalMessageComponent, {
-            width: '550px',
+            width: '372px',
             panelClass: 'custom-dialog-container',
             data: {
               title: 'Insufficient tokens balance',
@@ -376,7 +419,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
           break;
         case 2:
           this.dialog.open(ModalMessageComponent, {
-            width: '550px',
+            width: '372px',
             panelClass: 'custom-dialog-container',
             data: {
               title: 'Insufficient approved tokens',
@@ -495,7 +538,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     } else {
       this.sendingInProgress = false;
       this.dialog.open(ModalMessageComponent, {
-        width: '550px',
+        width: '372px',
         panelClass: 'custom-dialog-container',
         data: {
           title: 'Oooops!!!',
@@ -508,7 +551,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   private completedSending(): void {
     this.dialog.open(ModalMessageComponent, {
-      width: '550px',
+      width: '372px',
       panelClass: 'custom-dialog-container',
       data: {
         title: 'Successful',

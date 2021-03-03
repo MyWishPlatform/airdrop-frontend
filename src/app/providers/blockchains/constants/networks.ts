@@ -5,7 +5,13 @@ export const NETWORKS = {
     name: 'Ethereum Mainnet',
     explorer: 'https://etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
-    chainId: 1
+    chainId: 1,
+    coin: 'ETH',
+    etherscanAPI: 'https://api.etherscan.io/',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    }
   },
   'ethereum:ropsten': {
     chain: 'ethereum',
@@ -13,7 +19,8 @@ export const NETWORKS = {
     name: 'Ethereum Ropsten Testnet',
     explorer: 'https://ropsten.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
-    chainId: 3
+    chainId: 3,
+    coin: 'rETH'
   },
   'ethereum:rinkeby': {
     chain: 'ethereum',
@@ -21,7 +28,8 @@ export const NETWORKS = {
     name: 'Ethereum Rinkeby Testnet',
     explorer: 'https://rinkeby.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
-    chainId: 4
+    chainId: 4,
+    coin: 'rETH'
   },
   'ethereum:kovan': {
     chain: 'ethereum',
@@ -29,7 +37,13 @@ export const NETWORKS = {
     name: 'Ethereum Kovan Testnet',
     explorer: 'https://kovan.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
-    chainId: 42
+    chainId: 42,
+    coin: 'kETH',
+    etherscanAPI: 'https://api-kovan.etherscan.io/',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    }
   },
   'ethereum:goerli': {
     chain: 'ethereum',
@@ -37,7 +51,8 @@ export const NETWORKS = {
     name: 'Ethereum Goerli Testnet',
     explorer: 'https://goerli.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
-    chainId: 5
+    chainId: 5,
+    coin: 'gETH'
   },
   'binance:mainnet': {
     chain: 'binance',
@@ -45,7 +60,8 @@ export const NETWORKS = {
     name: 'Binance Smart Chain Mainnet',
     explorer: 'https://bscscan.com',
     csvExample: './assets/csv-examples/binance.csv',
-    chainId: 56
+    chainId: 56,
+    coin: 'BNB'
   },
   'binance:testnet': {
     chain: 'binance',
@@ -53,7 +69,8 @@ export const NETWORKS = {
     name: 'Binance Smart Chain Testnet',
     explorer: 'https://testnet.bscscan.com',
     csvExample: './assets/csv-examples/binance.csv',
-    chainId: 97
+    chainId: 97,
+    coin: 'tBNB'
   },
   'tron:mainnet': {
     chain: 'tron',
@@ -61,7 +78,8 @@ export const NETWORKS = {
     name: 'TRON Mainnet',
     explorer: 'https://tronscan.org/',
     csvExample: './assets/csv-examples/tron.csv',
-    chainId: 'tron:mainnet'
+    chainId: 'tron:mainnet',
+    coin: 'TRON'
   },
   'tron:shasta': {
     chain: 'tron',
@@ -69,6 +87,7 @@ export const NETWORKS = {
     name: 'TRON Shasta Testnet',
     explorer: 'https://shasta.tronscan.org',
     csvExample: './assets/csv-examples/tron.csv',
-    chainId: 'tron:shasta'
+    chainId: 'tron:shasta',
+    coin: 'sTRON'
   }
 };

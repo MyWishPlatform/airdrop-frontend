@@ -52,6 +52,7 @@
     </div>
 
     <div *ngIf="airdropInfoData && !(!account?.valid || tokensBalanceError)"
+         [ngClass]="{'with-errors': !airdropInfoData.transactionsCount}"
          class="airdrop-info-block">
 
       <span class="lds-ellipsis" *ngIf="getInformationProgress">
@@ -82,7 +83,7 @@
         </div>
         <div class="airdrop-info_item">
           <div class="airdrop-info_item_value">
-            {{airdropInfoData.totalCost | number}}
+            {{airdropInfoData.totalCost | number}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
             Network fee
@@ -90,7 +91,7 @@
         </div>
         <div class="airdrop-info_item">
           <div class="airdrop-info_item_value">
-            {{airdropInfoData.fee | number}}
+            {{airdropInfoData.fee | number}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
             Platform fee
@@ -115,7 +116,19 @@
           </div>
         </div>
 
-        <div class="params-controls_item">
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'binance'">
+          <div class="params-controls_label">
+            Network speed (Gas price)
+          </div>
+          <div class="tokens-balance">
+            <div class="tokens-balance_text">
+              &nbsp;&nbsp;&nbsp;
+              <b>{{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'ethereum'">
           <div class="params-controls_label">&nbsp;</div>
           <div class="gas-price-control">
             <div class="params-controls_label">Selected network speed (Gas Price)</div>
@@ -123,13 +136,13 @@
               {{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}
             </div>
           </div>
-  <!--        {{ airdropInfoData.selectedGasPrice }}-->
+
           <div class="custom-mat-slider">
             <mat-slider class="custom"
                         [disabled]="airdropParams.completed"
                         [min]="airdropInfoData.gasPrices[0]"
                         [max]="airdropInfoData.gasPrices[1]"
-                        step="100000000"
+                        step="500000000"
                         value="{{airdropInfoData.selectedGasPrice}}"
                         (input)="changeGasPrice($event)">
             </mat-slider>
@@ -187,12 +200,9 @@
         <div class="message-block_info">
           <div class="message-block_info_text">
             <span *ngIf="account && !account.valid">
-              You need to select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
-<!--              You need connect to other wallet or choose <b>{{chainInfo.name}}</b>.<br/><br/>-->
-<!--              Now selected <b>{{account.chainInfo.name}}</b> network.<br/><br/>-->
+              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
             </span>
           </div>
-
           <div class="message-block_info_buttons">
             <button class="btn btn__success" (click)="selectWallet()">
               <span class="btn_text">Connect wallet</span>
@@ -227,17 +237,8 @@
 
 <div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length">
   <div class="form_group_content">
-
-    <div class="tx-list-header">
-      <div class="tx-list-header_item">
-        Distribution
-      </div>
-      <div class="tx-list-header_item">
-        Tx
-      </div>
-      <div class="tx-list-header_item">
-        Status
-      </div>
+    <div class="form_group_content_title">
+      Distribution
     </div>
 
     <div class="tx-list">
@@ -254,7 +255,8 @@
             <a *ngIf="oneItem.txHash"
                target="_blank"
                [href]="oneItem.txHash | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'tx'">
-              {{oneItem.txHash}}
+<!--              {{oneItem.txHash}}-->
+              <span>Transaction Hash</span>
             </a>
           </div>
 <!-- (click)="sendTokens(oneItem)"-->
@@ -266,8 +268,8 @@
             <span *ngIf="oneItem.state === 1">
               Pending
             </span>
-            <span *ngIf="oneItem.state === 2">
-              Successful
+            <span *ngIf="oneItem.state === 2" class="success">
+              Success
             </span>
             <span *ngIf="oneItem.state === 3">
               <b>Error</b>

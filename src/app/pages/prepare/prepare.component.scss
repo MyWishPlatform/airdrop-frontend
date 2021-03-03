@@ -7,6 +7,7 @@
 }
 .testnet-control {
   white-space: nowrap;
+  text-align: right;
 }
 .wallets-control {
   .wallet-button {
@@ -39,4 +40,81 @@
 .example-link {
   font-size: 12px;
   margin-top: 15px;
+}
+
+
+
+
+.bottom-banner {
+  margin-top: 39px;
+  background: url('/assets/images/banners/bottom-banner-bg.png') right bottom no-repeat;
+  background-size: cover;
+  padding-right: 66px;
+  padding-bottom: 44px;
+  padding-left: 258px;
+  padding-top: 45px;
+  position: relative;
+  &_title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: #000;
+    span {
+      font-size: 30px;
+      line-height: 34px;
+      letter-spacing: initial;
+      &:first-child {
+        margin-right: 15px;
+      }
+      &:last-child {
+        margin-left: 14px;
+      }
+    }
+    div {
+      font-size: 40px;
+      line-height: 46px;
+      position: relative;
+      text-shadow: 0 0 10px #ffffff;
+      font-weight: bold;
+    }
+  }
+  &_text {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.5);
+    text-align: left;
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    bottom: 10px;
+    width: 196px;
+    height: 185px;
+    background: url('/assets/images/banners/bottom-banner-tree.svg') right bottom no-repeat;
+    background-size: cover;
+  }
+}
+
+
+[data-coming-soon] {
+  overflow: visible;
+  input {
+    display: none;
+  }
+  &:before {
+    cursor: default;
+    content: attr(data-coming-soon);
+    position: absolute;
+    background: #fff;
+    color: #2873FB;
+    border: 1px solid #2873FB;
+    font-size: 10px;
+    line-height: 12px;
+    padding: 3px;
+    border-radius: 4px;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
 }

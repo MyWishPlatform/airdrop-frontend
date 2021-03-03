@@ -18,8 +18,13 @@ export class TokenContract extends AbstractContract {
   }
 
   public async sendApprove(amount): Promise<string> {
+    const chainId = +this.binanceChain.chainId;
+    let gasPrice;
+    if (chainId === 56 || chainId === 97) {
+      gasPrice = 20000000000;
+    }
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
-    return this.sendMethod(walletAddress, 'approve', [this.airdropAddress, amount]);
+    return this.sendMethod(walletAddress, 'approve', [this.airdropAddress, amount], 0, gasPrice);
   }
 
   public async getBalance(): Promise<any> {

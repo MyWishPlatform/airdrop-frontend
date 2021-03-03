@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterContentChecked, AfterContentInit, Component, OnInit, ViewChild} from '@angular/core';
 import {InterfaceAccount, WalletsProvider} from '../../providers/wallets/wallets';
 import {WALLETS_NETWORKS} from '../../providers/wallets/constants/networks';
 import {ModalWalletsComponent} from '../modal-wallets/modal-wallets';
@@ -10,41 +10,60 @@ import {BlockchainsProvider} from '../../providers/blockchains/blockchains';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements AfterContentInit {
 
-  public currentAccount: InterfaceAccount|false;
-  public networks = WALLETS_NETWORKS;
+  @ViewChild('navigation') navigation;
 
-  private chainInfo;
+  private latestOpenedItem;
 
-  constructor(
-    private walletsProvider: WalletsProvider,
-    private dialog: MatDialog,
-    private blockchainsProvider: BlockchainsProvider
-  ) {
-    this.walletsProvider.subscribe((account: InterfaceAccount) => {
-      // console.log(account);
-      this.currentAccount = account || false;
+  constructor() {}
+
+  ngAfterContentInit(): void {
+    setTimeout(() => {
+      this.initNavigation();
     });
   }
 
-  ngOnInit(): void {
-    this.blockchainsProvider.subscribe((state) => {
-      this.chainInfo = state.chainParams;
-    });
-  }
+  private initNavigation(): void {
+    const element = this.navigation.nativeElement;
 
-  public selectWallet(): void {
-    const availableWallets = this.walletsProvider.getWallets();
-    const chooseWalletModal = this.dialog.open(ModalWalletsComponent, {
-      data: {
-        onSelectWallet: (wallet) => {
-          this.walletsProvider.connect(wallet.type, this.chainInfo.chainId);
-          chooseWalletModal.close();
-        },
-        wallets: availableWallets,
-      },
+    element.addEventListener('click', ($event) => {
+      let parent = $event.target;
+      let checked;
+      let abort;
+
+      while ((parent !== element) && !checked && !abort) {
+        if (parent.classList.contains('with-submenu')) {
+          checked = true;
+        } else
+        if (parent.classList.contains('submenu')) {
+          abort = true;
+        } else {
+          parent = parent.parentElement;
+        }
+      }
+
+      if (checked) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        if (parent.classList.contains('opened')) {
+          parent.classList.remove('opened');
+        } else {
+          if (this.latestOpenedItem) {
+            this.latestOpenedItem.classList.remove('opened');
+          }
+          this.latestOpenedItem = parent;
+          parent.classList.add('opened');
+        }
+      }
     });
+
+    window.addEventListener('click', () => {
+      if (this.latestOpenedItem) {
+        this.latestOpenedItem.classList.remove('opened');
+      }
+    });
+
   }
 
 

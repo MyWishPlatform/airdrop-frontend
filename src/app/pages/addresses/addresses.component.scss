@@ -61,6 +61,17 @@
     font-weight: bold;
     color: #206eff;
     line-height: 21px;
+    &:before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 5px;
+      background: url('/assets/images/icons/check-circle.svg') center center no-repeat;
+      background-size: contain;
+      margin-top: -2px;
+    }
     &_count {
       display: inline-block;
       vertical-align: middle;
@@ -76,18 +87,10 @@
   }
   &__errors &_title {
     color: #DA4A4A;
-    font-size: 16px;
-    padding-left: 10px;
+    //font-size: 16px;
+    //padding-left: 10px;
     &:before {
-      content: '';
-      width: 18px;
-      height: 18px;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 5px;
-      background: url('/assets/images/icons/warning.svg') center center no-repeat;
-      background-size: contain;
-      margin-top: -2px;
+      background-image: url('/assets/images/icons/error-circle.svg');
     }
     &_count {
       background-color: #DA4A4A;
@@ -135,19 +138,25 @@
       margin-right: 10px;
     }
   }
-
+  &_show-all-btn,
   &_delete-all-btn {
     float: right;
     outline: none;
     background: none;
     border: 0 none;
-    color: #DA4A4A;
     font-size: 13px;
     line-height: 16px;
     font-family: inherit;
-    margin-right: 3px;
-    padding: 3px 10px;
+    margin: 3px 13px 3px 10px;
+    padding: 0;
     cursor: pointer;
+    border-bottom: 1px dotted;
+  }
+  &_delete-all-btn {
+    color: #DA4A4A;
+  }
+  &_show-all-btn {
+    color: #206eff;
   }
 
 }

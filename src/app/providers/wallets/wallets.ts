@@ -4,6 +4,7 @@ import {Observable, Subscription} from 'rxjs';
 import {MetaMaskService} from './wallets/metamask/wallet-provider';
 import {WALLETS} from './constants/wallets';
 import {WALLETS_NETWORKS} from './constants/networks';
+import {HttpClient} from '@angular/common/http';
 
 export interface InterfaceAccount {
   chainInfo?: any;
@@ -30,6 +31,7 @@ export class WalletsProvider {
 
   constructor(
     private ngZone: NgZone,
+    private httpClient: HttpClient
   ) {}
 
   public setNetwork(blockchain, isTestnet): void {
@@ -174,11 +176,15 @@ export class WalletsProvider {
 
 
   public getTokenContract(tokenAddress): any {
-    return this.walletService.getTokenContract(tokenAddress);
+    const contract = this.walletService.getTokenContract(tokenAddress);
+    contract.setHttpClient(this.httpClient);
+    return contract;
   }
 
   public getAirdropContract(): any {
-    return this.walletService.getAirdropContract();
+    const contract = this.walletService.getAirdropContract();
+    contract.setHttpClient(this.httpClient);
+    return contract;
   }
 
 }

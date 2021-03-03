@@ -22,6 +22,8 @@ import { SubmitComponent } from './pages/submit/submit.component';
 import {MatSliderModule} from '@angular/material/slider';
 import { ApproveComponent } from './components/approve/approve.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
+import {HttpClientModule} from '@angular/common/http';
+import { FooterComponent } from './components/footer/footer.component';
 
 export function appInitializerFactory(): any {
   return () =>
@@ -60,7 +62,8 @@ export function appInitializerFactory(): any {
     ModalWalletsComponent,
     SubmitComponent,
     ApproveComponent,
-    PageHeaderComponent
+    PageHeaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -68,7 +71,8 @@ export function appInitializerFactory(): any {
     FormsModule,
     ScrollingModule,
     MatDialogModule,
-    MatSliderModule
+    MatSliderModule,
+    HttpClientModule
   ],
   providers: [
     {

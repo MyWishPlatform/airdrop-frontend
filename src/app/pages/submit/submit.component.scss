@@ -38,6 +38,12 @@
       font-size: 20px;
       font-weight: bold;
       color: #000000;
+      white-space: nowrap;
+      span {
+        font-size: 0.65em;
+        //font-weight: normal;
+        color: rgba(0, 0, 0, 0.6);
+      }
     }
     &_label {
       font-size: 12px;
@@ -200,7 +206,19 @@
     &_cell {
       box-sizing: border-box;
       &__state {
-        //cursor: pointer;
+        .success {
+          &:before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            background: url('/assets/images/icons/check-circle.svg') center center no-repeat;
+            background-size: contain;
+            margin-top: -2px;
+          }
+        }
       }
       &:first-child, &:last-child {
         padding: 0 25px;
@@ -210,6 +228,21 @@
         width: 60%;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: center;
+        a {
+          &:after {
+            content: '';
+            display: inline-block;
+            vertical-align: middle;
+            background: url('/assets/images/icons/link.svg') center center no-repeat;
+            background-size: cover;
+            width: 15px;
+            height: 13px;
+            right: 8px;
+            margin-left: 5px;
+            margin-top: -2px;
+          }
+        }
       }
     }
   }

@@ -1,9 +1,14 @@
 import Web3 from 'web3';
+import {WALLETS_NETWORKS} from '../../constants/networks';
+import BigNumber from 'bignumber.js';
+
+const gasPricePercentage = 0.1;
 
 export class AbstractContract {
   protected contract;
   protected web3 = new Web3();
   protected walletAddress;
+  private httpClient;
 
   constructor(
     protected binanceChain,
@@ -109,12 +114,34 @@ export class AbstractContract {
 
 
   public async getGasPrice(): Promise<any> {
-    return this.binanceChain.request({
+    const chainParams = WALLETS_NETWORKS[+this.binanceChain.chainId];
+    const apiUrl = chainParams.etherscanAPI;
+    if (apiUrl) {
+      const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+      return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
+        const result = data.result;
+        return [
+          new BigNumber(result.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
+        ];
+      });
+    }
+
+    const gasPrice = await this.binanceChain.request({
       method: 'eth_gasPrice',
       params: []
     }).then((result) => {
       return result.toString(10);
     });
+
+    return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
+
+  }
+
+
+  public setHttpClient(httpClient): void {
+    this.httpClient = httpClient;
   }
 
 }

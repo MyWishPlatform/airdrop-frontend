@@ -1,12 +1,19 @@
 import Web3 from 'web3';
+import {WALLETS_NETWORKS} from '../../constants/networks';
+import BigNumber from 'bignumber.js';
+
+const gasPricePercentage = 0.1;
 
 export class AbstractContract {
   protected contract;
   protected web3 = new Web3();
   protected walletAddress;
   protected contractAddress;
+
+  private httpClient;
+
   constructor(
-    web3Provider,
+    protected web3Provider,
     contractABI,
     contractAddress
   ) {
@@ -17,11 +24,29 @@ export class AbstractContract {
   }
 
   public async getGasPrice(): Promise<any> {
-    return await this.web3.eth.getGasPrice();
+    const chainParams = WALLETS_NETWORKS[+this.web3Provider.chainId];
+    const apiUrl = chainParams.etherscanAPI;
+    if (apiUrl) {
+      const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+      return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
+        const result = data.result;
+        return [
+          new BigNumber(result.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
+        ];
+      });
+    }
+    const gasPrice = +(await this.web3.eth.getGasPrice());
+    return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
   }
 
   private checkTx(txHash, resolve, reject): void {
+    console.log(txHash);
     this.web3.eth.getTransactionReceipt(txHash, (err, res) => {
+      console.log(txHash);
+      console.log(err);
+      console.log(res);
       if (err || (res && res.blockNumber && !res.status)) {
         reject(err);
       } else if (res && res.blockNumber) {
@@ -38,5 +63,9 @@ export class AbstractContract {
     return new Promise((resolve, reject) => {
       this.checkTx(txHash, resolve, reject);
     });
+  }
+
+  public setHttpClient(httpClient): void {
+    this.httpClient = httpClient;
   }
 }

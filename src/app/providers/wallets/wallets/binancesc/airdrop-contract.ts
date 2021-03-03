@@ -17,7 +17,12 @@ export class AirdropContract extends AbstractContract {
   }
 
   private async gasLimit(): Promise<any> {
-    return (await this.getBlock()).gasLimit;
+    let blockGasLimit = (await this.getBlock()).gasLimit;
+    const chainId = +this.binanceChain.chainId;
+    if (chainId === 56 || chainId === 97) {
+      blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
+    }
+    return blockGasLimit;
   }
 
   public async tokensMultiSendGas(testTokenAddress): Promise<any> {
@@ -58,10 +63,7 @@ export class AirdropContract extends AbstractContract {
           value: fee,
           data
         }]).then((res) => {
-          return {
-            gasLimit: +res,
-            data
-          };
+          return +res;
         }, (err) => {
           console.log(err);
         })
@@ -73,26 +75,20 @@ export class AirdropContract extends AbstractContract {
         if (!result[0] || !result[1]) {
           return reject();
         }
-        const gasLimit1 = result[0].gasLimit;
-        const gasLimit2 = result[1].gasLimit;
 
-        const oneAddressDataLength = result[0].data.length;
-        const moreAddressesDataLength = result[1].data.length;
+        const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
+        const initTransaction = result[0] - oneAddressAdding;
+        const maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
 
-
-        const oneAddressAdding = Math.ceil((gasLimit2 - gasLimit1) / addressesLengthTest);
-        const initTransaction = gasLimit1 - oneAddressAdding;
-        const maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding / 100) * 100;
-
-        console.log('Latest block gas limit:', blockGasLimit);
-        console.log('Gas limit per address:', oneAddressAdding);
-        console.log('Gas limit of first address:', initTransaction);
-        console.log('Max addresses length per tx:', maxAddressesLength);
+        // console.log('Latest block gas limit:', blockGasLimit);
+        // console.log('Gas limit per address:', oneAddressAdding);
+        // console.log('Gas limit of first address:', initTransaction);
+        // console.log('Max addresses length per tx:', maxAddressesLength);
 
         resolve({
           maxAddressesLength,
           gasLimitPerAddress: oneAddressAdding,
-          gasLimitForFirstAddress: gasLimit1
+          gasLimitForFirstAddress: result[0]
         });
       }, () => {
         reject();

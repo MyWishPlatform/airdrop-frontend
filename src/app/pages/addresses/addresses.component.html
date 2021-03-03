@@ -53,10 +53,13 @@
           <button class="addresses-table_slide-btn"
                   [ngClass]="{'addresses-table_slide-btn__opened': visibleValidTable}"
                   (click)="visibleValidTable = !visibleValidTable;"></button>
+          <button class="addresses-table_show-all-btn" (click)="visibleValidTable = !visibleValidTable">
+            {{ !visibleValidTable ? 'Show all' : 'Hide all' }}
+          </button>
           <div class="addresses-table_title">
             Correct
             <span class="addresses-table_title_count">
-              +{{this.tableData.valid.length || 0}}
+              {{this.tableData.valid.length || 0}}
             </span>
           </div>
         </div>
@@ -94,11 +97,11 @@
               </div>
             </cdk-virtual-scroll-viewport>
           </div>
-
         </div>
       </div>
-
-      <div class="addresses-table addresses-table__errors" *ngIf="tableData.invalid.length">
+    </div>
+    <div class="form_group_content_section" *ngIf="tableData.invalid.length">
+      <div class="addresses-table addresses-table__errors">
         <div class="addresses-table_header">
           <button class="addresses-table_slide-btn"
                   [ngClass]="{'addresses-table_slide-btn__opened': visibleInValidTable}"
