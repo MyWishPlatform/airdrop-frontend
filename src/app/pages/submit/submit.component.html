@@ -83,7 +83,7 @@
         </div>
         <div class="airdrop-info_item">
           <div class="airdrop-info_item_value">
-            {{airdropInfoData.totalCost | number}} <span>{{account.chainInfo.coin}}</span>
+            {{airdropInfoData.totalCost | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
             Network fee
@@ -91,7 +91,7 @@
         </div>
         <div class="airdrop-info_item">
           <div class="airdrop-info_item_value">
-            {{airdropInfoData.fee | number}} <span>{{account.chainInfo.coin}}</span>
+            {{airdropInfoData.fee | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
             Platform fee

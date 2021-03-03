@@ -151,7 +151,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
         .times(Math.pow(10, this.airdropParams.token.decimals));
     } else {
       return txList.reduce((val, tx) => {
-        return val.plus(tx.tokens);
+        if (!tx.state) {
+          return val.plus(tx.tokens);
+        }
+        return val;
       }, new BigNumber(0));
     }
   }
