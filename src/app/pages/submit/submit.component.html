@@ -189,7 +189,7 @@
               <span class="btn_text">Approve</span>
             </button>
             <button class="btn btn__success" (click)="selectWallet()"
-                    *ngIf="tokensBalanceError.code === 1"
+                    *ngIf="tokensBalanceError.code === 1 || tokensBalanceError.code === 3"
                     [disabled]="errApproveInProgress">
               <span class="btn_text">Connect wallet</span>
             </button>

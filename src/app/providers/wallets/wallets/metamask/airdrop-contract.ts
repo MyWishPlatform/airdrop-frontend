@@ -24,7 +24,7 @@ export class AirdropContract extends AbstractContract {
 
   public async tokensMultiSendGas(testTokenAddress): Promise<any> {
 
-    const addressesLengthTest = 500;
+    const addressesLengthTest = 300;
 
     const fee = await this.getFee();
     let blockGasLimit = await this.gasLimit();
@@ -77,7 +77,8 @@ export class AirdropContract extends AbstractContract {
           from: this.walletAddress,
           to: this.contractAddress,
           value: fee,
-          data
+          data,
+          gasPrice: 0
         })
       );
     });

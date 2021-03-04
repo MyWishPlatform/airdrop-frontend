@@ -143,4 +143,8 @@ export class MetaMaskService {
     return new AirdropContract(this.metaMaskProvider);
   }
 
+  public async getBalance(): Promise<any> {
+    const web3 = new Web3(this.metaMaskProvider);
+    return web3.eth.getBalance(this.connectedAccount.address);
+  }
 }

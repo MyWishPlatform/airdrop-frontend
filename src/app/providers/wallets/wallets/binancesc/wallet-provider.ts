@@ -112,5 +112,11 @@ export class BinanceSCService {
     return new AirdropContract(this.binanceChain);
   }
 
+  public async getBalance(): Promise<any> {
+    return this.binanceChain.request({
+      method: 'eth_getBalance',
+      params: [this.connectedAccount.address]
+    });
+  }
 
 }

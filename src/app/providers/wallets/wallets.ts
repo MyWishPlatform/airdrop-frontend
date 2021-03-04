@@ -187,4 +187,8 @@ export class WalletsProvider {
     return contract;
   }
 
+  public async getBalance(): Promise<any> {
+    return this.walletService.getBalance();
+  }
+
 }

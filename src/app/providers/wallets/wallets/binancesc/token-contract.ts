@@ -24,6 +24,7 @@ export class TokenContract extends AbstractContract {
       gasPrice = 20000000000;
     }
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
+    const sendMethod = this.sendMethod(walletAddress, 'approve', [this.airdropAddress, amount], 0, gasPrice);
     return this.sendMethod(walletAddress, 'approve', [this.airdropAddress, amount], 0, gasPrice);
   }
 

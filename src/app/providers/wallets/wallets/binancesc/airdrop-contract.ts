@@ -26,7 +26,7 @@ export class AirdropContract extends AbstractContract {
   }
 
   public async tokensMultiSendGas(testTokenAddress): Promise<any> {
-    const addressesLengthTest = 500;
+    const addressesLengthTest = 300;
 
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
     const fee = await this.getFee();

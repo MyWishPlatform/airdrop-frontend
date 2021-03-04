@@ -185,13 +185,23 @@ export class SubmitComponent implements OnInit, OnDestroy {
     const balance = new BigNumber(await this.tokenContract.getBalance());
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
     this.approveTokens = this.getLeftTokensTransfer();
-    const error = this.checkTokensErrors(balance, allowance, this.approveTokens);
-    // if (!error) {
-    //   error = {
-    //     code: 3,
-    //     message: `Insufficient balance.<br/><br/>`
-    //   };
-    // }
+    let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
+    if (!error) {
+      const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
+      const feeService = new BigNumber(await this.airdropContract.getFee());
+      this.airdropInfoData.onceFee = feeService;
+      if (coinsBalance.minus(feeService).isNegative()) {
+        const formatNumberParams = {groupSeparator: ',', groupSize: 3, decimalSeparator: '.'};
+        const insufficientBalance = feeService.div(Math.pow(10, 18));
+        const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
+        const coinName = this.account.chainInfo.coin;
+        error = {
+          code: 3,
+          message: `Insufficient ${coinName} balance, minimum amount for one transaction
+                    <b class="blue-text">${insufficientBalanceString} ${coinName}</b> (Platform fee)<br/><br/>`
+        };
+      }
+    }
     this.tokensBalanceError = error;
     // this.getInformationProgress = false;
     return error;
@@ -205,6 +215,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       fullGasLimit: 0,
       gasPrices: [0, 0],
       fee: 0,
+      onceFee: 0,
       tokenBalance: 0,
       totalCost: 0,
       selectedGasPrice: 0
@@ -273,6 +284,11 @@ export class SubmitComponent implements OnInit, OnDestroy {
       });
       this.calculateCost();
       this.generateTransactionList();
+    }, () => {
+      this.tokensBalanceError = {
+        code: 3,
+        message: 'Insufficient balance'
+      };
     });
   }
 
@@ -294,7 +310,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
     const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
     const addressesCount = this.airdropParams.addresses.length;
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);
-    const feeService = await this.airdropContract.getFee();
     const latestTxGasLimit = gasLimitForFirstAddress + gasLimitPerAddress * (addressesCount % maxAddressesLength - 1);
     const fullGasLimit = gasLimitPerTx * (transactionsCount - 1) + latestTxGasLimit;
 
@@ -304,7 +319,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     return {
       transactionsCount,
-      fee: new BigNumber(feeService * transactionsCount).div(Math.pow(10, 18)).toString(10),
+      fee: new BigNumber(this.airdropInfoData.onceFee * transactionsCount).div(Math.pow(10, 18)).toString(10),
       fullGasLimit,
       maxAddressesLength,
       gasLimitPerTx,
