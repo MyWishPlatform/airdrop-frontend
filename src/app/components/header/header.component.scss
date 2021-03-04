@@ -8,13 +8,11 @@
   z-index: 8;
   min-width: 900px;
   &_content {
-    padding: 10px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-    height: 50px;
-    max-width: 1000px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -44,11 +42,13 @@
   display: flex;
   list-style-type: none;
   font-family: 'Comfortaa', cursive, sans-serif;
+  margin: 0 0 0 auto;
+
   a {
     font-size: 16px;
     color: #000000;
     cursor: pointer;
-    padding: 15px;
+    padding: 18px 15px;
     display: inline-block;
     vertical-align: middle;
 
@@ -76,6 +76,8 @@
   }
 
   li {
+    position: relative;
+    margin-left: 2px;
     &:hover {
       background-color: #f0f0f0;
       text-decoration: none;
@@ -90,6 +92,7 @@
         z-index: 2;
       }
       &:after {
+        box-sizing: border-box;
         content: '';
         display: block;
         width: 8px;
@@ -102,7 +105,7 @@
         top: 50%;
         right: 11px;
         margin-top: -6px;
-        transition: all 0.2s linear;
+        transition: transform .2s linear;
       }
       &.opened {
         > a {
@@ -169,6 +172,84 @@
     }
     + li {
       border-top: 1px solid #ddd;
+    }
+  }
+}
+
+.language-select {
+  margin-left: 15px;
+  //height: 54px;
+  position: relative;
+  z-index: 2;
+  &-list {
+    display: block;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 17px;
+    border: 1px solid #ddd;
+    position: relative;
+    //cursor: pointer;
+    background-color: #fff;
+    &:after {
+      content: '';
+      //display: block;
+      display: none;
+      width: 8px;
+      height: 8px;
+      border-width: 2px 2px 0 0;
+      border-style: solid;
+      border-color: #999;
+      transform: rotate(135deg);
+      position: absolute;
+      top: 12px;
+      right: 11px;
+    }
+    &:not(.opened) {
+      &:hover {
+        //background-color: #f0f0f0;
+      }
+    }
+
+    li {
+      //display: none;
+      padding: 5px 10px 5px 5px;
+      margin: 0;
+      text-align: right;
+      line-height: 24px;
+      &:after {
+        content: '';
+        display: block;
+        clear: both;
+      }
+      img {
+        margin-right: 6px;
+        float: left;
+      }
+      &.active {
+        padding-right: 30px;
+        display: block;
+        span {
+          display: none;
+        }
+      }
+    }
+
+    &.opened {
+      &:after {
+        transform: rotate(-45deg);
+        top: 16px;
+      }
+      li {
+        display: block;
+        + li {
+          border-top: 1px solid #ddd;
+        }
+      }
+    }
+    img {
+      width: 24px;
+      height: 24px;
     }
   }
 }

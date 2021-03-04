@@ -7,7 +7,7 @@
     &_content {
       padding: 20px;
       &_title {
-        font-weight: bold;
+        //font-weight: bold;
         font-size: 25px;
         line-height: 1.12em;
         margin-bottom: 20px;
@@ -283,14 +283,15 @@
       position: relative;
       &:after {
         content: '';
-        position: absolute;
-        top: 50%;
+        display: inline-block;
+        margin-left: 5px;
         background: url('/assets/images/icons/link.svg') center center no-repeat;
         background-size: cover;
         width: 15px;
         height: 13px;
+        vertical-align: baseline;
         margin-top: -7px;
-        right: 8px;
+        //right: 8px;
       }
     }
   }

@@ -124,13 +124,13 @@
           </div>
 
           <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
-            <div class="form_control_label">
+            <div class="form_control_label text-center">
               Token symbol:
             </div>
             <a class="text-control as-link"
                [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
                target="_blank">
-              <span class="text-control_input">
+              <span class="text-control_input text-center">
                 {{ airdropParams.token.symbol }}
               </span>
             </a>

@@ -27,11 +27,11 @@
         </div>
 
         <div class="form_control">
-          <div class="form_control_label">Token symbol:</div>
+          <div class="form_control_label text-center">Token symbol:</div>
           <a class="text-control as-link"
              [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
              target="_blank">
-              <span class="text-control_input">
+              <span class="text-control_input text-center">
                 {{ airdropParams.token.symbol }}
               </span>
           </a>
