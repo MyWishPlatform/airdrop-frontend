@@ -36,10 +36,14 @@
     }
   }
 }
-
+.after-file-control {
+  display: flex;
+  margin-top: 15px;
+  justify-content: space-between;
+}
 .example-link {
   font-size: 12px;
-  margin-top: 15px;
+  margin-left: auto;
 }
 
 

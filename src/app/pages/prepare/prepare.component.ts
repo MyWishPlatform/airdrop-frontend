@@ -134,7 +134,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
             const amount = oneTableItem[1].replace([/^\s+/, /\s+$/], '').replace(/\.$/, '');
             const line = index + 1;
             return {address, amount, line};
-          }) : result
+          }) : false
         };
       });
     });
