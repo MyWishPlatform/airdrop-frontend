@@ -12,9 +12,9 @@ export class CsvParserService {
     CsvParser(file, {
       delimiter: ';'
     } as any, (error, data) => {
-      if (data.find((oneItem) => {
+      if (error || data.find((oneItem) => {
         return oneItem.length > 1;
-      }) || error) {
+      })) {
         cb({error, data});
       } else {
         CsvParser(file, {
