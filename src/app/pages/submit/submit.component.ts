@@ -572,7 +572,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       width: '372px',
       panelClass: 'custom-dialog-container',
       data: {
-        title: 'Successful',
+        title: 'Success',
         text: 'Token distribution is completed.',
         buttonText: 'Ok'
       }
