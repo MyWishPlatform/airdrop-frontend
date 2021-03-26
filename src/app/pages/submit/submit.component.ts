@@ -16,9 +16,6 @@ import {ModalMessageComponent} from '../../components/modal-message/modal-messag
 })
 export class SubmitComponent implements OnInit, OnDestroy {
 
-  public sendingInProgress: boolean;
-  private gasPricesInterval;
-
   constructor(
     private dialog: MatDialog,
     private router: Router,
@@ -93,9 +90,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
           this.airdropContract = this.walletsProvider.getAirdropContract();
           this.getInformationProgress = true;
 
-          this.gasPricesInterval = setInterval(() => {
-            this.updateGasPrices();
-          }, 30000);
+          this.initGasPriceInterval();
 
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
@@ -112,13 +107,15 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
-
   get balancePercents(): number {
     const transferTokens =
       new BigNumber(this.airdropParams.totalAmount).times(Math.pow(10, this.airdropParams.token.decimals));
     const percent = new BigNumber(this.airdropInfoData.tokenBalance).div(transferTokens).times(100).toNumber();
     return Math.min(100, percent);
   }
+
+  public sendingInProgress: boolean;
+  private gasPricesInterval;
   public approveTokens: BigNumber;
 
   public chainInfo: any;
@@ -143,6 +140,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
   public approveType = 'unlimited';
 
   public distributedInfo;
+
+  private initGasPriceInterval(): void {
+    this.gasPricesInterval = setInterval(() => {
+      this.updateGasPrices();
+    }, 30000);
+  }
 
   private getLeftTokensTransfer(): BigNumber {
     const txList = this.getTxLisStorage();
@@ -542,7 +545,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public async startSending(withMsg?): Promise<any> {
+
     this.sendingInProgress = true;
+    clearInterval(this.gasPricesInterval);
+
     const currentTxItem = this.transactionsList.find((item) => {
       return !item.state;
     });
@@ -554,7 +560,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
     if (tx) {
       this.startSending(true);
     } else {
+
       this.sendingInProgress = false;
+      this.initGasPriceInterval();
+
       this.dialog.open(ModalMessageComponent, {
         width: '372px',
         panelClass: 'custom-dialog-container',
@@ -577,7 +586,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
         buttonText: 'Ok'
       }
     });
+
     this.sendingInProgress = false;
+    this.initGasPriceInterval();
+
     localStorage.setItem('airdropState', '4');
     this.airdropParams.completed = true;
     localStorage.setItem('proceedAirdrop', JSON.stringify(this.airdropParams));

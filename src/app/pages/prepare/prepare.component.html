@@ -139,11 +139,11 @@
             <div class="form_control_label">
               Decimals:
             </div>
-            <span class="text-control">
+            <div class="text-control">
               <div class="text-control_input text-center">
                 {{ airdropParams.token.decimals }}
               </div>
-            </span>
+            </div>
           </div>
         </div>
       </div>
@@ -173,11 +173,21 @@
                    (change)="parseCsvFile($event.target)"
                    accept=".csv"
                    name="addresses">
+
           </label>
-          <div class="example-link text-right">
-            <a [href]="selectChainState?.csvExample || './assets/csv-examples/ethereum.csv'" target="_blank" class="dashed">
-              Sample file
-            </a>
+
+          <div class="after-file-control">
+            <div class="form_control form_control__error" [hidden]="!csvData.error">
+              <div class="form_control__error_text">
+                Incorrect file. Check with a sample file.
+              </div>
+            </div>
+
+            <div class="example-link text-right">
+              <a [href]="selectChainState?.csvExample || './assets/csv-examples/ethereum.csv'" target="_blank" class="dashed">
+                Sample file
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -185,7 +195,7 @@
   </div>
 
   <div class="form_group">
-    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || !csvData.data">
+    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error">
       <span class="btn_text">Proceed</span>
     </button>
   </div>
