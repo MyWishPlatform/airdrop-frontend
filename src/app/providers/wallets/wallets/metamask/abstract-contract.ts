@@ -42,11 +42,7 @@ export class AbstractContract {
   }
 
   private checkTx(txHash, resolve, reject): void {
-    console.log(txHash);
     this.web3.eth.getTransactionReceipt(txHash, (err, res) => {
-      console.log(txHash);
-      console.log(err);
-      console.log(res);
       if (err || (res && res.blockNumber && !res.status)) {
         reject(err);
       } else if (res && res.blockNumber) {

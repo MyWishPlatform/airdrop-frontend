@@ -127,6 +127,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     this.airdropParams.fileName = file.name;
     file.text().then((csvText) => {
       this.csvParserService.parseCsv(csvText, (result) => {
+        console.log(result);
         this.csvData = {
           error: result.error,
           data: result.data ? result.data.map((oneTableItem, index) => {

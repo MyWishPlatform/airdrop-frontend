@@ -562,6 +562,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     } else {
 
       this.sendingInProgress = false;
+      this.updateGasPrices();
       this.initGasPriceInterval();
 
       this.dialog.open(ModalMessageComponent, {
@@ -588,6 +589,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
 
     this.sendingInProgress = false;
+    this.updateGasPrices();
     this.initGasPriceInterval();
 
     localStorage.setItem('airdropState', '4');
