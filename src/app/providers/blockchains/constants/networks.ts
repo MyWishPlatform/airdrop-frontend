@@ -89,5 +89,23 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/tron.csv',
     chainId: 'tron:shasta',
     coin: 'sTRON'
+  },
+  'polygon:mainnet': {
+    chain: '',
+    icon: './assets/images/icons/coins/polygon.svg',
+    name: 'Polygon Mainnet',
+    explorer: '',
+    csvExample: '',
+    chainId: '',
+    coin: ''
+  },
+  'polygon:mumbai': {
+    chain: '',
+    icon: './assets/images/icons/coins/polygon.svg',
+    name: 'Polygon Mumbai Testnet',
+    explorer: '',
+    csvExample: '',
+    chainId: '',
+    coin: ''
   }
 };
