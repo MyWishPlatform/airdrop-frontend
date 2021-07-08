@@ -9,12 +9,15 @@ export class CsvParserService {
   constructor() { }
 
   public parseCsv(file, cb): void {
+    
     CsvParser(file, (error, data) => {
+      
       if (error || data.find((oneItem) => {
         return oneItem.length > 1;
       })) {
         cb({error, data});
       } else {
+        
         CsvParser(file, {
           delimiter: ';'
         } as any, (error2, data2) => {

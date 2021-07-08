@@ -40,6 +40,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
   public testNets = {
     ethereum: 'Kovan Test Network',
     binance: 'Test Network',
+    polygon: 'Mumbai Test Network',
     tron: 'Shasta Test Network'
   };
 

@@ -15,7 +15,8 @@ export class BlockchainsProvider {
   private chains = {
     tron: this.tronwebService,
     ethereum: this.web3Service,
-    binance: this.web3Service
+    binance: this.web3Service,
+    polygon: this.web3Service
   };
 
   private activeChain: any;
@@ -32,6 +33,7 @@ export class BlockchainsProvider {
   ) {}
 
   public setChain(chain: string): void {
+
     if (this.state.chain === chain) {
       return;
     }
@@ -196,6 +198,8 @@ export class TokenInputDirective {
     this.control.valueAccessor.writeValue = (value) => originalWriteVal(this.maskValue(value));
 
     this.control.valueChanges.subscribe((result: any) => {
+
+      console.log(result);
       if (typeof result === 'string') {
         this.control.control.setValue({
           address: result
@@ -203,6 +207,7 @@ export class TokenInputDirective {
           emitEvent: false
         });
       } else if (!result) {
+        console.log('here')
         this.control.control.setErrors({
           required: true
         });
