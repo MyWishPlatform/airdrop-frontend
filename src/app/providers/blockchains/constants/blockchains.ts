@@ -3,13 +3,13 @@ import {NETWORKS} from './networks';
 export const ETHEREUM = {
   testnet: {
     providerParams: {
-      providerAddress: 'https://kovan.infura.io/v3/ecf1e6d0427b458b89760012a8500abf',
+      providerAddress: 'https://kovan.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007',
     },
     chainInfo: NETWORKS['ethereum:kovan']
   },
   mainnet: {
     providerParams: {
-      providerAddress: 'https://mainnet.infura.io/v3/ecf1e6d0427b458b89760012a8500abf',
+      providerAddress: 'https://mainnet.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007',
     },
     chainInfo: NETWORKS['ethereum:mainnet']
   }

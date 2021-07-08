@@ -19,8 +19,8 @@ export class Web3Service {
   private chainClient: Web3;
 
   constructor() {
-
   }
+  
   public setChain(chain: string): void {
     this.selectedChain = chain;
   }
@@ -48,6 +48,8 @@ export class Web3Service {
 
 
   public getTokenInfo(address): any {
+
+    console.log('address', address)
     return new Promise((resolve, reject) => {
       const contractModel = this.getContract(address);
       try {
@@ -55,15 +57,18 @@ export class Web3Service {
           contractModel.methods.decimals().call(),
           contractModel.methods.symbol().call()
         ];
+
         Promise.all(tokenInfoPromises).then((result) => {
           resolve({
             decimals: result[0],
             symbol: result[1]
           });
         }).catch(() => {
+          console.log('rejected here')
           return reject();
         });
       } catch (err) {
+        console.log('rejected here 2', err)
         return reject();
       }
     });
