@@ -89,7 +89,6 @@ export class BlockchainsProvider {
   }
 
 
-
   public addressFieldValidator = (control: AbstractControl) => {
     const address = control.value || '';
     if (!this.isAddress(address)) {
@@ -199,7 +198,6 @@ export class TokenInputDirective {
 
     this.control.valueChanges.subscribe((result: any) => {
 
-      console.log(result);
       if (typeof result === 'string') {
         this.control.control.setValue({
           address: result
@@ -207,7 +205,6 @@ export class TokenInputDirective {
           emitEvent: false
         });
       } else if (!result) {
-        console.log('here')
         this.control.control.setErrors({
           required: true
         });

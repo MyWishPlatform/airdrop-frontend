@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ETHEREUM, BINANCE, TRON} from './constants/blockchains';
+import {ETHEREUM, BINANCE, POLYGON, TRON} from './constants/blockchains';
 import Web3 from 'web3';
 import {AbstractControl} from '@angular/forms';
 import {ERC20_TOKEN_ABI} from './constants/erc20';
@@ -10,7 +10,8 @@ import {ERC20_TOKEN_ABI} from './constants/erc20';
 export class Web3Service {
   private chainsProviders = {
     ethereum: ETHEREUM,
-    binance: BINANCE
+    binance: BINANCE,
+    polygon: POLYGON
   };
 
   private isTestnet = false;
@@ -49,7 +50,6 @@ export class Web3Service {
 
   public getTokenInfo(address): any {
 
-    console.log('address', address)
     return new Promise((resolve, reject) => {
       const contractModel = this.getContract(address);
       try {
@@ -64,11 +64,9 @@ export class Web3Service {
             symbol: result[1]
           });
         }).catch(() => {
-          console.log('rejected here')
           return reject();
         });
       } catch (err) {
-        console.log('rejected here 2', err)
         return reject();
       }
     });
