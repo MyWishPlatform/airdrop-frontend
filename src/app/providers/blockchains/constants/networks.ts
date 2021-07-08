@@ -94,18 +94,18 @@ export const NETWORKS = {
     chain: '',
     icon: './assets/images/icons/coins/polygon.svg',
     name: 'Polygon Mainnet',
-    explorer: '',
-    csvExample: '',
-    chainId: '',
-    coin: ''
+    explorer: 'https://polygonscan.com',
+    csvExample: './assets/csv-examples/polygon.csv',
+    chainId: '137',
+    coin: 'MATIC'
   },
   'polygon:mumbai': {
     chain: '',
     icon: './assets/images/icons/coins/polygon.svg',
     name: 'Polygon Mumbai Testnet',
-    explorer: '',
-    csvExample: '',
-    chainId: '',
-    coin: ''
+    explorer: 'https://mumbai.polygonscan.com/',
+    csvExample: './assets/csv-examples/polygon.csv',
+    chainId: '80001',
+    coin: 'MATIC'
   }
 };
