@@ -137,12 +137,10 @@ export class BlockchainsProvider {
       }
 
       this.activeChain.getTokenInfo(address).then((tokenData) => {
-        console.log('tokenData', tokenData)
         setTokenValues(tokenData);
         const tokenValue = {...control.value};
         sessionStorage.setItem(tokenPath, JSON.stringify(tokenValue));
       }, (e) => {
-        console.error('err', e)
         sessionStorage.setItem(tokenPath, 'false');
         resolve({
           invalidContractAddress: true

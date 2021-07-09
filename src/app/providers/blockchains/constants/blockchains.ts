@@ -18,13 +18,15 @@ export const ETHEREUM = {
 export const POLYGON = {
   testnet: {
     providerParams: {
-      providerAddress: 'https://polygon-mumbai.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007'
+      // providerAddress: 'https://polygon-mumbai.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007',
+      providerAddress: 'https://rpc-mumbai.matic.today'
     },
     chainInfo: NETWORKS['polygon:mumbai']
   },
   mainnet: {
     providerParams: {
-      providerAddress: 'https://polygon-mainnet.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007'
+      // providerAddress: 'https://polygon-mainnet.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007'
+      providerAddress: 'https://rpc-mainnet.matic.network'
     },
     chainInfo: NETWORKS['polygon:mainnet']
   }
