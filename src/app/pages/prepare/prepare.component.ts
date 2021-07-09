@@ -31,6 +31,12 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('airdropForm') private airdropForm;
   public airdropParams: AirdropParamsInterface;
 
+  public tokensPlaceholders = {
+    ethereum: '0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518',
+    binance: '0x8aed24bf6e0247be51c57d68ad32a176bf86f4d9',
+    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f'
+  }
+
   public csvData: {
     error?: string;
     data?: any[];

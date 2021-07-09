@@ -91,21 +91,25 @@ export const NETWORKS = {
     coin: 'sTRON'
   },
   'polygon:mainnet': {
-    chain: '',
+    chain: 'polygon',
     icon: './assets/images/icons/coins/polygon.svg',
     name: 'Polygon Mainnet',
     explorer: 'https://polygonscan.com',
     csvExample: './assets/csv-examples/polygon.csv',
-    chainId: '137',
-    coin: 'MATIC'
+    chainId: 137,
+    coin: 'MATIC',
+    apiKey: {
+      name: 'apikey',
+      value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
+    }
   },
   'polygon:mumbai': {
-    chain: '',
+    chain: 'polygon',
     icon: './assets/images/icons/coins/polygon.svg',
     name: 'Polygon Mumbai Testnet',
     explorer: 'https://mumbai.polygonscan.com/',
     csvExample: './assets/csv-examples/polygon.csv',
-    chainId: '80001',
+    chainId: 80001,
     coin: 'MATIC'
   }
 };
