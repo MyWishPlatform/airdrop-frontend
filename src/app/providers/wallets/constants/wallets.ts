@@ -13,7 +13,9 @@ export const WALLETS = [
       'ethereum:mainnet',
       'ethereum:testnet',
       'binance:mainnet',
-      'binance:testnet'
+      'binance:testnet',
+      'polygon:mainnet',
+      'polygon:mumbai'
     ]
   }, {
     icon: './assets/images/icons/wallets/wallet-connect.svg',
@@ -24,7 +26,9 @@ export const WALLETS = [
       'ethereum:mainnet',
       'ethereum:testnet',
       'binance:mainnet',
-      'binance:testnet'
+      'binance:testnet',
+      'polygon:mainnet',
+      'polygon:mumbai'
     ]
   }, {
     icon: './assets/images/icons/wallets/binance.svg',
@@ -34,7 +38,8 @@ export const WALLETS = [
     blockchains: [
       'ethereum:mainnet',
       'binance:mainnet',
-      'binance:testnet'
+      'binance:testnet',
+      'polygon:mainnet',
     ]
   }, {
     icon: './assets/images/icons/wallets/tronlink.png',

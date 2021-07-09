@@ -7,5 +7,9 @@ export const ETHEREUM_AIRDROP_ADDRESSES = {
 
   // Binance Smart Chain
   56: '0x13c038147aa2c91cf1fdb6f17a12f27715a4ca99',
-  97: '0xDfB624bDD857a2472060A568eE3B043a897046d3'
+  97: '0xDfB624bDD857a2472060A568eE3B043a897046d3',
+
+  //Polygon
+  137: '',
+  80001: '',
 };

@@ -22,6 +22,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     private blockchainsProvider: BlockchainsProvider,
     private walletsProvider: WalletsProvider
   ) {
+
     const airdropState = localStorage.getItem('airdropState');
     if (!airdropState) {
       this.router.navigate(['']);
