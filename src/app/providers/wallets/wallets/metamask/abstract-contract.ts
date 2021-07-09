@@ -35,7 +35,7 @@ export class AbstractContract {
           new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
           new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
         ];
-      });
+      }).catch( e => console.error(e));
     }
     const gasPrice = +(await this.web3.eth.getGasPrice());
     return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
