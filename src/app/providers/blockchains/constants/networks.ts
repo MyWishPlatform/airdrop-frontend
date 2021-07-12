@@ -103,13 +103,18 @@ export const NETWORKS = {
       value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
     }
   },
-  'polygon:mumbai': {
+  'polygon:testnet': {
     chain: 'polygon',
     icon: './assets/images/icons/coins/polygon.svg',
     name: 'Polygon Mumbai Testnet',
     explorer: 'https://mumbai.polygonscan.com/',
     csvExample: './assets/csv-examples/polygon.csv',
     chainId: 80001,
-    coin: 'MATIC'
+    coin: 'MATIC',
+    apiKey: {
+      name: 'apikey',
+      value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
+    }
   }
 };
+

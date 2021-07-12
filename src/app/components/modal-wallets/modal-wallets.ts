@@ -10,5 +10,6 @@ export class ModalWalletsComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    console.log('modal data', data);
   }
 }
