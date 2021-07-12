@@ -40,7 +40,6 @@ export class WalletsProvider {
   }
 
   public getWallets(): any {
-    console.log('selectedntework', this.selectedNetwork);
     return this.walletsTypes.filter((oneWallet) => {
       if (this.selectedNetwork) {
         return oneWallet.blockchains.indexOf(this.selectedNetwork) > -1;

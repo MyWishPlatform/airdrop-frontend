@@ -15,11 +15,6 @@ export class TokenContract extends AbstractContract {
   }
 
   public async getAllowance(): Promise<string> {
-
-    console.log(this.walletAddress, this.contractAddress);
-
-    this.contract.methods.allowance(this.walletAddress, this.contractAddress).call();
-
     return this.contract.methods
       .allowance(this.walletAddress, this.airdropAddress)
       .call()

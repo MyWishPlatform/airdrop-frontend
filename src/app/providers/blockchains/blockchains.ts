@@ -154,7 +154,6 @@ export class BlockchainsProvider {
   }
 
   public getChainInfo(): any {
-    console.log('activeChain', this.activeChain);
     return this.activeChain.getChainParams();
   }
 

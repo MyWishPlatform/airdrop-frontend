@@ -89,7 +89,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
           // });
 
           this.airdropContract = this.walletsProvider.getAirdropContract();
-          console.log('airdrop', this.airdropContract)
           this.getInformationProgress = true;
 
           this.initGasPriceInterval();
@@ -188,12 +187,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   private async checkAccountTokensBalance(): Promise<any> {
     const balance = new BigNumber(await this.tokenContract.getBalance());
-    console.log('balance', balance.valueOf());
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
     this.approveTokens = this.getLeftTokensTransfer();
     let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
     if (!error) {
-      console.log('here with error')
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
       this.airdropInfoData.onceFee = feeService;
