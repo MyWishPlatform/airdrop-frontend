@@ -12,6 +12,9 @@ export class CsvParserService {
     
     CsvParser(file, (error, data) => {
       
+
+      console.log('csv data', data);
+
       if (error || data.find((oneItem) => {
         return oneItem.length > 1;
       })) {
@@ -21,6 +24,7 @@ export class CsvParserService {
         CsvParser(file, {
           delimiter: ';'
         } as any, (error2, data2) => {
+          console.log('data2', data2);
           cb({error: error2, data: data2});
         });
       }

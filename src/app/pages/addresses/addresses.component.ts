@@ -126,6 +126,8 @@ export class AddressesComponent implements OnInit, OnDestroy {
 
     }, this.tableData);
 
+    console.log('table data', this.tableData);
+
     this.calculateTotalTokensAmount();
   }
 

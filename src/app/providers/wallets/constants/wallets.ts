@@ -15,7 +15,7 @@ export const WALLETS = [
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',
-      'polygon:mumbai'
+      'polygon:testnet'
     ]
   }, {
     icon: './assets/images/icons/wallets/wallet-connect.svg',
@@ -28,7 +28,7 @@ export const WALLETS = [
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',
-      'polygon:mumbai'
+      'polygon:testnet'
     ]
   }, {
     icon: './assets/images/icons/wallets/binance.svg',
