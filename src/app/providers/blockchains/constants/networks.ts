@@ -7,7 +7,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 1,
     coin: 'ETH',
-    etherscanAPI: 'https://api.etherscan.io/',
+    api: 'https://api.etherscan.io/',
     apiKey: {
       name: 'apikey',
       value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
@@ -61,7 +61,12 @@ export const NETWORKS = {
     explorer: 'https://bscscan.com',
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 56,
-    coin: 'BNB'
+    coin: 'BNB',
+    api: 'https://api.bscscan.com/',
+    apiKey: {
+      name: 'apikey',
+      value: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
+    }
   },
   'binance:testnet': {
     chain: 'binance',
@@ -70,7 +75,12 @@ export const NETWORKS = {
     explorer: 'https://testnet.bscscan.com',
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 97,
-    coin: 'tBNB'
+    coin: 'tBNB',
+    api: 'https://api-testnet.bscscan.com/',
+    apiKey: {
+      name: 'apikey',
+      value: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
+    }
   },
   'tron:mainnet': {
     chain: 'tron',
@@ -98,6 +108,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/polygon.csv',
     chainId: 137,
     coin: 'MATIC',
+    api: 'https://api.polygonscan.com',
     apiKey: {
       name: 'apikey',
       value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
@@ -111,6 +122,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/polygon.csv',
     chainId: 80001,
     coin: 'MATIC',
+    api: 'https://api-testnet.polygonscan.com',
     apiKey: {
       name: 'apikey',
       value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
