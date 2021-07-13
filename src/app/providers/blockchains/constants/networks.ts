@@ -39,7 +39,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 42,
     coin: 'kETH',
-    etherscanAPI: 'https://api-kovan.etherscan.io/',
+    api: 'https://api-kovan.etherscan.io/',
     apiKey: {
       name: 'apikey',
       value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
@@ -62,7 +62,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 56,
     coin: 'BNB',
-    api: 'https://api.bscscan.com/',
+    api: 'https://api.bscscan.com',
     apiKey: {
       name: 'apikey',
       value: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
@@ -76,7 +76,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 97,
     coin: 'tBNB',
-    api: 'https://api-testnet.bscscan.com/',
+    api: 'https://api-testnet.bscscan.com',
     apiKey: {
       name: 'apikey',
       value: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
