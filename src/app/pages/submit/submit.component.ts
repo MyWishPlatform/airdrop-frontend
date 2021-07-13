@@ -77,6 +77,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.iniStartAirdropInfoData();
 
       if (this.account) {
+        console.log('account', this.account)
         this.walletsProvider.validateWallet(this.chainInfo.chainId);
         if (this.account.valid) {
 
@@ -144,8 +145,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   private initGasPriceInterval(): void {
     this.gasPricesInterval = setInterval(() => {
+      console.log('[UPDATE]')
       this.updateGasPrices();
-    }, 30000);
+    }, 10000);
   }
 
   private getLeftTokensTransfer(): BigNumber {
@@ -243,17 +245,21 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
 
   private getGasPrice(): Promise<any> {
-    if (this.airdropParams.blockchain === 'binance') {
-      return Promise.resolve({
-        gasPrices: [20000000000, 20000000000],
-        selectedGasPrice: 20000000000
-      });
-    }
+    // if (this.airdropParams.blockchain === 'binance') {
+    //   return Promise.resolve({
+    //     gasPrices: [20000000000, 20000000000],
+    //     selectedGasPrice: 20000000000
+    //   });
+    // }
     return this.airdropContract.getGasPrice().then((responseGasPrices) => {
       const gasPrices = [
         responseGasPrices[0],
         responseGasPrices[2]
       ];
+
+      console.log('gasPrices', gasPrices);
+      console.log('responseGasPrices', responseGasPrices);
+
       return {
         gasPrices,
         selectedGasPrice: responseGasPrices[1]
