@@ -145,7 +145,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   private initGasPriceInterval(): void {
     this.gasPricesInterval = setInterval(() => {
       this.updateGasPrices();
-    }, 30000);
+    }, 10000);
   }
 
   private getLeftTokensTransfer(): BigNumber {
