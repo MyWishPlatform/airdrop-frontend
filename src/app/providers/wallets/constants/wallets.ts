@@ -39,7 +39,6 @@ export const WALLETS = [
       'ethereum:mainnet',
       'binance:mainnet',
       'binance:testnet',
-      'polygon:mainnet'
     ]
   }, {
     icon: './assets/images/icons/wallets/tronlink.png',
