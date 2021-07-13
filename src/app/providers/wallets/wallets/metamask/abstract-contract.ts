@@ -26,22 +26,26 @@ export class AbstractContract {
   public async getGasPrice(): Promise<any> {
     const chainParams = WALLETS_NETWORKS[+this.web3Provider.chainId];
     const apiUrl = chainParams.api;
-    console.log('API URL', apiUrl, 'chainParams', chainParams);
     if (apiUrl) {
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
-      console.log('Wrong url', apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey);
-      return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
+      return this.httpClient.get(apiUrl + '/api?module=' + (chainParams.chain === 'binance' ? 'proxy' : 'gastracker') + '&action=' + ( chainParams.chain === 'binance' ? 'eth_gasPrice' : 'gasoracle' ) + '&' + apikey).toPromise().then((data) => {
         const result = data.result;
-        console.log('RESULT', result.toString(10))
-        return [
-          new BigNumber(result.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
-          new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
-          new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
-        ];
+        if (chainParams.chain === 'binance') {
+          return [
+            result > 5000000000 ? result.toString(10) : 5000000000,
+            result > 5000000000 ? result.toString(10) : 5000000000,
+            result > 5000000000 ? result.toString(10) : 5000000000
+          ]
+        } else {
+          return [
+            new BigNumber(result?.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
+            new BigNumber(result?.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
+            new BigNumber(result?.FastGasPrice).times(Math.pow(10, 9)).toString(10)
+          ];
+        }
       }).catch( e => console.error(e));
     }
     const gasPrice = +(await this.web3.eth.getGasPrice());
-    console.log('WHY HERE', gasPrice);
     return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
   }
 

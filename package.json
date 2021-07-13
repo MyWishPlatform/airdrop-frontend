@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host local.rubic.exchange --port 4224 --disableHostCheck",
+    "starting": "ng serve",
     "dev": "ng serve --port 4224",
     "build": "ng build --prod",
     "test": "ng test",
