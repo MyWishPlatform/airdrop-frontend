@@ -116,7 +116,7 @@
           </div>
         </div>
 
-        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'binance'">
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'binance' || airdropParams.blockchain === 'polygon'">
           <div class="params-controls_label">
             Network speed (Gas price)
           </div>
@@ -128,7 +128,7 @@
           </div>
         </div>
 
-        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'ethereum' || airdropParams.blockchain === 'polygon'">
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'ethereum'">
           <div class="params-controls_label">&nbsp;</div>
           <div class="gas-price-control">
             <div class="params-controls_label">Selected network speed (Gas Price)</div>
