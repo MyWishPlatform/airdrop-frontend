@@ -3,6 +3,7 @@ import {WALLETS_NETWORKS} from '../../constants/networks';
 import BigNumber from 'bignumber.js';
 
 const gasPricePercentage = 0.1;
+const BINANCE_MIN_GAS_PRICE = 5000000000;
 
 export class AbstractContract {
   protected contract;
@@ -28,14 +29,17 @@ export class AbstractContract {
     const apiUrl = chainParams.api;
     if (apiUrl) {
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
-      return this.httpClient.get(apiUrl + '/api?module=' + (chainParams.chain === 'binance' ? 'proxy' : 'gastracker') + '&action=' + ( chainParams.chain === 'binance' ? 'eth_gasPrice' : 'gasoracle' ) + '&' + apikey).toPromise().then((data) => {
+      //Looks like API of Polygon and Ethereum uses the same data, so data from their API is the same
+      const requestUrl = apiUrl + '/api?module=' + (this.isBinance(chainParams.chain) ? 'proxy' : 'gastracker') + '&action=' + ( this.isBinance(chainParams.chain) ? 'eth_gasPrice' : 'gasoracle' ) + '&' + apikey;
+      return this.httpClient.get(requestUrl).toPromise().then((data) => {
         const result = data.result;
-        if (chainParams.chain === 'binance') {
+        if (this.isBinance(chainParams.chain)) {
+          const gasPrice = result > BINANCE_MIN_GAS_PRICE ? result.toString(10) : BINANCE_MIN_GAS_PRICE; 
           return [
-            result > 5000000000 ? result.toString(10) : 5000000000,
-            result > 5000000000 ? result.toString(10) : 5000000000,
-            result > 5000000000 ? result.toString(10) : 5000000000
-          ]
+            result > ( BINANCE_MIN_GAS_PRICE + 1000000000 ) ? ( gasPrice * (1 - gasPricePercentage) ) : BINANCE_MIN_GAS_PRICE, 
+            gasPrice, 
+            gasPrice * (1 + gasPricePercentage)
+          ];
         } else {
           return [
             new BigNumber(result?.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
@@ -45,8 +49,6 @@ export class AbstractContract {
         }
       }).catch( e => console.error(e));
     }
-    const gasPrice = +(await this.web3.eth.getGasPrice());
-    return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
   }
 
   private checkTx(txHash, resolve, reject): void {
@@ -72,4 +74,9 @@ export class AbstractContract {
   public setHttpClient(httpClient): void {
     this.httpClient = httpClient;
   }
+
+  public isBinance(chain: string): boolean {
+    return chain === 'binance';
+  }
+
 }
