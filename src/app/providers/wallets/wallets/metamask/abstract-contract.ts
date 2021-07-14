@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import {WALLETS_NETWORKS} from '../../constants/networks';
+import { WALLETS_NETWORKS } from '../../constants/networks';
 import BigNumber from 'bignumber.js';
 
 const gasPricePercentage = 0.1;
@@ -29,17 +29,28 @@ export class AbstractContract {
     const apiUrl = chainParams.api;
     if (apiUrl) {
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
-      //Looks like API of Polygon and Ethereum uses the same data, so data from their API is the same
-      const requestUrl = apiUrl + '/api?module=' + (this.isBinance(chainParams.chain) ? 'proxy' : 'gastracker') + '&action=' + ( this.isBinance(chainParams.chain) ? 'eth_gasPrice' : 'gasoracle' ) + '&' + apikey;
+      const requestUrl = apiUrl + '/api?module=' + (this.isEthereum(chainParams.chain) ? 'gastracker' : 'proxy') + '&action=' + (this.isEthereum(chainParams.chain) ? 'gasoracle' : 'eth_gasPrice') + '&' + apikey;
       return this.httpClient.get(requestUrl).toPromise().then((data) => {
         const result = data.result;
-        if (this.isBinance(chainParams.chain)) {
-          const gasPrice = result > BINANCE_MIN_GAS_PRICE ? result.toString(10) : BINANCE_MIN_GAS_PRICE; 
+        if (!this.isEthereum(chainParams.chain)) {
+
+          let gasPrice = result.toString(10);
+
+          if (chainParams.chain === 'binance') {
+            gasPrice = result > BINANCE_MIN_GAS_PRICE ? result.toString(10) : BINANCE_MIN_GAS_PRICE;
+            return [
+              result > (BINANCE_MIN_GAS_PRICE + 1000000000) ? (gasPrice * (1 - gasPricePercentage)) : BINANCE_MIN_GAS_PRICE,
+              gasPrice,
+              gasPrice * (1 + gasPricePercentage)
+            ];
+          }
+
           return [
-            result > ( BINANCE_MIN_GAS_PRICE + 1000000000 ) ? ( gasPrice * (1 - gasPricePercentage) ) : BINANCE_MIN_GAS_PRICE, 
-            gasPrice, 
+            gasPrice * (1 - gasPricePercentage),
+            gasPrice,
             gasPrice * (1 + gasPricePercentage)
           ];
+
         } else {
           return [
             new BigNumber(result?.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
@@ -47,7 +58,7 @@ export class AbstractContract {
             new BigNumber(result?.FastGasPrice).times(Math.pow(10, 9)).toString(10)
           ];
         }
-      }).catch( e => console.error(e));
+      }).catch(e => console.error(e));
     }
   }
 
@@ -61,7 +72,7 @@ export class AbstractContract {
         setTimeout(() => {
           this.checkTx(txHash, resolve, reject);
         }, 2000);
-      } else {}
+      } else { }
     });
   }
 
@@ -75,8 +86,8 @@ export class AbstractContract {
     this.httpClient = httpClient;
   }
 
-  public isBinance(chain: string): boolean {
-    return chain === 'binance';
+  public isEthereum(chain: string): boolean {
+    return chain === 'ethereum';
   }
 
 }
