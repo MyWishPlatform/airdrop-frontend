@@ -3,6 +3,7 @@ import {WALLETS_NETWORKS} from '../../constants/networks';
 import BigNumber from 'bignumber.js';
 
 const gasPricePercentage = 0.1;
+const BINANCE_MIN_GAS_PRICE = 5000000000;
 
 export class AbstractContract {
   protected contract;
@@ -115,33 +116,38 @@ export class AbstractContract {
 
   public async getGasPrice(): Promise<any> {
     const chainParams = WALLETS_NETWORKS[+this.binanceChain.chainId];
-    const apiUrl = chainParams.etherscanAPI;
+    const apiUrl = chainParams.api;
     if (apiUrl) {
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
-      return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
+      const requestUrl = apiUrl + '/api?module=' + (this.isBinance(chainParams.chain) ? 'proxy' : 'gastracker') + '&action=' + ( this.isBinance(chainParams.chain) ? 'eth_gasPrice' : 'gasoracle' ) + '&' + apikey;
+      return this.httpClient.get(requestUrl).toPromise().then((data) => {
         const result = data.result;
-        return [
-          new BigNumber(result.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
-          new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
-          new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
-        ];
+        if (this.isBinance(chainParams.chain)) {
+          const gasPrice = result > BINANCE_MIN_GAS_PRICE ? result.toString(10) : BINANCE_MIN_GAS_PRICE; 
+          return [
+            result > ( BINANCE_MIN_GAS_PRICE + 1000000000 ) ? ( gasPrice * (1 - gasPricePercentage) ) : BINANCE_MIN_GAS_PRICE, 
+            gasPrice, 
+            gasPrice * (1 + gasPricePercentage)
+          ];
+        } else {
+          return [
+            new BigNumber(result?.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
+            new BigNumber(result?.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
+            new BigNumber(result?.FastGasPrice).times(Math.pow(10, 9)).toString(10)
+          ];
+        }
       });
     }
-
-    const gasPrice = await this.binanceChain.request({
-      method: 'eth_gasPrice',
-      params: []
-    }).then((result) => {
-      return result.toString(10);
-    });
-
-    return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
 
   }
 
 
   public setHttpClient(httpClient): void {
     this.httpClient = httpClient;
+  }
+
+  public isBinance(chain: string): boolean {
+    return chain === 'binance';
   }
 
 }

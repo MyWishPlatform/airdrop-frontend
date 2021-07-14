@@ -1,8 +1,8 @@
-import {Observable} from 'rxjs';
-import {InterfaceAccount} from '../../wallets';
+import { Observable } from 'rxjs';
+import { InterfaceAccount } from '../../wallets';
 // import { BscConnector } from '@binance-chain/bsc-connector';
-import {TokenContract} from './token-contract';
-import {AirdropContract} from './airdrop-contract';
+import { TokenContract } from './token-contract';
+import { AirdropContract } from './airdrop-contract';
 
 // const bsc = new BscConnector({
 //   supportedChainIds: [56, 97, 1] // later on 1 ethereum mainnet and 3 ethereum ropsten will be supported
@@ -17,7 +17,7 @@ export class BinanceSCService {
   public connectedAccount: InterfaceAccount;
   public subscribers = [];
 
-  constructor() {}
+  constructor() { }
 
   public getConnectedAccount(): Promise<InterfaceAccount> {
     return new Promise(async (resolve) => {
@@ -32,7 +32,16 @@ export class BinanceSCService {
   }
 
   private async applyAccount(): Promise<InterfaceAccount> {
-    const chainId = await this.binanceChain.request({method: 'net_version'});
+    let chainId = await this.binanceChain.request({ method: 'net_version' });
+    const chainIdFirefox = await this.binanceChain.request({ method: 'eth_chainId' });
+    if (chainIdFirefox === 'Binance-Chain-Ganges') {
+      chainId = 97;
+    } else if (chainIdFirefox === 'Binance-Chain-Tigris') {
+      chainId = 56;
+    } else if (chainIdFirefox === '0x38' || chainIdFirefox === '0x61') {
+      chainId = +chainIdFirefox;
+    }
+
     const addresses = await this.binanceChain.request({ method: 'eth_requestAccounts' });
     const address = addresses ? addresses[0] : false;
 
