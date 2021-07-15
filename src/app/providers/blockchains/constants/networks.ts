@@ -108,7 +108,7 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/polygon.csv',
     chainId: 137,
     coin: 'MATIC',
-    api: 'https://api.polygonscan.com',
+    api: 'https://gasstation-mainnet.matic.network/',
     apiKey: {
       name: 'apikey',
       value: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'

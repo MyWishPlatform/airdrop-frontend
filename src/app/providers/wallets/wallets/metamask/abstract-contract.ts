@@ -29,10 +29,26 @@ export class AbstractContract {
     const apiUrl = chainParams.api;
     if (apiUrl) {
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
-      const requestUrl = apiUrl + '/api?module=' + (this.isEthereum(chainParams.chain) ? 'gastracker' : 'proxy') + '&action=' + (this.isEthereum(chainParams.chain) ? 'gasoracle' : 'eth_gasPrice') + '&' + apikey;
+
+      let requestUrl = apiUrl + '/api?module=' + (this.isEthereum(chainParams.chain) ? 'gastracker' : 'proxy') + '&action=' + (this.isEthereum(chainParams.chain) ? 'gasoracle' : 'eth_gasPrice') + '&' + apikey;
+
+      if (chainParams.chainId === 137 || chainParams.chainId === 80001) {
+        requestUrl = 'https://gasstation-mainnet.matic.network/';
+      }
+
       return this.httpClient.get(requestUrl).toPromise().then((data) => {
-        const result = data.result;
+        const result = data.result || data;
         if (!this.isEthereum(chainParams.chain)) {
+
+          if (chainParams.chain === 'polygon') {
+
+            return [
+              new BigNumber(result?.safeLow).times(Math.pow(10, 9)).toString(10),
+              new BigNumber(result?.standard).times(Math.pow(10, 9)).toString(10),
+              new BigNumber(result?.fast).times(Math.pow(10, 9)).toString(10)
+            ]
+
+          }
 
           let gasPrice = result.toString(10);
 
@@ -43,7 +59,8 @@ export class AbstractContract {
               gasPrice,
               gasPrice * (1 + gasPricePercentage)
             ];
-          }
+          };
+
 
           return [
             gasPrice * (1 - gasPricePercentage),
