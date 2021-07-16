@@ -1,9 +1,14 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {BlockchainsProvider} from '../../providers/blockchains/blockchains';
-import {CsvParserService} from '../../services/csv-parser.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subscriber} from 'rxjs';
-import {WalletsProvider} from '../../providers/wallets/wallets';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { BlockchainsProvider } from '../../providers/blockchains/blockchains';
+import { CsvParserService } from '../../services/csv-parser.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest, EMPTY, merge, of, Subscriber, zip } from 'rxjs';
+import { WalletsProvider } from '../../providers/wallets/wallets';
+import { NETWORKS } from 'src/app/providers/blockchains/constants/networks';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { catchError, map, withLatestFrom } from 'rxjs/operators'
+import BigNumber from 'bignumber.js';
 
 export interface TokenInterface {
   symbol?: string;
@@ -20,6 +25,12 @@ export interface AirdropParamsInterface {
   blockchain?: string;
   testnet?: boolean;
   token?: TokenInterface;
+}
+
+interface ResponseFormatIterface {
+  safe: string,
+  average: string,
+  fast: string
 }
 
 @Component({
@@ -59,7 +70,8 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     private csvParserService: CsvParserService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private walletsProvider: WalletsProvider
+    private walletsProvider: WalletsProvider,
+    private http: HttpClient
   ) {
     this.airdropParams = {};
 
@@ -95,7 +107,99 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     };
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+    const networks = NETWORKS;
+    console.log('[Binance GAS]');
+    const apis = networks['ethereum:mainnet'].apis;
+
+    const requests = apis.reduce((acc, req) => {
+
+      let requestUrl = `${req.url}?`;
+
+      for (let param in req.params) {
+        requestUrl += `${param}=${req.params[param]}&`
+      }
+
+      return [
+        ...acc,
+        this.http.get(requestUrl).pipe(
+          map((gasPrices: { result: ResponseFormatIterface } | ResponseFormatIterface) => {
+
+            let multiplier = req.multiplier;
+
+            if ('result' in gasPrices && typeof gasPrices.result === 'string') {
+
+              if (multiplier) {
+
+                return {
+                  safe: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                  average: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                  fast: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                }
+
+              }
+
+              return {
+                safe: new BigNumber(gasPrices.result),
+                average: new BigNumber(gasPrices.result),
+                fast: new BigNumber(gasPrices.result)
+              }
+            }
+
+            if ('result' in gasPrices) {
+
+              if (multiplier) {
+                return {
+                  safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).times(Math.pow(10, multiplier).toString(10)),
+                  average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).times(Math.pow(10, multiplier).toString(10)),
+                  fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).times(Math.pow(10, multiplier).toString(10)),
+                }
+              }
+
+              return {
+                safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]),
+                average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]),
+                fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]),
+              }
+            }
+
+            if (multiplier) {
+              return {
+                safe: new BigNumber(gasPrices[req.responseFormat.safe]).times(Math.pow(10, multiplier).toString(10)),
+                average: new BigNumber(gasPrices[req.responseFormat.average]).times(Math.pow(10, multiplier).toString(10)),
+                fast: new BigNumber(gasPrices[req.responseFormat.fast]).times(Math.pow(10, multiplier).toString(10)),
+              }
+            }
+
+            return {
+              safe: new BigNumber(gasPrices[req.responseFormat.safe]),
+              average: new BigNumber(gasPrices[req.responseFormat.average]),
+              fast: new BigNumber(gasPrices[req.responseFormat.fast]),
+            }
+
+          }),
+          catchError((e) => of(null))
+        )
+      ]
+    }, [])
+
+    const results$ = forkJoin(requests)
+      .subscribe(gasPrices => {
+
+        for(let pr of gasPrices) {
+
+          const rr: any = pr;
+
+          for(let i in rr) {
+            console.log(i, rr[i].valueOf())
+          }
+
+        }
+
+      })
+
+  }
 
   ngOnDestroy(): void {
     this.subscribers.unsubscribe();
@@ -140,7 +244,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
             const address = oneTableItem[0].replace([/^\s+/, /\s+$/], '');
             const amount = oneTableItem[1].replace([/^\s+/, /\s+$/], '').replace(/\.$/, '');
             const line = index + 1;
-            return {address, amount, line};
+            return { address, amount, line };
           }) : false
         };
       });
@@ -148,7 +252,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public proceedAirdrop(): void {
-    const formValues = {...this.airdropForm.value};
+    const formValues = { ...this.airdropForm.value };
     formValues.fileName = this.airdropParams.fileName;
     formValues.addresses = this.csvData.data;
     formValues.changed = this.csvData.changed;

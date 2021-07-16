@@ -416,12 +416,21 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
 
   private async checkTokensBalance(txItem): Promise<any> {
+
+    try {
+
+    // throw new Error('[METAMASK ERROR]');
+    console.log('before balance', txItem);
     const balance = new BigNumber(await this.tokenContract.getBalance());
+    console.log('balance', balance);
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
+    console.log('allowance', allowance);
+
 
     const error = this.checkTokensErrors(balance, allowance, txItem.tokens);
 
     if (error) {
+      console.error('ERROR in token balance', error)
       switch (error.code) {
         case 1:
           this.dialog.open(ModalMessageComponent, {
@@ -450,11 +459,26 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
     return true;
 
+  } catch(e) {
+    console.error('[ERROR]', e.data);
+    this.dialog.open(ModalMessageComponent, {
+      width: '372px',
+      panelClass: 'custom-dialog-container',
+      data: {
+        title: 'Insufficient approved tokens' + e.code,
+        text: e.message,
+        buttonText: 'Ok'
+      }
+    });
+    return;
+  }
+
   }
 
   private async sendTokens(txItem): Promise<any> {
 
     if (!await this.checkTokensBalance(txItem)) {
+      console.error('token balance')
       return;
     }
 
@@ -466,10 +490,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.airdropInfoData.selectedGasPrice,
     );
 
+    console.log('tokens sent to addresses', tx);
+
     tx.hash.then((txHash: string) => {
       txItem.txHash = txHash;
       this.updateTxLisStorage();
-    });
+    }).catch( () => console.error('txhash'));
     return this.getTxState(tx.checker, txItem);
   }
 
@@ -483,7 +509,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
         txItem.state = 0;
       }
       return txItem.txHash;
-    }, () => {
+    }, (e) => {
+      console.error('tx state', e)
       if (txItem.txHash) {
         txItem.txHash = undefined;
       }

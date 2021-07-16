@@ -1,9 +1,17 @@
 import Web3 from 'web3';
 import { WALLETS_NETWORKS } from '../../constants/networks';
 import BigNumber from 'bignumber.js';
+import { catchError, map } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 
 const gasPricePercentage = 0.1;
 const BINANCE_MIN_GAS_PRICE = 5000000000;
+
+interface ResponseFormatIterface {
+  safe: string,
+  average: string,
+  fast: string
+}
 
 export class AbstractContract {
   protected contract;
@@ -26,57 +34,93 @@ export class AbstractContract {
 
   public async getGasPrice(): Promise<any> {
     const chainParams = WALLETS_NETWORKS[+this.web3Provider.chainId];
-    const apiUrl = chainParams.api;
-    if (apiUrl) {
-      const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+    const apis = chainParams.apis;
 
-      let requestUrl = apiUrl + '/api?module=' + (this.isEthereum(chainParams.chain) ? 'gastracker' : 'proxy') + '&action=' + (this.isEthereum(chainParams.chain) ? 'gasoracle' : 'eth_gasPrice') + '&' + apikey;
+    const requests = apis.reduce((acc, req) => {
 
-      if (chainParams.chainId === 137 || chainParams.chainId === 80001) {
-        requestUrl = 'https://gasstation-mainnet.matic.network/';
+      let requestUrl = `${req.url}?`;
+
+      for (let param in req.params) {
+        requestUrl += `${param}=${req.params[param]}&`
       }
 
-      return this.httpClient.get(requestUrl).toPromise().then((data) => {
-        const result = data.result || data;
-        if (!this.isEthereum(chainParams.chain)) {
+      return [
+        ...acc,
+        this.httpClient.get(requestUrl).pipe(
+          map((gasPrices: { result: ResponseFormatIterface } | ResponseFormatIterface) => {
 
-          if (chainParams.chain === 'polygon') {
+            let multiplier = req.multiplier;
 
-            return [
-              new BigNumber(result?.safeLow).times(Math.pow(10, 9)).toString(10),
-              new BigNumber(result?.standard).times(Math.pow(10, 9)).toString(10),
-              new BigNumber(result?.fast).times(Math.pow(10, 9)).toString(10)
-            ]
+            if ('result' in gasPrices && typeof gasPrices.result === 'string') {
 
+              if (multiplier) {
+
+                return {
+                  safe: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                  average: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                  fast: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                }
+
+              }
+
+              return {
+                safe: new BigNumber(gasPrices.result),
+                average: new BigNumber(gasPrices.result),
+                fast: new BigNumber(gasPrices.result)
+              }
+            }
+
+            if ('result' in gasPrices) {
+
+              if (multiplier) {
+                return {
+                  safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).times(Math.pow(10, multiplier).toString(10)),
+                  average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).times(Math.pow(10, multiplier).toString(10)),
+                  fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).times(Math.pow(10, multiplier).toString(10)),
+                }
+              }
+
+              return {
+                safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]),
+                average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]),
+                fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]),
+              }
+            }
+
+            if (multiplier) {
+              return {
+                safe: new BigNumber(gasPrices[req.responseFormat.safe]).times(Math.pow(10, multiplier).toString(10)),
+                average: new BigNumber(gasPrices[req.responseFormat.average]).times(Math.pow(10, multiplier).toString(10)),
+                fast: new BigNumber(gasPrices[req.responseFormat.fast]).times(Math.pow(10, multiplier).toString(10)),
+              }
+            }
+
+            return {
+              safe: new BigNumber(gasPrices[req.responseFormat.safe]),
+              average: new BigNumber(gasPrices[req.responseFormat.average]),
+              fast: new BigNumber(gasPrices[req.responseFormat.fast]),
+            }
+
+          }),
+          catchError((e) => of(null))
+        )
+      ]
+    }, [])
+
+    const results$ = forkJoin(requests)
+      .subscribe(gasPrices => {
+
+        for(let pr of gasPrices) {
+
+          const rr: any = pr;
+
+          for(let i in rr) {
+            console.log(i, rr[i].valueOf())
           }
 
-          let gasPrice = result.toString(10);
-
-          if (chainParams.chain === 'binance') {
-            gasPrice = result > BINANCE_MIN_GAS_PRICE ? result.toString(10) : BINANCE_MIN_GAS_PRICE;
-            return [
-              result > (BINANCE_MIN_GAS_PRICE + 1000000000) ? (gasPrice * (1 - gasPricePercentage)) : BINANCE_MIN_GAS_PRICE,
-              gasPrice,
-              gasPrice * (1 + gasPricePercentage)
-            ];
-          };
-
-
-          return [
-            gasPrice * (1 - gasPricePercentage),
-            gasPrice,
-            gasPrice * (1 + gasPricePercentage)
-          ];
-
-        } else {
-          return [
-            new BigNumber(result?.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
-            new BigNumber(result?.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
-            new BigNumber(result?.FastGasPrice).times(Math.pow(10, 9)).toString(10)
-          ];
         }
-      }).catch(e => console.error(e));
-    }
+
+      })
   }
 
   private checkTx(txHash, resolve, reject): void {
