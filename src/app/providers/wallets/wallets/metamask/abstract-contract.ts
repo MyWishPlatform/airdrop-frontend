@@ -4,8 +4,7 @@ import BigNumber from 'bignumber.js';
 import { catchError, map } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 
-const gasPricePercentage = 0.1;
-const BINANCE_MIN_GAS_PRICE = 5000000000;
+const BINANCE_MIN_GAS_PRICE = 5;
 
 interface ResponseFormatIterface {
   safe: string,
@@ -64,9 +63,9 @@ export class AbstractContract {
               }
 
               return {
-                safe: new BigNumber(gasPrices.result),
-                average: new BigNumber(gasPrices.result),
-                fast: new BigNumber(gasPrices.result)
+                safe: new BigNumber(gasPrices.result).toString(10),
+                average: new BigNumber(gasPrices.result).toString(10),
+                fast: new BigNumber(gasPrices.result).toString(10)
               }
             }
 
@@ -81,9 +80,9 @@ export class AbstractContract {
               }
 
               return {
-                safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]),
-                average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]),
-                fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]),
+                safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).toString(10),
+                average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).toString(10),
+                fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).toString(10)
               }
             }
 
@@ -96,9 +95,9 @@ export class AbstractContract {
             }
 
             return {
-              safe: new BigNumber(gasPrices[req.responseFormat.safe]),
-              average: new BigNumber(gasPrices[req.responseFormat.average]),
-              fast: new BigNumber(gasPrices[req.responseFormat.fast]),
+              safe: new BigNumber(gasPrices[req.responseFormat.safe]).toString(10),
+              average: new BigNumber(gasPrices[req.responseFormat.average]).toString(10),
+              fast: new BigNumber(gasPrices[req.responseFormat.fast]).toString(10)
             }
 
           }),
@@ -107,20 +106,89 @@ export class AbstractContract {
       ]
     }, [])
 
-    const results$ = forkJoin(requests)
-      .subscribe(gasPrices => {
+    return forkJoin(requests).toPromise().then((_gasPrices: { safe: string, average: string, fast: string }[]) => {
 
-        for(let pr of gasPrices) {
+      const gasPrices = _gasPrices.filter(v => v);
 
-          const rr: any = pr;
+      const TO_GWEI = 1000000000;
 
-          for(let i in rr) {
-            console.log(i, rr[i].valueOf())
-          }
+      const slowDeviation = this.getDeviation(gasPrices.map(prices => +prices.safe / TO_GWEI));
+      const avgDeviation = this.getDeviation(gasPrices.map(prices => +prices.average / TO_GWEI));
+      const fastDeviation = this.getDeviation(gasPrices.map(prices => +prices.fast / TO_GWEI));
 
-        }
+      const slowGas = this.getGas(gasPrices.map(prices => +prices.safe / TO_GWEI), slowDeviation);
+      const avgGas = this.getGas(gasPrices.map(prices => +prices.average / TO_GWEI), avgDeviation);
+      const fastGas = this.getGas(gasPrices.map(prices => +prices.fast / TO_GWEI), fastDeviation);
 
-      })
+      if (this.isBinance(chainParams.chain)) {
+
+        const minBinanceGas = new BigNumber(BINANCE_MIN_GAS_PRICE).times(Math.pow(10, 9).toString());
+
+        return [
+          slowGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+          avgGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+          fastGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+        ]
+      }
+
+      return [
+        new BigNumber(slowGas).times(Math.pow(10, 9)).toString(10),
+        new BigNumber(avgGas).times(Math.pow(10, 9)).toString(10),
+        new BigNumber(fastGas).times(Math.pow(10, 9)).toString(10)
+      ]
+
+    })
+
+  }
+
+  private getDeviation(gasPrices: number[]) {
+
+    let average = 0;
+    let deviation = 0;
+
+    for (let price of gasPrices) {
+      average += price;
+    }
+
+    average = average / gasPrices.length;
+
+    for (let price of gasPrices) {
+      deviation += Math.pow((price - average), 2);
+    }
+
+    return Math.sqrt(deviation / (gasPrices.length - 1));
+
+  }
+
+  private getGas(gasPrices: number[], deviation: number) {
+
+    const MAX_ALLOWED_DEVIATION = 10;
+    const MAX_ALLOWED_DIFF = 20;
+
+    if (deviation === 0) {
+      return gasPrices[0];
+    }
+
+    if (deviation <= MAX_ALLOWED_DEVIATION) {
+      return Math.round(gasPrices.reduce((acc, price) => acc + price, 0) / gasPrices.length);
+    }
+
+    const sorted = gasPrices.sort((a, b) => a - b);
+    let cleanData = [];
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+
+      if ((sorted[i] - sorted[i + 1]) < MAX_ALLOWED_DIFF) {
+        cleanData = [
+          ...cleanData,
+          sorted[i]
+        ]
+      }
+
+    }
+
+    return Math.round(cleanData.reduce((acc, price) => acc + price, 0) / gasPrices.length);
+
   }
 
   private checkTx(txHash, resolve, reject): void {
@@ -147,8 +215,8 @@ export class AbstractContract {
     this.httpClient = httpClient;
   }
 
-  public isEthereum(chain: string): boolean {
-    return chain === 'ethereum';
+  public isBinance(chain: string): boolean {
+    return chain === 'binance';
   }
 
 }
