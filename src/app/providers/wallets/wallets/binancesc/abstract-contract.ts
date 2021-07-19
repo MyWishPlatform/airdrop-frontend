@@ -5,6 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 const BINANCE_MIN_GAS_PRICE = 5;
+const gasPricePercentage = 0.1;
 
 interface ResponseFormatIterface {
   safe: string,
@@ -125,110 +126,139 @@ export class AbstractContract {
 
     const apis = chainParams.apis;
 
-    const requests = apis.reduce((acc, req) => {
+    if (chainParams.chain === 'binance') {
 
-      let requestUrl = `${req.url}?`;
+      const gasPrice = +(await this.web3.eth.getGasPrice());
+      return [gasPrice * (1 - gasPricePercentage), gasPrice, gasPrice * (1 + gasPricePercentage)];
 
-      for (let param in req.params) {
-        requestUrl += `${param}=${req.params[param]}&`
+    } else if (chainParams.chain === 'ethereum') {
+
+      let apiUrl;
+
+      if (chainParams.name === 'Ethereum Mainnet') {
+        apiUrl = 'https://api.etherscan.io/';
       }
 
-      return [
-        ...acc,
-        this.httpClient.get(requestUrl).pipe(
-          map((gasPrices: { result: ResponseFormatIterface } | ResponseFormatIterface) => {
+      if (chainParams.name === 'Ethereum Kovan Testnet') {
+        apiUrl = 'https://api-kovan.etherscan.io/';
+      }
 
-            let multiplier = req.multiplier;
+      const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+      return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
+        const result = data.result;
+        return [
+          new BigNumber(result.SafeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.ProposeGasPrice).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(result.FastGasPrice).times(Math.pow(10, 9)).toString(10)
+        ];
+      });
 
-            if ('result' in gasPrices && typeof gasPrices.result === 'string') {
+    } else {
 
-              if (multiplier) {
+      const requests = apis.reduce((acc, req) => {
 
-                return {
-                  safe: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
-                  average: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
-                  fast: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
-                }
+        let requestUrl = `${req.url}?`;
 
-              }
-
-              return {
-                safe: new BigNumber(gasPrices.result).toString(10),
-                average: new BigNumber(gasPrices.result).toString(10),
-                fast: new BigNumber(gasPrices.result).toString(10)
-              }
-            }
-
-            if ('result' in gasPrices) {
-
-              if (multiplier) {
-                return {
-                  safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).times(Math.pow(10, multiplier).toString(10)),
-                  average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).times(Math.pow(10, multiplier).toString(10)),
-                  fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).times(Math.pow(10, multiplier).toString(10)),
-                }
-              }
-
-              return {
-                safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).toString(10),
-                average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).toString(10),
-                fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).toString(10)
-              }
-            }
-
-            if (multiplier) {
-              return {
-                safe: new BigNumber(gasPrices[req.responseFormat.safe]).times(Math.pow(10, multiplier).toString(10)),
-                average: new BigNumber(gasPrices[req.responseFormat.average]).times(Math.pow(10, multiplier).toString(10)),
-                fast: new BigNumber(gasPrices[req.responseFormat.fast]).times(Math.pow(10, multiplier).toString(10)),
-              }
-            }
-
-            return {
-              safe: new BigNumber(gasPrices[req.responseFormat.safe]).toString(10),
-              average: new BigNumber(gasPrices[req.responseFormat.average]).toString(10),
-              fast: new BigNumber(gasPrices[req.responseFormat.fast]).toString(10)
-            }
-
-          }),
-          catchError((e) => of(null))
-        )
-      ]
-    }, [])
-
-    return forkJoin(requests).toPromise().then((_gasPrices: { safe: string, average: string, fast: string }[]) => {
-
-      const gasPrices = _gasPrices.filter(v => v);
-
-      const TO_GWEI = 1000000000;
-
-      const slowDeviation = this.getDeviation(gasPrices.map(prices => +prices.safe / TO_GWEI));
-      const avgDeviation = this.getDeviation(gasPrices.map(prices => +prices.average / TO_GWEI));
-      const fastDeviation = this.getDeviation(gasPrices.map(prices => +prices.fast / TO_GWEI));
-
-      const slowGas = this.getGas(gasPrices.map(prices => +prices.safe / TO_GWEI), slowDeviation);
-      const avgGas = this.getGas(gasPrices.map(prices => +prices.average / TO_GWEI), avgDeviation);
-      const fastGas = this.getGas(gasPrices.map(prices => +prices.fast / TO_GWEI), fastDeviation);
-
-      if (this.isBinance(chainParams.chain)) {
-
-        const minBinanceGas = new BigNumber(BINANCE_MIN_GAS_PRICE).times(Math.pow(10, 9).toString());
+        for (let param in req.params) {
+          requestUrl += `${param}=${req.params[param]}&`
+        }
 
         return [
-          slowGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
-          avgGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
-          fastGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+          ...acc,
+          this.httpClient.get(requestUrl).pipe(
+            map((gasPrices: { result: ResponseFormatIterface } | ResponseFormatIterface) => {
+
+              let multiplier = req.multiplier;
+
+              if ('result' in gasPrices && typeof gasPrices.result === 'string') {
+
+                if (multiplier) {
+
+                  return {
+                    safe: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                    average: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                    fast: new BigNumber(gasPrices.result).times(Math.pow(10, multiplier).toString(10)),
+                  }
+
+                }
+
+                return {
+                  safe: new BigNumber(gasPrices.result).toString(10),
+                  average: new BigNumber(gasPrices.result).toString(10),
+                  fast: new BigNumber(gasPrices.result).toString(10)
+                }
+              }
+
+              if ('result' in gasPrices) {
+
+                if (multiplier) {
+                  return {
+                    safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).times(Math.pow(10, multiplier).toString(10)),
+                    average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).times(Math.pow(10, multiplier).toString(10)),
+                    fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).times(Math.pow(10, multiplier).toString(10)),
+                  }
+                }
+
+                return {
+                  safe: new BigNumber(gasPrices.result[req.responseFormat['result'].safe]).toString(10),
+                  average: new BigNumber(gasPrices.result[req.responseFormat['result'].average]).toString(10),
+                  fast: new BigNumber(gasPrices.result[req.responseFormat['result'].fast]).toString(10)
+                }
+              }
+
+              if (multiplier) {
+                return {
+                  safe: new BigNumber(gasPrices[req.responseFormat.safe]).times(Math.pow(10, multiplier).toString(10)),
+                  average: new BigNumber(gasPrices[req.responseFormat.average]).times(Math.pow(10, multiplier).toString(10)),
+                  fast: new BigNumber(gasPrices[req.responseFormat.fast]).times(Math.pow(10, multiplier).toString(10)),
+                }
+              }
+
+              return {
+                safe: new BigNumber(gasPrices[req.responseFormat.safe]).toString(10),
+                average: new BigNumber(gasPrices[req.responseFormat.average]).toString(10),
+                fast: new BigNumber(gasPrices[req.responseFormat.fast]).toString(10)
+              }
+
+            }),
+            catchError((e) => of(null))
+          )
         ]
-      }
+      }, [])
 
-      return [
-        new BigNumber(slowGas).times(Math.pow(10, 9)).toString(10),
-        new BigNumber(avgGas).times(Math.pow(10, 9)).toString(10),
-        new BigNumber(fastGas).times(Math.pow(10, 9)).toString(10)
-      ]
+      return forkJoin(requests).toPromise().then((_gasPrices: { safe: string, average: string, fast: string }[]) => {
 
-    })
+        const gasPrices = _gasPrices.filter(v => v);
 
+        const TO_GWEI = 1000000000;
+
+        const slowDeviation = this.getDeviation(gasPrices.map(prices => +prices.safe / TO_GWEI));
+        const avgDeviation = this.getDeviation(gasPrices.map(prices => +prices.average / TO_GWEI));
+        const fastDeviation = this.getDeviation(gasPrices.map(prices => +prices.fast / TO_GWEI));
+
+        const slowGas = this.getGas(gasPrices.map(prices => +prices.safe / TO_GWEI), slowDeviation);
+        const avgGas = this.getGas(gasPrices.map(prices => +prices.average / TO_GWEI), avgDeviation);
+        const fastGas = this.getGas(gasPrices.map(prices => +prices.fast / TO_GWEI), fastDeviation);
+
+        if (this.isBinance(chainParams.chain)) {
+
+          const minBinanceGas = new BigNumber(BINANCE_MIN_GAS_PRICE).times(Math.pow(10, 9).toString());
+
+          return [
+            slowGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+            avgGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+            fastGas < BINANCE_MIN_GAS_PRICE ? minBinanceGas : new BigNumber(slowGas).times(Math.pow(10, 9).toString(10)),
+          ]
+        }
+
+        return [
+          new BigNumber(slowGas).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(avgGas).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(fastGas).times(Math.pow(10, 9)).toString(10)
+        ]
+
+      })
+    }
   }
 
   private getDeviation(gasPrices: number[]) {
