@@ -259,6 +259,7 @@ export class AbstractContract {
 
       })
     }
+
   }
 
   private getDeviation(gasPrices: number[]) {

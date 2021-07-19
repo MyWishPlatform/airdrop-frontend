@@ -7,6 +7,11 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 1,
     coin: 'ETH',
+    etherscanAPI: 'https://api.etherscan.io/',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    },
     apis: [
       {
         url: 'https://api.etherscan.io/api',
@@ -78,6 +83,11 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 42,
     coin: 'kETH',
+    etherscanAPI: 'https://api-kovan.etherscan.io/',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    },
     apis: [
       {
         url: 'https://api-kovan.etherscan.io/api',
@@ -128,32 +138,32 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 56,
     coin: 'BNB',
-    apis: [
-      {
-        url: 'https://api.bscscan.com/api',
-        params: {
-          module: 'proxy',
-          action: 'eth_gasPrice',
-          apikey: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
-        },
-        responseFormat: {
-          safe: 'result',
-          average: 'result',
-          fast: 'result'
-        },
-        multiplier: null
-      },
-      {
-        url: 'https://bscgas.info/gas',
-        params: null,
-        responseFormat: {
-          safe: 'slow',
-          average: 'standard',
-          fast: 'fast'
-        },
-        multiplier: 9
-      }
-    ]
+    // apis: [
+    //   {
+    //     url: 'https://api.bscscan.com/api',
+    //     params: {
+    //       module: 'proxy',
+    //       action: 'eth_gasPrice',
+    //       apikey: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
+    //     },
+    //     responseFormat: {
+    //       safe: 'result',
+    //       average: 'result',
+    //       fast: 'result'
+    //     },
+    //     multiplier: null
+    //   },
+    //   {
+    //     url: 'https://bscgas.info/gas',
+    //     params: null,
+    //     responseFormat: {
+    //       safe: 'slow',
+    //       average: 'standard',
+    //       fast: 'fast'
+    //     },
+    //     multiplier: 9
+    //   }
+    // ]
   },
   'binance:testnet': {
     chain: 'binance',
@@ -163,32 +173,32 @@ export const NETWORKS = {
     csvExample: './assets/csv-examples/binance.csv',
     chainId: 97,
     coin: 'tBNB',
-    apis: [
-      {
-        url: 'https://api-testnet.bscscan.com/api',
-        params: {
-          module: 'proxy',
-          action: 'eth_gasPrice',
-          apikey: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
-        },
-        responseFormat: {
-          safe: 'result',
-          average: 'result',
-          fast: 'result'
-        },
-        multiplier: null
-      },
-      {
-        url: 'https://bscgas.info/gas',
-        params: null,
-        responseFormat: {
-          safe: 'slow',
-          average: 'standard',
-          fast: 'fast'
-        },
-        multiplier: 9
-      }
-    ]
+    // apis: [
+    //   {
+    //     url: 'https://api-testnet.bscscan.com/api',
+    //     params: {
+    //       module: 'proxy',
+    //       action: 'eth_gasPrice',
+    //       apikey: 'DKJ7CFIZ14QC9RZ4SJ5ZYD3YQAKJ5D6WED'
+    //     },
+    //     responseFormat: {
+    //       safe: 'result',
+    //       average: 'result',
+    //       fast: 'result'
+    //     },
+    //     multiplier: null
+    //   },
+    //   {
+    //     url: 'https://bscgas.info/gas',
+    //     params: null,
+    //     responseFormat: {
+    //       safe: 'slow',
+    //       average: 'standard',
+    //       fast: 'fast'
+    //     },
+    //     multiplier: 9
+    //   }
+    // ]
   },
   'tron:mainnet': {
     chain: 'tron',
