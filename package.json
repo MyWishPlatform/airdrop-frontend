@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host local.rubic.exchange --port 4224 --disableHostCheck",
+    "starting": "ng serve",
     "dev": "ng serve --port 4224",
     "build": "ng build --prod",
     "test": "ng test",
@@ -29,7 +30,7 @@
     "rxjs": "~6.6.0",
     "tronweb": "^3.2.3",
     "tslib": "^2.0.0",
-    "web3": "1.3.0",
+    "web3": "1.3.4",
     "zone.js": "~0.11.3"
   },
   "devDependencies": {

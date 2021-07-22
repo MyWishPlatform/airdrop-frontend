@@ -1,7 +1,7 @@
-import {ETHEREUM_AIRDROP_ABI} from '../../constants/contracts/ethereum-airdrop';
+import { ETHEREUM_AIRDROP_ABI } from '../../constants/contracts/ethereum-airdrop';
 
-import {AbstractContract} from './abstract-contract';
-import {ETHEREUM_AIRDROP_ADDRESSES} from '../../constants/contracts/ethereum-airdrop';
+import { AbstractContract } from './abstract-contract';
+import { ETHEREUM_AIRDROP_ADDRESSES } from '../../constants/contracts/ethereum-airdrop';
 import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
 
@@ -27,12 +27,9 @@ export class AirdropContract extends AbstractContract {
     const addressesLengthTest = 300;
 
     const fee = await this.getFee();
+    
     let blockGasLimit = await this.gasLimit();
-
-    const chainId = +this.web3Provider.chainId;
-    if (chainId === 56 || chainId === 97) {
-      blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
-    }
+    blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
 
     const web3 = new Web3();
     const accounts = Array(addressesLengthTest).fill(null);
@@ -116,7 +113,7 @@ export class AirdropContract extends AbstractContract {
       data.addresses.push(item.address.toLowerCase());
       data.amounts.push(itemAmount.toString(10));
       return data;
-    }, {addresses: [], amounts: []});
+    }, { addresses: [], amounts: [] });
     return this.contract.methods.multisendToken(
       token.address,
       txParams.addresses,

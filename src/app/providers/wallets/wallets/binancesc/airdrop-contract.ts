@@ -1,5 +1,5 @@
-import {ETHEREUM_AIRDROP_ABI, ETHEREUM_AIRDROP_ADDRESSES} from '../../constants/contracts/ethereum-airdrop';
-import {AbstractContract} from './abstract-contract';
+import { ETHEREUM_AIRDROP_ABI, ETHEREUM_AIRDROP_ADDRESSES } from '../../constants/contracts/ethereum-airdrop';
+import { AbstractContract } from './abstract-contract';
 import BigNumber from 'bignumber.js';
 
 export class AirdropContract extends AbstractContract {
@@ -18,11 +18,7 @@ export class AirdropContract extends AbstractContract {
 
   private async gasLimit(): Promise<any> {
     let blockGasLimit = (await this.getBlock()).gasLimit;
-    const chainId = +this.binanceChain.chainId;
-    if (chainId === 56 || chainId === 97) {
-      blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
-    }
-    return blockGasLimit;
+    return new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
   }
 
   public async tokensMultiSendGas(testTokenAddress): Promise<any> {
@@ -53,7 +49,7 @@ export class AirdropContract extends AbstractContract {
         addresses,
         amountsArray,
         amountsArray.length.toString(10)
-        ]
+      ]
       );
 
       promises.push(
@@ -109,7 +105,7 @@ export class AirdropContract extends AbstractContract {
       data.addresses.push(item.address.toLowerCase());
       data.amounts.push(itemAmount.toString(10));
       return data;
-    }, {addresses: [], amounts: []});
+    }, { addresses: [], amounts: [] });
 
     let hashFunc;
     const oncePromise = new Promise((resolve) => {

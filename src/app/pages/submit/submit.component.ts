@@ -1,13 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {InterfaceAccount, WalletsProvider} from '../../providers/wallets/wallets';
-import {BlockchainsProvider} from '../../providers/blockchains/blockchains';
-import {AirdropParamsInterface} from '../prepare/prepare.component';
-import {Router} from '@angular/router';
-import {Subscriber} from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { InterfaceAccount, WalletsProvider } from '../../providers/wallets/wallets';
+import { BlockchainsProvider } from '../../providers/blockchains/blockchains';
+import { AirdropParamsInterface } from '../prepare/prepare.component';
+import { Router } from '@angular/router';
+import { Subscriber } from 'rxjs';
 import BigNumber from 'bignumber.js';
-import {ModalWalletsComponent} from '../../components/modal-wallets/modal-wallets';
-import {MatDialog} from '@angular/material/dialog';
-import {ModalMessageComponent} from '../../components/modal-message/modal-message.component';
+import { ModalWalletsComponent } from '../../components/modal-wallets/modal-wallets';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalMessageComponent } from '../../components/modal-message/modal-message.component';
 
 @Component({
   selector: 'app-submit',
@@ -22,6 +22,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     private blockchainsProvider: BlockchainsProvider,
     private walletsProvider: WalletsProvider
   ) {
+
     const airdropState = localStorage.getItem('airdropState');
     if (!airdropState) {
       this.router.navigate(['']);
@@ -144,7 +145,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   private initGasPriceInterval(): void {
     this.gasPricesInterval = setInterval(() => {
       this.updateGasPrices();
-    }, 30000);
+    }, 10000);
   }
 
   private getLeftTokensTransfer(): BigNumber {
@@ -166,7 +167,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     let error;
     if (balance.minus(tokens).isNegative()) {
 
-      const formatNumberParams = {groupSeparator: ',', groupSize: 3, decimalSeparator: '.'};
+      const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
       const insufficientBalance = new BigNumber(tokens).minus(balance).div(Math.pow(10, this.airdropParams.token.decimals));
       const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
 
@@ -193,8 +194,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
       this.airdropInfoData.onceFee = feeService;
+      console.log('fee', feeService.valueOf);
       if (coinsBalance.minus(feeService).isNegative()) {
-        const formatNumberParams = {groupSeparator: ',', groupSize: 3, decimalSeparator: '.'};
+        const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
         const insufficientBalance = feeService.div(Math.pow(10, 18));
         const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
         const coinName = this.account.chainInfo.coin;
@@ -239,19 +241,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
-
   private getGasPrice(): Promise<any> {
-    if (this.airdropParams.blockchain === 'binance') {
-      return Promise.resolve({
-        gasPrices: [20000000000, 20000000000],
-        selectedGasPrice: 20000000000
-      });
-    }
     return this.airdropContract.getGasPrice().then((responseGasPrices) => {
       const gasPrices = [
         responseGasPrices[0],
         responseGasPrices[2]
       ];
+
       return {
         gasPrices,
         selectedGasPrice: responseGasPrices[1]
@@ -283,7 +279,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     return Promise.all(promises).then((results) => {
       results.forEach((res) => {
-        this.airdropInfoData = {...this.airdropInfoData, ...res};
+        this.airdropInfoData = { ...this.airdropInfoData, ...res };
       });
       this.calculateCost();
       this.generateTransactionList();
@@ -307,7 +303,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
-    const {maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress} =
+    const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
       await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address);
 
     const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
@@ -331,7 +327,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnDestroy(): void {
     if (this.walletSubscriber) {
@@ -349,7 +345,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
         info.distributed = info.distributed.plus(txItem.tokens);
       }
       return info;
-    }, {full: new BigNumber(0), distributed: new BigNumber(0)});
+    }, { full: new BigNumber(0), distributed: new BigNumber(0) });
     this.distributedInfo.percent = this.distributedInfo.distributed.div(this.distributedInfo.full).times(100).dp(0).toString(10);
   }
 
@@ -420,45 +416,66 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
 
   private async checkTokensBalance(txItem): Promise<any> {
-    const balance = new BigNumber(await this.tokenContract.getBalance());
-    const allowance = new BigNumber(await this.tokenContract.getAllowance());
 
-    const error = this.checkTokensErrors(balance, allowance, txItem.tokens);
+    try {
 
-    if (error) {
-      switch (error.code) {
-        case 1:
-          this.dialog.open(ModalMessageComponent, {
-            width: '372px',
-            panelClass: 'custom-dialog-container',
-            data: {
-              title: 'Insufficient tokens balance',
-              text: error.message,
-              buttonText: 'Ok'
-            }
-          });
-          break;
-        case 2:
-          this.dialog.open(ModalMessageComponent, {
-            width: '372px',
-            panelClass: 'custom-dialog-container',
-            data: {
-              title: 'Insufficient approved tokens',
-              text: error.message,
-              buttonText: 'Ok'
-            }
-          });
-          break;
+      const balance = new BigNumber(await this.tokenContract.getBalance());
+      const allowance = new BigNumber(await this.tokenContract.getAllowance());
+
+      const error = this.checkTokensErrors(balance, allowance, txItem.tokens);
+
+      if (error) {
+        switch (error.code) {
+          case 1:
+            this.dialog.open(ModalMessageComponent, {
+              width: '372px',
+              panelClass: 'custom-dialog-container',
+              data: {
+                title: 'Insufficient tokens balance',
+                text: error.message,
+                buttonText: 'Ok'
+              }
+            });
+            break;
+          case 2:
+            this.dialog.open(ModalMessageComponent, {
+              width: '372px',
+              panelClass: 'custom-dialog-container',
+              data: {
+                title: 'Insufficient approved tokens',
+                text: error.message,
+                buttonText: 'Ok'
+              }
+            });
+            break;
+        }
+        return;
       }
+      return true;
+
+    } catch (e) {
+
+      this.dialog.open(ModalMessageComponent, {
+        width: '372px',
+        panelClass: 'custom-dialog-container',
+        data: {
+          title: 'Oops, something went wrong',
+          text: 'Metamask threw an exception',
+          buttonText: 'Retry transaction'
+        }
+      }).afterClosed().subscribe(() => {
+        this.startSending('Retrying');
+      });
+
       return;
     }
-    return true;
 
   }
 
   private async sendTokens(txItem): Promise<any> {
 
     if (!await this.checkTokensBalance(txItem)) {
+      console.error('token balance')
       return;
     }
 
@@ -473,7 +490,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     tx.hash.then((txHash: string) => {
       txItem.txHash = txHash;
       this.updateTxLisStorage();
-    });
+    }).catch(() => console.error('txhash'));
     return this.getTxState(tx.checker, txItem);
   }
 
@@ -487,7 +504,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
         txItem.state = 0;
       }
       return txItem.txHash;
-    }, () => {
+    }, (e) => {
+      console.error('tx state', e)
       if (txItem.txHash) {
         txItem.txHash = undefined;
       }
@@ -525,6 +543,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
         totalAmount = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
         break;
     }
+
+    console.log('totalAmount is', totalAmount);
 
     this.tokenContract.sendApprove(totalAmount)
       .then(() => {
@@ -590,7 +610,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     this.sendingInProgress = false;
     this.updateGasPrices();
-    this.initGasPriceInterval();
+    // this.initGasPriceInterval();
+    clearInterval(this.gasPricesInterval);
 
     localStorage.setItem('airdropState', '4');
     this.airdropParams.completed = true;

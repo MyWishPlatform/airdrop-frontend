@@ -1,7 +1,7 @@
 .choose-blockchain-control {
   width: 100%;
   .radio-control {
-    width: 31.5%;
+    width: 117px;
     max-width: 145px;
   }
 }
@@ -49,8 +49,6 @@
 .form {
   position: relative;
 }
-
-
 
 .bottom-banner {
   margin-top: 39px;
@@ -123,6 +121,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 5;
+    white-space: nowrap;
   }
 }
 

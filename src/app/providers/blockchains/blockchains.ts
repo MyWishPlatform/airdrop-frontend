@@ -15,7 +15,8 @@ export class BlockchainsProvider {
   private chains = {
     tron: this.tronwebService,
     ethereum: this.web3Service,
-    binance: this.web3Service
+    binance: this.web3Service,
+    polygon: this.web3Service
   };
 
   private activeChain: any;
@@ -32,6 +33,7 @@ export class BlockchainsProvider {
   ) {}
 
   public setChain(chain: string): void {
+
     if (this.state.chain === chain) {
       return;
     }
@@ -87,7 +89,6 @@ export class BlockchainsProvider {
   }
 
 
-
   public addressFieldValidator = (control: AbstractControl) => {
     const address = control.value || '';
     if (!this.isAddress(address)) {
@@ -139,7 +140,7 @@ export class BlockchainsProvider {
         setTokenValues(tokenData);
         const tokenValue = {...control.value};
         sessionStorage.setItem(tokenPath, JSON.stringify(tokenValue));
-      }, () => {
+      }, (e) => {
         sessionStorage.setItem(tokenPath, 'false');
         resolve({
           invalidContractAddress: true
@@ -196,6 +197,7 @@ export class TokenInputDirective {
     this.control.valueAccessor.writeValue = (value) => originalWriteVal(this.maskValue(value));
 
     this.control.valueChanges.subscribe((result: any) => {
+
       if (typeof result === 'string') {
         this.control.control.setValue({
           address: result

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ETHEREUM, BINANCE, TRON} from './constants/blockchains';
+import {ETHEREUM, BINANCE, POLYGON, TRON} from './constants/blockchains';
 import Web3 from 'web3';
 import {AbstractControl} from '@angular/forms';
 import {ERC20_TOKEN_ABI} from './constants/erc20';
@@ -10,7 +10,8 @@ import {ERC20_TOKEN_ABI} from './constants/erc20';
 export class Web3Service {
   private chainsProviders = {
     ethereum: ETHEREUM,
-    binance: BINANCE
+    binance: BINANCE,
+    polygon: POLYGON
   };
 
   private isTestnet = false;
@@ -19,8 +20,8 @@ export class Web3Service {
   private chainClient: Web3;
 
   constructor() {
-
   }
+  
   public setChain(chain: string): void {
     this.selectedChain = chain;
   }
@@ -48,6 +49,7 @@ export class Web3Service {
 
 
   public getTokenInfo(address): any {
+
     return new Promise((resolve, reject) => {
       const contractModel = this.getContract(address);
       try {
@@ -55,6 +57,7 @@ export class Web3Service {
           contractModel.methods.decimals().call(),
           contractModel.methods.symbol().call()
         ];
+
         Promise.all(tokenInfoPromises).then((result) => {
           resolve({
             decimals: result[0],

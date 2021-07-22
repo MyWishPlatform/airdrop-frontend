@@ -1,9 +1,14 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {BlockchainsProvider} from '../../providers/blockchains/blockchains';
-import {CsvParserService} from '../../services/csv-parser.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subscriber} from 'rxjs';
-import {WalletsProvider} from '../../providers/wallets/wallets';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { BlockchainsProvider } from '../../providers/blockchains/blockchains';
+import { CsvParserService } from '../../services/csv-parser.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest, EMPTY, merge, of, Subscriber, zip } from 'rxjs';
+import { WalletsProvider } from '../../providers/wallets/wallets';
+import { NETWORKS } from 'src/app/providers/blockchains/constants/networks';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { catchError, map, withLatestFrom } from 'rxjs/operators'
+import BigNumber from 'bignumber.js';
 
 export interface TokenInterface {
   symbol?: string;
@@ -22,14 +27,26 @@ export interface AirdropParamsInterface {
   token?: TokenInterface;
 }
 
+interface ResponseFormatIterface {
+  safe: string,
+  average: string,
+  fast: string
+}
+
 @Component({
   selector: 'app-prepare',
   templateUrl: './prepare.component.html',
   styleUrls: ['./prepare.component.scss']
 })
-export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PrepareComponent implements AfterViewInit, OnDestroy {
   @ViewChild('airdropForm') private airdropForm;
   public airdropParams: AirdropParamsInterface;
+
+  public tokensPlaceholders = {
+    ethereum: '0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518',
+    binance: '0x8aed24bf6e0247be51c57d68ad32a176bf86f4d9',
+    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f'
+  }
 
   public csvData: {
     error?: string;
@@ -40,6 +57,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
   public testNets = {
     ethereum: 'Kovan Test Network',
     binance: 'Test Network',
+    polygon: 'Mumbai Test Network',
     tron: 'Shasta Test Network'
   };
 
@@ -52,7 +70,8 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     private csvParserService: CsvParserService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private walletsProvider: WalletsProvider
+    private walletsProvider: WalletsProvider,
+    private http: HttpClient
   ) {
     this.airdropParams = {};
 
@@ -87,8 +106,6 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
       changed: airdropParams.changed
     };
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.subscribers.unsubscribe();
@@ -127,14 +144,13 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
     this.airdropParams.fileName = file.name;
     file.text().then((csvText) => {
       this.csvParserService.parseCsv(csvText, (result) => {
-        console.log(result);
         this.csvData = {
           error: result.error,
           data: result.data ? result.data.map((oneTableItem, index) => {
             const address = oneTableItem[0].replace([/^\s+/, /\s+$/], '');
             const amount = oneTableItem[1].replace([/^\s+/, /\s+$/], '').replace(/\.$/, '');
             const line = index + 1;
-            return {address, amount, line};
+            return { address, amount, line };
           }) : false
         };
       });
@@ -142,7 +158,7 @@ export class PrepareComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public proceedAirdrop(): void {
-    const formValues = {...this.airdropForm.value};
+    const formValues = { ...this.airdropForm.value };
     formValues.fileName = this.airdropParams.fileName;
     formValues.addresses = this.csvData.data;
     formValues.changed = this.csvData.changed;

@@ -27,7 +27,7 @@ export class WalletConnectService {
 
   private getProvider(): any {
     return new WalletConnectProvider({
-      infuraId: 'ecf1e6d0427b458b89760012a8500abf',
+      infuraId: '9cf8f565468b4ff2b0a6bf474150b007',
       rpc: {
         56: 'https://bsc-dataseed1.binance.org',
         97: 'https://data-seed-prebsc-1-s1.binance.org:8545'
