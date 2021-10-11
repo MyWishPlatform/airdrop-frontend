@@ -25,6 +25,7 @@ export interface AirdropParamsInterface {
   blockchain?: string;
   testnet?: boolean;
   token?: TokenInterface;
+  deflationary?: boolean;
 }
 
 interface ResponseFormatIterface {
@@ -101,6 +102,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
 
     this.airdropParams.token = airdropParams.token;
     this.airdropParams.fileName = airdropParams.fileName;
+    this.airdropParams.deflationary = airdropParams.deflationary;
     this.csvData = {
       data: airdropParams.addresses,
       changed: airdropParams.changed
@@ -121,6 +123,10 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
 
       this.subscribers.add(formControls.testnet.valueChanges.subscribe((value) => {
         this.blockchainsProvider.setTestnet(value);
+      }));
+
+      this.subscribers.add(formControls.deflationary.valueChanges.subscribe((value) => {
+        this.blockchainsProvider.setDeflationary(value);
       }));
 
       const tokenAddressControl = this.airdropForm.controls.token;

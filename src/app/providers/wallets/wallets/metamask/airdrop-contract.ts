@@ -22,15 +22,18 @@ export class AirdropContract extends AbstractContract {
     return (await this.web3.eth.getBlock('latest')).gasLimit;
   }
 
-  public async tokensMultiSendGas(testTokenAddress): Promise<any> {
-
-    const addressesLengthTest = 300;
+  public async tokensMultiSendGas(testTokenAddress, isDeflationary): Promise<any> {
+    let addressesLengthTest = 300;
+    if (isDeflationary) {
+      addressesLengthTest = 150;
+    }
 
     const fee = await this.getFee();
-    
+
     let blockGasLimit = await this.gasLimit();
     blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
 
+    // console.log(blockGasLimit);
     const web3 = new Web3();
     const accounts = Array(addressesLengthTest).fill(null);
     const promises = [];
@@ -56,6 +59,10 @@ export class AirdropContract extends AbstractContract {
       );
 
       const data = tx.encodeABI();
+      // console.log('Fee: ', fee);
+      // console.log('walletAddress: ', this.walletAddress);
+      // console.log('contractAddress: ', this.contractAddress);
+
       // console.trace();
       // console.log('Fee: ', fee);
       // console.log('walletAddress: ', this.walletAddress);
@@ -68,7 +75,6 @@ export class AirdropContract extends AbstractContract {
       //   });
       //   window.open('data:text/csv;charset=utf-8,' + escape(fileText));
       // }
-
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
@@ -79,7 +85,6 @@ export class AirdropContract extends AbstractContract {
         })
       );
     });
-
 
     return new Promise((resolve, reject) => {
       Promise.all(promises).then((result) => {
@@ -94,7 +99,7 @@ export class AirdropContract extends AbstractContract {
         // console.log('Gas limit per address:', oneAddressAdding);
         // console.log('Gas limit of first address:', initTransaction);
         // console.log('Max addresses length per tx:', maxAddressesLength);
-
+        // console.log('resolve:', maxAddressesLength, oneAddressAdding, result[0]);
         resolve({
           maxAddressesLength,
           gasLimitPerAddress: oneAddressAdding,

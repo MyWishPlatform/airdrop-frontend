@@ -15,13 +15,14 @@ export class Web3Service {
   };
 
   private isTestnet = false;
+  private isDeflationary = false;
   private selectedChain: string;
   private provider;
   private chainClient: Web3;
 
   constructor() {
   }
-  
+
   public setChain(chain: string): void {
     this.selectedChain = chain;
   }
@@ -29,6 +30,10 @@ export class Web3Service {
   public setTestnet(isTestnet: boolean): void {
     this.isTestnet = isTestnet;
     this.setProvider();
+  }
+
+  public setDeflationary(isDeflationary: boolean): void {
+    this.isDeflationary = isDeflationary;
   }
 
   private setProvider(): void {

@@ -10,6 +10,10 @@ export class AirdropContract extends AbstractContract {
     super(binanceChain, ETHEREUM_AIRDROP_ABI, airdropAddress);
   }
 
+  public async excludeFromFee(): Promise<any> {
+    const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
+    return walletAddress;
+  }
 
   public async getFee(): Promise<any> {
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
@@ -21,8 +25,11 @@ export class AirdropContract extends AbstractContract {
     return new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
   }
 
-  public async tokensMultiSendGas(testTokenAddress): Promise<any> {
-    const addressesLengthTest = 300;
+  public async tokensMultiSendGas(testTokenAddress, isDeflationary): Promise<any> {
+    let addressesLengthTest = 300;
+    if (isDeflationary) {
+      addressesLengthTest = 150;
+    }
 
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
     const fee = await this.getFee();
@@ -51,7 +58,6 @@ export class AirdropContract extends AbstractContract {
         amountsArray.length.toString(10)
       ]
       );
-
       promises.push(
         this.estimateGas([{
           from: walletAddress,

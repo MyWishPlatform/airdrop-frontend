@@ -101,6 +101,7 @@
                   'text-control__pending': airdropForm.controls.token?.pending
                   }">
               <input class="text-control_input" type="text"
+                     style="font-size: 13px"
                      spellcheck="false"
                      appTokenInput
                      autocomplete="off"
@@ -118,24 +119,6 @@
             </span>
           </div>
 
-          <div class="form_control form_control__error"
-               *ngIf="airdropParams.token?.address && !airdropForm.controls.token?.pending && (airdropForm.controls.token?.errors || !airdropParams.blockchain)">
-
-            <div class="form_control__error_text"
-                 *ngIf="airdropForm.controls.token?.valid && !airdropParams.blockchain">
-              No network selected
-            </div>
-            <div class="form_control__error_text"
-                 *ngIf="airdropForm.controls.token?.errors?.invalidAddress">
-              Wrong address
-            </div>
-            <div class="form_control__error_text"
-                 *ngIf="airdropForm.controls.token?.errors?.invalidContractAddress">
-              Token address is not valid
-            </div>
-
-          </div>
-
           <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
             <div class="form_control_label text-center">
               Token symbol:
@@ -143,7 +126,7 @@
             <a class="text-control as-link"
                [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
                target="_blank">
-              <span class="text-control_input text-center">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
                 {{ airdropParams.token.symbol }}
               </span>
             </a>
@@ -158,6 +141,39 @@
               </div>
             </div>
           </div>
+          <div class="form_control testnet-control">
+            <div class="form_control_label">
+              {{ "Deflationary" }}
+            </div>
+            <div class="form_control_buttons">
+              <label class="checkbox-control">
+                <input type="checkbox"
+                       [(ngModel)]="airdropParams.deflationary"
+                       class="checkbox-control_input"
+                       name="deflationary"/>
+                <span class="checkbox-control_text checkbox-control_text__on">Yes</span>
+                <span class="checkbox-control_text checkbox-control_text__off">No</span>
+                <span class="checkbox-control_rect"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form_control form_control__error"
+             *ngIf="airdropParams.token?.address && !airdropForm.controls.token?.pending && (airdropForm.controls.token?.errors || !airdropParams.blockchain)">
+
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.valid && !airdropParams.blockchain">
+            No network selected
+          </div>
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.errors?.invalidAddress">
+            Wrong address
+          </div>
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.errors?.invalidContractAddress">
+            Token address is not valid
+          </div>
+
         </div>
       </div>
 

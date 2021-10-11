@@ -35,7 +35,7 @@
           <a class="text-control as-link"
              [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
              target="_blank">
-              <span class="text-control_input text-center">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
                 {{ airdropParams.token.symbol }}
               </span>
           </a>
@@ -51,7 +51,45 @@
       </div>
     </div>
 
-    <div *ngIf="airdropInfoData && !(!account?.valid || tokensBalanceError)"
+    <div class="message-block" *ngIf="!account?.valid">
+      <div class="message-block_info">
+        <div class="message-block_info_text">
+            <span *ngIf="account && !account.valid">
+              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
+            </span>
+        </div>
+        <div class="message-block_info_buttons">
+          <button class="btn btn__success" (click)="selectWallet()">
+            <span class="btn_text">Connect wallet</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="airdropParams.deflationary && !isDeflationaryConfirmed && account?.valid && !isExcludedFromFee && tokensBalanceError.code !== 2" >
+      <div><b>Token owner</b> must add <span style="color: #206eff; font-weight: 700">address of Airdrop contract</span> in <b>exludeFromFee</b> at the time of distribution</div>
+      <br>
+      <div style="opacity: .5">excludeFromFee <b>Airdrop contract address</b></div>
+      <br>
+
+      <span class="text-control">
+            <span class="text-control_input" style="width: 67%">{{airdropContract?.contractAddress}}</span>
+      </span>
+
+      <button class="btn btn__success"
+              style="margin: 20px 0"
+              (click)="confirmDeflationary()"
+              *ngIf="!airdropParams.completed && account?.valid">
+        <span class="lds-ellipsis" *ngIf="sendingInProgress">
+          <span class="lds-ellipsis_container">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </span>
+        <span  class="btn_text">Confirm</span>
+      </button>
+    </div>
+
+    <div *ngIf="airdropInfoData && !(!account?.valid || tokensBalanceError) && isDeflationaryConfirmed"
          [ngClass]="{'with-errors': !airdropInfoData.transactionsCount}"
          class="airdrop-info-block">
 
@@ -196,7 +234,7 @@
           </div>
         </div>
       </div>
-      <div class="message-block" *ngIf="!account?.valid">
+      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed">
         <div class="message-block_info">
           <div class="message-block_info_text">
             <span *ngIf="account && !account.valid">
@@ -215,7 +253,7 @@
 </div>
 
 
-<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length && distributedInfo">
+<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length && distributedInfo && isDeflationaryConfirmed">
   <div class="form_group_content">
     <div class="distributed">
       <div class="distributed_label">
@@ -235,7 +273,7 @@
 </div>
 
 
-<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length">
+<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length && isDeflationaryConfirmed">
   <div class="form_group_content">
     <div class="form_group_content_title">
       Distribution

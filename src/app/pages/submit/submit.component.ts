@@ -15,7 +15,7 @@ import { ModalMessageComponent } from '../../components/modal-message/modal-mess
   styleUrls: ['./submit.component.scss']
 })
 export class SubmitComponent implements OnInit, OnDestroy {
-
+  public isExcludedFromFee: boolean | string;
   constructor(
     private dialog: MatDialog,
     private router: Router,
@@ -49,6 +49,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
 
+    this.isExcludedFromFee = true;
+
     if (this.airdropParams.completed) {
       this.airdropInfoData = JSON.parse(localStorage.getItem('airdropInfoData'));
       this.generateTransactionList();
@@ -73,6 +75,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       if (this.gasPricesInterval) {
         clearInterval(this.gasPricesInterval);
       }
+      // console.log(22, this.walletsProvider);
 
       this.iniStartAirdropInfoData();
 
@@ -87,12 +90,22 @@ export class SubmitComponent implements OnInit, OnDestroy {
           // this.tokenContract.sendApprove(0).then((res) => {
           //   console.log(res);
           // });
-
+          // console.log(33, this.walletsProvider);
+          // console.log(22, this.tokenContract);
           this.airdropContract = this.walletsProvider.getAirdropContract();
           this.getInformationProgress = true;
-
+          // console.log(22, this.tokenContract);
           this.initGasPriceInterval();
-
+          const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
+            // console.log(122121121212122122222222222222222222222222222, +res);
+            if (+res) {
+              res = true;
+            }
+            this.isExcludedFromFee = res;
+            if (this.isExcludedFromFee === true) {
+              this.isDeflationaryConfirmed = true;
+            }
+          });
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
               this.iniAirdropInfo().then(() => {
@@ -126,7 +139,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   private walletSubscriber: Subscriber<any>;
 
   private tokenContract: any;
-  private airdropContract: any;
+  public airdropContract: any;
 
   public airdropInfoData;
 
@@ -141,6 +154,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
   public approveType = 'unlimited';
 
   public distributedInfo;
+
+  public isDeflationaryConfirmed = true;
 
   private initGasPriceInterval(): void {
     this.gasPricesInterval = setInterval(() => {
@@ -194,7 +209,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
       this.airdropInfoData.onceFee = feeService;
-      console.log('fee', feeService.valueOf);
+      console.log('fee', feeService.valueOf());
       if (coinsBalance.minus(feeService).isNegative()) {
         const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
         const insufficientBalance = feeService.div(Math.pow(10, 18));
@@ -208,7 +223,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       }
     }
     this.tokensBalanceError = error;
-    // this.getInformationProgress = false;
+
     return error;
   }
 
@@ -276,14 +291,16 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.getGasPrice(),
       this.getTokenBalance()
     ];
-
+    // вылетает this.iniAirdropInfoData()
     return Promise.all(promises).then((results) => {
+      // console.log(777, results);
       results.forEach((res) => {
         this.airdropInfoData = { ...this.airdropInfoData, ...res };
       });
       this.calculateCost();
       this.generateTransactionList();
     }, () => {
+      // console.log(222);
       this.tokensBalanceError = {
         code: 3,
         message: 'Insufficient balance'
@@ -303,18 +320,19 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
+    // console.log(999, this.airdropContract);
+    // console.log(34, this.airdropParams.token.address);
+    // console.log(44, this.airdropParams.deflationary);
     const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
-      await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address);
-
+      await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address, this.airdropParams.deflationary);
     const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
     const addressesCount = this.airdropParams.addresses.length;
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);
     const latestTxGasLimit = gasLimitForFirstAddress + gasLimitPerAddress * (addressesCount % maxAddressesLength - 1);
     const fullGasLimit = gasLimitPerTx * (transactionsCount - 1) + latestTxGasLimit;
-
-    // console.log('Gas limit per full tx:', gasLimitPerTx);
-    // console.log('Latest TX gas limit:', latestTxGasLimit);
-    // console.log('Gas limit for all Airdrop:', fullGasLimit);
+    console.log('Gas limit per full tx:', gasLimitPerTx);
+    console.log('Latest TX gas limit:', latestTxGasLimit);
+    console.log('Gas limit for all Airdrop:', fullGasLimit);
 
     return {
       transactionsCount,
@@ -327,7 +345,11 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    if (this.airdropParams.deflationary) {
+      this.isDeflationaryConfirmed = false;
+    }
+  }
 
   ngOnDestroy(): void {
     if (this.walletSubscriber) {
@@ -385,6 +407,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.checkStorageTx();
       return;
     }
+    // console.log(22, this.airdropContract.contractAddress);
 
     const addressesList = this.airdropParams.addresses;
     const addressesPerTx = this.airdropInfoData.maxAddressesLength;
@@ -475,7 +498,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   private async sendTokens(txItem): Promise<any> {
 
     if (!await this.checkTokensBalance(txItem)) {
-      console.error('token balance')
+      console.error('token balance');
       return;
     }
 
@@ -505,7 +528,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       }
       return txItem.txHash;
     }, (e) => {
-      console.error('tx state', e)
+      console.error('tx state', e);
       if (txItem.txHash) {
         txItem.txHash = undefined;
       }
@@ -594,6 +617,63 @@ export class SubmitComponent implements OnInit, OnDestroy {
           buttonText: 'Ok'
         }
       });
+    }
+  }
+
+  public async confirmDeflationary(): Promise<void>{
+    this.getInformationProgress = true;
+    // console.log(this.tokenContract);
+    // console.log(3, this.tokenContract.isExcludedFromFee);
+    // let resultIsExcludedFromFee = await this.tokenContract.isExcludedFromFee();
+    // console.log(333, resultIsExcludedFromFee);
+    // if (typeof resultIsExcludedFromFee === 'string') {
+    //   resultIsExcludedFromFee = !!+(+resultIsExcludedFromFee).toString(2);
+    // }
+
+    const resultOwner = await this.tokenContract.owner();
+    // console.log('resultOwner', resultOwner);
+    // console.log('address', this.account.address);
+    // console.log('resultIsExcludedFromFee', this.isExcludedFromFee);
+    // console.log('comprasion', resultOwner.toString(10) === this.tokenContract.walletAddress);
+    // console.log(2, this.isExcludedFromFee);
+    if (this.isExcludedFromFee) {
+      await this.iniAirdropInfo();
+      this.getInformationProgress = false;
+      this.isDeflationaryConfirmed = true;
+      return;
+    }
+    // const resultOwner = await this.tokenContract.owner();
+    // console.log('resultOwner', resultOwner);
+    if ((+resultOwner).toString(16) !== (+this.account.address).toString(16)) {
+      this.dialog.open(ModalMessageComponent, {
+        width: '372px',
+        panelClass: 'custom-dialog-container',
+        data: {
+          title: 'Oooops!!!',
+          text: 'Please use token owner address to add airdrop contract in excludeFromFee.',
+          buttonText: 'Ok'
+        }
+      });
+      this.getInformationProgress = false;
+      return;
+    }
+    const resultExcludeFromFee = await this.tokenContract.excludeFromFee();
+    if (resultExcludeFromFee) {
+      await this.iniAirdropInfo();
+      this.isDeflationaryConfirmed = true;
+      this.getInformationProgress = false;
+      return;
+    } else {
+      this.dialog.open(ModalMessageComponent, {
+        width: '372px',
+        panelClass: 'custom-dialog-container',
+        data: {
+          title: 'Oooops!!!',
+          text: 'Token excludeFromFee has interrupted.',
+          buttonText: 'Ok'
+        }
+      });
+      this.isDeflationaryConfirmed = false;
     }
   }
 

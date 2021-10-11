@@ -73,6 +73,7 @@
   }
   &_control__error {
     color: #951515;
+    margin-top: 6px;
   }
   &_controls-group &_control__error {
     padding-top: 26px;
@@ -254,9 +255,10 @@
     display: block;
     background-color: rgba(245, 245, 245, 0.56);
     border: 1px solid rgba(245, 245, 245, 0.56);
+    height: 50px;
     color: #000;
     font-family: inherit;
-    font-size: 16px;
+    font-size: 12px;
     line-height: 20px;
     padding: 14px;
     width: 100%;
@@ -271,6 +273,7 @@
     .as-link & {
       color: #206EFF;
       text-decoration: none;
+      width: 116px;
       &.dashed {
         border-bottom: 1px dotted;
       }
@@ -309,7 +312,7 @@
       width: 18px;
       height: 18px;
       position: absolute;
-      right: 10px;
+      right: 14px;
       top: 50%;
       margin-top: -9px;
       background: url('/assets/images/icons/warning.svg') center center no-repeat;

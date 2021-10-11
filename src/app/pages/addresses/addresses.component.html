@@ -31,7 +31,7 @@
           <a class="text-control as-link"
              [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
              target="_blank">
-              <span class="text-control_input text-center">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
                 {{ airdropParams.token.symbol }}
               </span>
           </a>
