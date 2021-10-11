@@ -23,6 +23,7 @@ export class BlockchainsProvider {
   private state: {
     chain?: string;
     isTestnet?: boolean;
+    isDeflationary?: boolean;
   } = {};
 
   private stateSubscribers: Subscriber<any>[] = [];
@@ -41,12 +42,21 @@ export class BlockchainsProvider {
     this.activeChain = this.chains[chain];
     this.activeChain.setChain(chain);
     this.setTestnet(this.state.isTestnet);
+    // this.setDeflationary(this.state.isDeflationary);
   }
 
   public setTestnet(testnet: boolean): void {
     this.state.isTestnet = !!testnet;
     if (this.activeChain) {
       this.activeChain.setTestnet(this.state.isTestnet);
+      this.applyChainState();
+    }
+  }
+
+  public setDeflationary(deflationary: boolean): void {
+    this.state.isDeflationary = !!deflationary;
+    if (this.activeChain) {
+      this.activeChain.setDeflationary(this.state.isDeflationary);
       this.applyChainState();
     }
   }

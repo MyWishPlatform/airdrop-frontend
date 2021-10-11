@@ -12,6 +12,21 @@ export class TokenContract extends AbstractContract {
     this.airdropAddress = ETHEREUM_AIRDROP_ADDRESSES[+binanceChain.chainId];
   }
 
+  public async excludeFromFee(): Promise<any> {
+    const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
+    return this.sendMethod(walletAddress, 'excludeFromFee', [this.airdropAddress]);
+  }
+
+  public async isExcludedFromFee(): Promise<any> {
+    const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
+    return this.callMethod(walletAddress, 'isExcludedFromFee', [this.airdropAddress]);
+  }
+
+  public async owner(): Promise<any> {
+    const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
+    return this.callMethod(walletAddress, 'owner',[]);
+  }
+
   public async getAllowance(): Promise<string> {
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
     return this.callMethod(walletAddress, 'allowance', [walletAddress, this.airdropAddress]);

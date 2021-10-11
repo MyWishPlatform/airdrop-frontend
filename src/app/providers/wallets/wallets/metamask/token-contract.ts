@@ -1,6 +1,7 @@
 import {AbstractContract} from './abstract-contract';
 import {ERC20_TOKEN_ABI} from '../../constants/contracts/erc20-token';
 import {ETHEREUM_AIRDROP_ADDRESSES} from '../../constants/contracts/ethereum-airdrop';
+import {ModalMessageComponent} from '../../../../components/modal-message/modal-message.component';
 
 export class TokenContract extends AbstractContract {
   protected airdropAddress: string;
@@ -11,7 +12,6 @@ export class TokenContract extends AbstractContract {
   ) {
     super(web3Provider, ERC20_TOKEN_ABI, tokenAddress);
     this.airdropAddress = ETHEREUM_AIRDROP_ADDRESSES[+web3Provider.chainId];
-
   }
 
   public async getAllowance(): Promise<string> {
@@ -20,6 +20,42 @@ export class TokenContract extends AbstractContract {
       .call()
       .then((result) => {
         return result;
+      });
+  }
+  public async owner(): Promise<any> {
+    return this.contract.methods
+      .owner()
+      .call()
+      .then((result) => {
+        console.log('owner', result);
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  public async excludeFromFee(): Promise<any> {
+    return this.contract.methods
+      .excludeFromFee(this.airdropAddress)
+      .send({from: this.walletAddress, account: this.airdropAddress})
+      .then((result) => {
+        console.log(6969696, result);
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+  public async isExcludedFromFee(): Promise<any> {
+    return this.contract.methods
+      .isExcludedFromFee(this.airdropAddress)
+      .call()
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
       });
   }
 

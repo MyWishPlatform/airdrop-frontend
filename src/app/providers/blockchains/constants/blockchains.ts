@@ -18,17 +18,17 @@ export const ETHEREUM = {
 export const POLYGON = {
   testnet: {
     providerParams: {
-      providerAddress: 'https://rpc-mumbai.maticvigil.com'
+      providerAddress: 'https://matic-mumbai.chainstacklabs.com'
     },
     chainInfo: NETWORKS['polygon:testnet']
   },
   mainnet: {
     providerParams: {
-      providerAddress: 'https://rpc-mainnet.matic.network',
+      providerAddress: 'https://rpc-mainnet.maticvigil.com',
     },
     chainInfo: NETWORKS['polygon:mainnet']
   }
-}
+};
 
 export const BINANCE = {
   testnet: {
