@@ -286,6 +286,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   private async iniAirdropInfo(): Promise<any> {
+    if (this.airdropParams.deflationary && !this.isExcludedFromFee) {
+      return;
+    }
     const promises = [
       this.iniAirdropInfoData(),
       this.getGasPrice(),
@@ -320,7 +323,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
-    // console.log(999, this.airdropContract);
+    console.log(999, this.airdropContract);
     // console.log(34, this.airdropParams.token.address);
     // console.log(44, this.airdropParams.deflationary);
     const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
@@ -448,7 +451,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const error = this.checkTokensErrors(balance, allowance, txItem.tokens);
 
       if (error) {
-        switch (error.code) {
+        switch (error?.code) {
           case 1:
             this.dialog.open(ModalMessageComponent, {
               width: '372px',
@@ -659,9 +662,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
     const resultExcludeFromFee = await this.tokenContract.excludeFromFee();
     if (resultExcludeFromFee) {
-      await this.iniAirdropInfo();
-      this.isDeflationaryConfirmed = true;
-      this.getInformationProgress = false;
+      window.location.reload();
       return;
     } else {
       this.dialog.open(ModalMessageComponent, {
