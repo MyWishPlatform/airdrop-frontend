@@ -27,7 +27,9 @@
         </div>
 
         <div class="form_control">
-          <div class="form_control_label text-center">Token symbol:</div>
+          <div class="form_control_label text-center">
+            Token {{ airdropParams.blockchain === 'solana' ? 'link' : 'symbol' }}:
+          </div>
           <a class="text-control as-link"
              [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
              target="_blank">

@@ -46,7 +46,8 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   public tokensPlaceholders = {
     ethereum: '0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518',
     binance: '0x8aed24bf6e0247be51c57d68ad32a176bf86f4d9',
-    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f'
+    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f',
+    solana: 'HtHf9rJbEeWwpmAbNwZAg5H6sBkRRgwfpLE9ZpysiuQ9'
   }
 
   public csvData: {
@@ -59,7 +60,8 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     ethereum: 'Kovan Test Network',
     binance: 'Test Network',
     polygon: 'Mumbai Test Network',
-    tron: 'Shasta Test Network'
+    tron: 'Shasta Test Network',
+    solana: 'Solana Devnet'
   };
 
   public selectChainState: any;
@@ -92,9 +94,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     const airdropParamsStorage = localStorage.getItem('proceedAirdrop');
     const airdropParams = airdropParamsStorage ? JSON.parse(airdropParamsStorage) : false;
 
-
     if (!airdropParams) { return; }
-
     this.airdropParams.blockchain = airdropParams.blockchain;
     this.blockchainsProvider.setChain(airdropParams.blockchain);
     this.airdropParams.testnet = airdropParams.testnet;
@@ -118,6 +118,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       const formControls = this.airdropForm.controls;
       this.subscribers.add(formControls.blockchain.valueChanges.subscribe((value) => {
+        console.log(21, 'chain', value);
         this.blockchainsProvider.setChain(value);
       }));
 
@@ -134,6 +135,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
 
       this.subscribers.add(this.blockchainsProvider.subscribe((state) => {
         this.selectChainState = state.chainParams;
+        console.log(3, tokenAddressControl.value);
         tokenAddressControl.setValue(tokenAddressControl.value);
         this.walletsProvider.setNetwork(state.state.chain, state.state.isTestnet);
       }));

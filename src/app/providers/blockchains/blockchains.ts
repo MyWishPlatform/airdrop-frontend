@@ -3,6 +3,7 @@ import {Observable, Subscriber} from 'rxjs';
 
 import {TronwebService} from './tronweb';
 import {Web3Service} from './web3';
+import {SolanaWeb3Service} from './solanaWeb3';
 import {AbstractControl, NgControl} from '@angular/forms';
 import BigNumber from 'bignumber.js';
 
@@ -16,10 +17,11 @@ export class BlockchainsProvider {
     tron: this.tronwebService,
     ethereum: this.web3Service,
     binance: this.web3Service,
-    polygon: this.web3Service
+    polygon: this.web3Service,
+    solana: this.solanaWeb3Service
   };
 
-  private activeChain: any;
+  public activeChain: any;
   private state: {
     chain?: string;
     isTestnet?: boolean;
@@ -30,7 +32,8 @@ export class BlockchainsProvider {
 
   constructor(
     private web3Service: Web3Service,
-    private tronwebService: TronwebService
+    private tronwebService: TronwebService,
+    private solanaWeb3Service: SolanaWeb3Service,
   ) {}
 
   public setChain(chain: string): void {
@@ -38,8 +41,10 @@ export class BlockchainsProvider {
     if (this.state.chain === chain) {
       return;
     }
+    console.log(3, this.state);
     this.state.chain = chain;
     this.activeChain = this.chains[chain];
+    console.log(4, this.activeChain);
     this.activeChain.setChain(chain);
     this.setTestnet(this.state.isTestnet);
     // this.setDeflationary(this.state.isDeflationary);
@@ -47,6 +52,7 @@ export class BlockchainsProvider {
 
   public setTestnet(testnet: boolean): void {
     this.state.isTestnet = !!testnet;
+    console.log('testnet', this.state.isTestnet);
     if (this.activeChain) {
       this.activeChain.setTestnet(this.state.isTestnet);
       this.applyChainState();
@@ -98,6 +104,16 @@ export class BlockchainsProvider {
     return this.activeChain.addressValidator(address);
   }
 
+  public async isAddressSolana(address): Promise<any> {
+    const res = await this.activeChain.addressValidator(address);
+    return res;
+  }
+
+  public async isAccountSolana(address): Promise<any> {
+    const res = await this.activeChain.accountValidator(address);
+    console.log(333333333333333, res);
+    return res;
+  }
 
   public addressFieldValidator = (control: AbstractControl) => {
     const address = control.value || '';
@@ -111,19 +127,27 @@ export class BlockchainsProvider {
   }
 
 
-  public tokenFieldValidator = (control: AbstractControl) => {
+  public tokenFieldValidator = async (control: AbstractControl) => {
+    const address = control.value ? control.value.address : '';
+    let resultIsAddressSolana;
+    if (this.activeChain?.selectedChain === 'solana') {
+      resultIsAddressSolana = await this.isAddressSolana(address);
+    }
     return new Promise((resolve) => {
-      const address = control.value ? control.value.address : '';
       if (!this.activeChain) {
         resolve(null);
       }
-
-      if (!this.isAddress(address)) {
+      if (this.activeChain.selectedChain === 'solana') {
+        if (!resultIsAddressSolana) {
+          return resolve({
+            invalidAddress: true
+          });
+        }
+      } else if (!this.isAddress(address)) {
         return resolve({
           invalidAddress: true
         });
       }
-
       const tokenPath = `${this.state.chain}:${this.state.isTestnet ? 'testnet' : 'mainnet'}:${address}`;
 
       const setTokenValues = (tokenData) => {
@@ -134,7 +158,9 @@ export class BlockchainsProvider {
         return resolve(null);
       };
 
+
       const cachedToken = sessionStorage.getItem(tokenPath);
+
 
       if (cachedToken) {
         const parsedToken = JSON.parse(cachedToken);

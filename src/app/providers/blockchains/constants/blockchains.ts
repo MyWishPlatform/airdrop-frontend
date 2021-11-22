@@ -68,3 +68,18 @@ export const TRON = {
     chainInfo: NETWORKS['tron:mainnet']
   }
 };
+
+export const SOLANA = {
+  testnet: {
+    providerParams: {
+      providerAddress: 'http://localhost:8899',
+    },
+    chainInfo: NETWORKS['solana:testnet']
+  },
+  mainnet: {
+    providerParams: {
+      providerAddress: 'http://localhost:8899',
+    },
+    chainInfo: NETWORKS['solana:testnet']
+  }
+};

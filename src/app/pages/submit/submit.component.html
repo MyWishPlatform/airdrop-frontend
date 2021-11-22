@@ -31,7 +31,9 @@
         </div>
 
         <div class="form_control">
-          <div class="form_control_label text-center">Token symbol:</div>
+          <div class="form_control_label text-center">
+            Token {{ airdropParams.blockchain === 'solana' ? 'link' : 'symbol' }}:
+          </div>
           <a class="text-control as-link"
              [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
              target="_blank">
@@ -119,7 +121,7 @@
           </div>
           <div class="airdrop-info_item_label">Transactions</div>
         </div>
-        <div class="airdrop-info_item">
+        <div class="airdrop-info_item" *ngIf="airdropParams.blockchain !=='solana'">
           <div class="airdrop-info_item_value">
             {{airdropInfoData.totalCost | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
@@ -127,7 +129,7 @@
             Network fee
           </div>
         </div>
-        <div class="airdrop-info_item">
+        <div *ngIf="airdropParams.blockchain !=='solana'" class="airdrop-info_item">
           <div class="airdrop-info_item_value">
             {{airdropInfoData.fee | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
@@ -234,20 +236,20 @@
           </div>
         </div>
       </div>
-      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed">
-        <div class="message-block_info">
-          <div class="message-block_info_text">
-            <span *ngIf="account && !account.valid">
-              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
-            </span>
-          </div>
-          <div class="message-block_info_buttons">
-            <button class="btn btn__success" (click)="selectWallet()">
-              <span class="btn_text">Connect wallet</span>
-            </button>
-          </div>
-        </div>
-      </div>
+<!--      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed">-->
+<!--        <div class="message-block_info">-->
+<!--          <div class="message-block_info_text">-->
+<!--            <span *ngIf="account && !account.valid">-->
+<!--              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet-->
+<!--            </span>-->
+<!--          </div>-->
+<!--          <div class="message-block_info_buttons">-->
+<!--            <button class="btn btn__success" (click)="selectWallet()">-->
+<!--              <span class="btn_text">Connect wallet</span>-->
+<!--            </button>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
   </div>
 </div>

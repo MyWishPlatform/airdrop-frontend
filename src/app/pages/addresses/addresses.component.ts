@@ -54,7 +54,6 @@ export class AddressesComponent implements OnInit, OnDestroy {
   ) {
     const storageAirdropParams = localStorage.getItem('proceedAirdrop');
     this.airdropParams = storageAirdropParams ? JSON.parse(storageAirdropParams) : false;
-
     this.walletsProvider.setNetwork(
       this.airdropParams.blockchain,
       this.airdropParams.testnet
@@ -71,13 +70,66 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
 
-    this.validateAddressesList();
+    if (this.blockchainsProvider.activeChain.selectedChain !== 'solana') {
+      this.validateAddressesList();
+    } else {
+      this.validateAddressesListSolana();
+    }
+
     this.addressValidator = this.blockchainsProvider.addressFieldValidator;
 
   }
 
 
+  private async validateAddressesListSolana(): Promise<void> {
+    const validAddresses = [];
+    for (const oneTableItem of this.airdropParams.addresses) {
+      const isValidAddress = await this.blockchainsProvider.isAccountSolana(oneTableItem.address);
+      validAddresses.push(isValidAddress);
+    }
+    console.log(23, validAddresses);
+    this.addressesList = this.airdropParams.addresses.reduce((tableData, oneTableItem, index) => {
+      const errors = [];
 
+      const {address, amount} = oneTableItem;
+      const isValidAddress = validAddresses[index];
+
+      const isNanAmount = isNaN(amount) || +amount === 0;
+      const correctDecimals = (amount.split('.')[1] || '').length <= +this.airdropParams.token.decimals;
+      const isValidAmount = !isNanAmount && correctDecimals;
+
+      const isValidItem = isValidAddress && isValidAmount;
+
+      if (isValidItem) {
+        tableData.valid.push(oneTableItem);
+      } else {
+        if (!isValidAddress) {
+          if (!address) {
+            errors.push(1);
+          } else {
+            errors.push(2);
+          }
+        }
+
+        if (!isValidAmount) {
+          if (!amount || +amount === 0) {
+            errors.push(3);
+          } else if (isNanAmount) {
+            errors.push(4);
+          } else if (!correctDecimals) {
+            errors.push(5);
+          }
+        }
+        oneTableItem.errors = errors;
+        tableData.invalid.push(oneTableItem);
+      }
+
+      return tableData;
+
+    }, this.tableData);
+
+    this.calculateTotalTokensAmount();
+  }
 
   private validateAddressesList(): void {
 
@@ -86,8 +138,8 @@ export class AddressesComponent implements OnInit, OnDestroy {
       const errors = [];
 
       const {address, amount} = oneTableItem;
-
       const isValidAddress = this.blockchainsProvider.isAddress(address);
+
       if (isValidAddress) {
         oneTableItem.address = '0x' + address.toLowerCase().replace(/^0x/, '');
       }
@@ -187,6 +239,7 @@ export class AddressesComponent implements OnInit, OnDestroy {
       }
     }, new BigNumber(0));
     this.totalAmount = totalAmountBN.toString(10);
+    console.log(1212, this.totalAmount);
   }
 
   private showAddressesError(): void {

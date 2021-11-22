@@ -154,8 +154,10 @@ export class WalletsProvider {
   private connectToService(wallet, chainId): void {
     const isCurrent = this.account && this.account.wallet === wallet.type;
 
+    console.log(22, this.account);
     wallet.service.connect(isCurrent, chainId).then(() => {
       if (!(this.account && this.account.wallet === wallet.type)) {
+        console.log(33);
         this.setSubscriber(wallet);
       }
     }, () => {});
@@ -163,6 +165,7 @@ export class WalletsProvider {
 
 
   public connect(walletType: string, chainId): void {
+    console.log(1, this.walletsTypes, walletType, chainId);
     const wallet = this.walletsTypes.find((w) => {
       return walletType === w.type;
     });
@@ -188,6 +191,7 @@ export class WalletsProvider {
   }
 
   public async getBalance(): Promise<any> {
+    console.log(23, this.walletService);
     return this.walletService.getBalance();
   }
 

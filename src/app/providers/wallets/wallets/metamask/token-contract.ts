@@ -84,6 +84,7 @@ export class TokenContract extends AbstractContract {
   }
 
   public async getBalance(): Promise<any> {
+    console.log(33, this.contract);
     return this.contract.methods.balanceOf(this.walletAddress).call();
   }
 

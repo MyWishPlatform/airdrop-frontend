@@ -69,13 +69,28 @@
                 </span>
               </label>
 
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="solana">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/solana.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Solana
+                  </span>
+                </span>
+              </label>
+
             </div>
           </div>
           <div class="form_control testnet-control">
-            <div class="form_control_label">
+            <div class="form_control_label"
+                 [ngStyle]="{color: airdropParams.blockchain === 'solana' ? '#2873FB' : '', marginTop: airdropParams.blockchain === 'solana' ? '44px' : 0}"
+            >
               {{ airdropParams.blockchain ? testNets[airdropParams.blockchain] : "Test Network"}}
             </div>
-            <div class="form_control_buttons">
+            <div class="form_control_buttons" [ngStyle]="{display: airdropParams.blockchain === 'solana' ? 'none' : 'block'}">
               <label class="checkbox-control">
                 <input type="checkbox"
                        [(ngModel)]="airdropParams.testnet"
@@ -121,7 +136,7 @@
 
           <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
             <div class="form_control_label text-center">
-              Token symbol:
+              Token {{ airdropParams.blockchain === 'solana' ? 'link' : 'symbol' }}:
             </div>
             <a class="text-control as-link"
                [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
@@ -141,7 +156,7 @@
               </div>
             </div>
           </div>
-          <div class="form_control testnet-control">
+          <div class="form_control testnet-control" [ngStyle]="{display: airdropParams.blockchain === 'solana' ? 'none' : 'block'}">
             <div class="form_control_label">
               {{ "Deflationary" }}
             </div>
@@ -224,7 +239,7 @@
   </div>
 
   <div class="form_group">
-    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error">
+    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error || !csvData.data">
       <span class="btn_text">Proceed</span>
     </button>
   </div>
