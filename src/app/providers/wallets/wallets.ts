@@ -106,6 +106,7 @@ export class WalletsProvider {
       if (!this.account) {
         return false;
       }
+
       return oneWallet.type === this.account.wallet && oneWallet.blockchains.indexOf(this.selectedNetwork) > -1;
     });
 
@@ -116,7 +117,6 @@ export class WalletsProvider {
         return true;
       }
     });
-
     checkWallets.forEach((wallet) => {
       walletsPromises.push(wallet.service.getConnectedAccount());
     });
@@ -130,9 +130,14 @@ export class WalletsProvider {
           });
         }
       });
-      if (connectedAccounts.length) {
-        this.setSubscriber(connectedAccounts[0].wallet);
-      }
+      // if (connectedAccounts.length) {
+      //   console.log(4, connectedAccounts);
+      //   if (localStorage.getItem('lastWallet') === 'mathWallet') {
+      //     this.setSubscriber(connectedAccounts[1].wallet);
+      //   } else {
+      //     this.setSubscriber(connectedAccounts[0].wallet);
+      //   }
+      // }
     });
   }
 
@@ -163,6 +168,9 @@ export class WalletsProvider {
 
 
   public connect(walletType: string, chainId): void {
+    // if (walletType === 'mathWallet') {
+    //   localStorage.setItem('lastWallet', walletType);
+    // }
     const wallet = this.walletsTypes.find((w) => {
       return walletType === w.type;
     });

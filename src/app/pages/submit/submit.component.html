@@ -234,7 +234,7 @@
           </div>
         </div>
       </div>
-      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed">
+      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed && airdropParams.deflationary">
         <div class="message-block_info">
           <div class="message-block_info_text">
             <span *ngIf="account && !account.valid">

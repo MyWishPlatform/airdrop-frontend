@@ -185,7 +185,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
       const insufficientBalance = new BigNumber(tokens).minus(balance).div(Math.pow(10, this.airdropParams.token.decimals));
       const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
-
       error = {
         code: 1,
         message: `Insufficient balance, not enough <b class="blue-text">${insufficientBalanceString}</b> tokens.<br/><br/>
@@ -323,9 +322,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
-    console.log(999, this.airdropContract);
-    // console.log(34, this.airdropParams.token.address);
-    // console.log(44, this.airdropParams.deflationary);
     const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
       await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address, this.airdropParams.deflationary);
     const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
