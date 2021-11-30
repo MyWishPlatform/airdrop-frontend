@@ -2,6 +2,7 @@ import {MetaMaskService} from '../wallets/metamask/wallet-provider';
 import {WalletConnectService} from '../wallets/walletconnect/wallet-provider';
 import {BinanceSCService} from '../wallets/binancesc/wallet-provider';
 import {TronLinkService} from '../wallets/tronlink/wallet-provider';
+import {MathWalletService} from '../wallets/mathwallet/wallet-provider';
 
 export const WALLETS = [
   {
@@ -48,6 +49,19 @@ export const WALLETS = [
     blockchains: [
       'tron:mainnet',
       'tron:testnet'
+    ]
+  }, {
+    icon: './assets/images/icons/wallets/math-wallet.png',
+    name: 'MathWallet',
+    service: new MathWalletService(),
+    type: 'mathWallet',
+    blockchains: [
+      'ethereum:mainnet',
+      'ethereum:testnet',
+      'binance:mainnet',
+      'binance:testnet',
+      'polygon:mainnet',
+      'polygon:testnet'
     ]
   }
 ];
