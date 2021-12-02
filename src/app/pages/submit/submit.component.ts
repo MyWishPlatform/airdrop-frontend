@@ -87,17 +87,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
             this.airdropParams.token.address
           );
 
-          // this.tokenContract.sendApprove(0).then((res) => {
-          //   console.log(res);
-          // });
-          // console.log(33, this.walletsProvider);
-          // console.log(22, this.tokenContract);
           this.airdropContract = this.walletsProvider.getAirdropContract();
           this.getInformationProgress = true;
-          // console.log(22, this.tokenContract);
           this.initGasPriceInterval();
           const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
-            // console.log(122121121212122122222222222222222222222222222, +res);
             if (+res) {
               res = true;
             }
@@ -293,16 +286,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.getGasPrice(),
       this.getTokenBalance()
     ];
-    // вылетает this.iniAirdropInfoData()
     return Promise.all(promises).then((results) => {
-      // console.log(777, results);
       results.forEach((res) => {
         this.airdropInfoData = { ...this.airdropInfoData, ...res };
       });
       this.calculateCost();
       this.generateTransactionList();
     }, () => {
-      // console.log(222);
       this.tokensBalanceError = {
         code: 3,
         message: 'Insufficient balance'
@@ -311,9 +301,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
-    this.airdropInfoData.totalCost =
-      new BigNumber(this.airdropInfoData.selectedGasPrice)
-        .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10);
+    this.airdropInfoData.totalCost = 0;
   }
 
   public changeGasPrice($event): void {
@@ -406,7 +394,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.checkStorageTx();
       return;
     }
-    // console.log(22, this.airdropContract.contractAddress);
 
     const addressesList = this.airdropParams.addresses;
     const addressesPerTx = this.airdropInfoData.maxAddressesLength;
@@ -502,10 +489,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
 
     txItem.state = 1;
+    console.log('gasLimitPerTx', this.airdropInfoData.gasLimitPerTx);
+    console.log('selectedGasPrice', this.airdropInfoData.selectedGasPrice.toString());
+    console.log('addresses', txItem.addresses);
     const tx = await this.airdropContract.sendTokensToAddresses(
       this.airdropParams.token,
       txItem.addresses,
-      this.airdropInfoData.gasLimitPerTx,
+      Math.floor(this.airdropInfoData.gasLimitPerTx),
       this.airdropInfoData.selectedGasPrice,
     );
 
@@ -602,7 +592,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
     if (tx) {
       this.startSending(true);
     } else {
-
       this.sendingInProgress = false;
       this.updateGasPrices();
       this.initGasPriceInterval();

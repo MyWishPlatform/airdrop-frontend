@@ -128,13 +128,16 @@ export class AirdropContract extends AbstractContract {
   }
 
   public async sendTokensToAddresses(token, addresses, gasLimit, gasPrice): Promise<any> {
+    console.log('token', token);
+    console.log('gasLimit', gasLimit);
+    console.log('gasPrice', gasPrice);
     const tx = await this.getTransaction(token, addresses);
     const fee = await this.getFee();
 
     const txSend = tx.send({
       from: this.walletAddress,
       value: fee,
-      // gas: gasLimit,
+      gas: gasLimit,
       gasPrice
     });
 
