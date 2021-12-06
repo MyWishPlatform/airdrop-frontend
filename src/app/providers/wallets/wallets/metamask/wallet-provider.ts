@@ -17,7 +17,7 @@ export class MetaMaskService {
 
   private setMetaMaskWeb3(): void {
     this.metaMaskWeb3 = (window as any).ethereum;
-    if (!this.metaMaskWeb3.isMathWallet && this.metaMaskWeb3 && (this.metaMaskWeb3.isMetaMask || this.metaMaskWeb3.isTrust)) {
+    if (!this.metaMaskWeb3?.isMathWallet && this.metaMaskWeb3 && (this.metaMaskWeb3.isMetaMask || this.metaMaskWeb3.isTrust)) {
       (window as any).ethereum.autoRefreshOnNetworkChange = false;
     }
     this.metaMaskProvider = Web3.givenProvider;
@@ -91,7 +91,7 @@ export class MetaMaskService {
   }
 
   get isAvailable(): boolean {
-    return this.metaMaskWeb3 && !this.metaMaskWeb3.isMathWallet && this.metaMaskWeb3.isMetaMask;
+    return this.metaMaskWeb3 && !this.metaMaskWeb3?.isMathWallet && this.metaMaskWeb3.isMetaMask;
   }
 
   static get isTrust(): boolean {
@@ -100,7 +100,7 @@ export class MetaMaskService {
   }
 
   public isConnected(): boolean {
-    return this.metaMaskWeb3 && !this.metaMaskWeb3.isMathWallet &&
+    return this.metaMaskWeb3 && !this.metaMaskWeb3?.isMathWallet &&
       (this.metaMaskWeb3.isMetaMask || this.metaMaskWeb3.isTrust) &&
       (this.metaMaskWeb3.selectedAddress || this.metaMaskWeb3.address ||
         (this.metaMaskWeb3.accounts ? this.metaMaskWeb3.accounts[0] : false));

@@ -224,7 +224,7 @@
   </div>
 
   <div class="form_group">
-    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error">
+    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error || !csvData.data">
       <span class="btn_text">Proceed</span>
     </button>
   </div>

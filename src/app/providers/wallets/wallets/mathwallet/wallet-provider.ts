@@ -15,12 +15,12 @@ export class MathWalletService {
   }
 
   get isAvailable(): boolean {
-    return this.MathWalletWeb3 && this.MathWalletWeb3.isMathWallet;
+    return this.MathWalletWeb3 && this.MathWalletWeb3?.isMathWallet;
   }
 
   private setMathWalletWeb3(): void {
     this.MathWalletWeb3 = (window as any).ethereum;
-    if (this.MathWalletWeb3 && this.MathWalletWeb3.isMathWallet ) {
+    if (this.MathWalletWeb3 && this.MathWalletWeb3?.isMathWallet ) {
       (window as any).ethereum.autoRefreshOnNetworkChange = false;
     }
     this.MathWalletProvider = Web3.givenProvider;
@@ -44,7 +44,7 @@ export class MathWalletService {
 
   public isConnected(): boolean {
     return this.MathWalletWeb3 &&
-      (this.MathWalletWeb3.isMathWallet) &&
+      (this.MathWalletWeb3?.isMathWallet) &&
       (this.MathWalletWeb3.selectedAddress || this.MathWalletWeb3.address ||
         (this.MathWalletWeb3.accounts ? this.MathWalletWeb3.accounts[0] : false));
   }
