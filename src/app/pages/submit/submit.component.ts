@@ -301,7 +301,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
-    this.airdropInfoData.totalCost = 0;
+    this.airdropInfoData.totalCost = new BigNumber(this.airdropInfoData.selectedGasPrice)
+      .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10);
   }
 
   public changeGasPrice($event): void {
