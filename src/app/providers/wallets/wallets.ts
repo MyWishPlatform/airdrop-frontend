@@ -123,6 +123,7 @@ export class WalletsProvider {
 
     Promise.all(walletsPromises).then((result) => {
       result.forEach((account, walletIndex) => {
+        console.log(account, walletIndex);
         if (account) {
           connectedAccounts.push({
             account,

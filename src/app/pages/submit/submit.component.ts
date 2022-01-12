@@ -80,6 +80,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.iniStartAirdropInfoData();
 
       if (this.account) {
+        console.log(9876, this.account);
         this.walletsProvider.validateWallet(this.chainInfo.chainId);
         if (this.account.valid) {
 
@@ -198,6 +199,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.approveTokens = this.getLeftTokensTransfer();
     let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
     if (!error) {
+      console.log(this.walletsProvider);
+      console.log(this.airdropContract);
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
       this.airdropInfoData.onceFee = feeService;

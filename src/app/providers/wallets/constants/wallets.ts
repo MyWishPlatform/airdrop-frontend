@@ -3,6 +3,7 @@ import {WalletConnectService} from '../wallets/walletconnect/wallet-provider';
 import {BinanceSCService} from '../wallets/binancesc/wallet-provider';
 import {TronLinkService} from '../wallets/tronlink/wallet-provider';
 import {MathWalletService} from '../wallets/mathwallet/wallet-provider';
+import {TorusService} from '../wallets/torus/wallet-provider';
 
 export const WALLETS = [
   {
@@ -55,6 +56,20 @@ export const WALLETS = [
     name: 'MathWallet',
     service: new MathWalletService(),
     type: 'mathWallet',
+    blockchains: [
+      'ethereum:mainnet',
+      'ethereum:testnet',
+      'binance:mainnet',
+      'binance:testnet',
+      'polygon:mainnet',
+      'polygon:testnet'
+    ]
+  },
+  {
+    icon: './assets/images/icons/wallets/torus.png',
+    name: 'Torus',
+    service: new TorusService(),
+    type: 'torus',
     blockchains: [
       'ethereum:mainnet',
       'ethereum:testnet',

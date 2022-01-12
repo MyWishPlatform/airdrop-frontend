@@ -21,6 +21,7 @@ export class MetaMaskService {
       (window as any).ethereum.autoRefreshOnNetworkChange = false;
     }
     this.metaMaskProvider = Web3.givenProvider;
+    console.log(987654, this.metaMaskProvider);
   }
 
   public getConnectedAccount(): Promise<InterfaceAccount> {
