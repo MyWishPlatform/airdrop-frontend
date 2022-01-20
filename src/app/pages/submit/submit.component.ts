@@ -312,7 +312,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   public async iniAirdropInfoData(): Promise<any> {
     const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
-      await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address, this.airdropParams.deflationary);
+      await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address, this.airdropParams.deflationary, this.blockchainsProvider);
     const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
     const addressesCount = this.airdropParams.addresses.length;
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);

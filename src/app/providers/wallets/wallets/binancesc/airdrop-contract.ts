@@ -25,7 +25,8 @@ export class AirdropContract extends AbstractContract {
     return new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
   }
 
-  public async tokensMultiSendGas(testTokenAddress, isDeflationary): Promise<any> {
+  public async tokensMultiSendGas(testTokenAddress, isDeflationary, blockchainProvider): Promise<any> {
+    const currentChain = blockchainProvider.activeChain.selectedChain;
     let addressesLengthTest = 300;
     if (isDeflationary) {
       addressesLengthTest = 150;
@@ -80,7 +81,11 @@ export class AirdropContract extends AbstractContract {
 
         const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
         const initTransaction = result[0] - oneAddressAdding;
-        const maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
+        let maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
+
+        if (maxAddressesLength > 700 && currentChain === 'binance') {
+          maxAddressesLength = 700;
+        }
 
         // console.log('Latest block gas limit:', blockGasLimit);
         // console.log('Gas limit per address:', oneAddressAdding);
