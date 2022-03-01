@@ -54,6 +54,18 @@ export class AbstractContract {
       }
 
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+
+      if(chainParams.name === 'Ethereum Kovan Testnet') {
+        return this.httpClient.get(apiUrl + '/api?module=proxy&action=eth_gasPrice&' + apikey).toPromise().then((data) => {
+          const result = data.result;
+          return [
+            new BigNumber(result).toString(10),
+            new BigNumber(result).toString(10),
+            new BigNumber(result).toString(10),
+          ];
+        });
+      }
+
       return this.httpClient.get(apiUrl + '/api?module=gastracker&action=gasoracle&' + apikey).toPromise().then((data) => {
         const result = data.result;
         return [

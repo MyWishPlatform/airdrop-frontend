@@ -301,6 +301,11 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
+    console.log(11);
+    console.log('selectedGasPrice', new BigNumber(this.airdropInfoData.selectedGasPrice));
+    console.log('fullGasLimit', new BigNumber(this.airdropInfoData.fullGasLimit));
+    console.log('totalCost', new BigNumber(this.airdropInfoData.selectedGasPrice)
+      .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10));
     this.airdropInfoData.totalCost = new BigNumber(this.airdropInfoData.selectedGasPrice)
       .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10);
   }
@@ -491,7 +496,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     txItem.state = 1;
     console.log('gasLimitPerTx', this.airdropInfoData.gasLimitPerTx);
-    console.log('selectedGasPrice', this.airdropInfoData.selectedGasPrice.toString());
     console.log('addresses', txItem.addresses);
     const tx = await this.airdropContract.sendTokensToAddresses(
       this.airdropParams.token,
