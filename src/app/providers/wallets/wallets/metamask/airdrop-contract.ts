@@ -25,8 +25,11 @@ export class AirdropContract extends AbstractContract {
   public async tokensMultiSendGas(testTokenAddress, isDeflationary, blockchainProvider): Promise<any> {
     const currentChain = blockchainProvider.activeChain.selectedChain;
     let addressesLengthTest = 300;
-    if (isDeflationary) {
+    if (isDeflationary && currentChain !== 'binance') {
       addressesLengthTest = 150;
+    }
+    if (isDeflationary && currentChain === 'binance') {
+      addressesLengthTest = 100;
     }
 
     const fee = await this.getFee();
@@ -52,6 +55,12 @@ export class AirdropContract extends AbstractContract {
       });
       const amountsArray = Array(addresses.length);
       amountsArray.fill('1');
+
+      console.log(testTokenAddress,
+        addresses,
+        amountsArray,
+        amountsArray.length.toString(10));
+
       const tx = this.contract.methods.multisendToken(
         testTokenAddress,
         addresses,
@@ -60,14 +69,10 @@ export class AirdropContract extends AbstractContract {
       );
 
       const data = tx.encodeABI();
-      // console.log('Fee: ', fee);
-      // console.log('walletAddress: ', this.walletAddress);
-      // console.log('contractAddress: ', this.contractAddress);
-
-      // console.trace();
-      // console.log('Fee: ', fee);
-      // console.log('walletAddress: ', this.walletAddress);
-      // console.log('contractAddress: ', this.contractAddress);
+      console.log('data', tx);
+      console.log('Fee: ', fee);
+      console.log('walletAddress: ', this.walletAddress);
+      console.log('contractAddress: ', this.contractAddress);
 
       // if ((index === (addressesLengthTest - 1))) {
       //   let fileText = '';
@@ -76,6 +81,16 @@ export class AirdropContract extends AbstractContract {
       //   });
       //   window.open('data:text/csv;charset=utf-8,' + escape(fileText));
       // }
+
+      this.web3.eth.estimateGas({
+        from: this.walletAddress,
+        to: this.contractAddress,
+        value: fee,
+        data,
+        gasPrice: 0
+      }).then(res => console.log(555, res));
+
+
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
@@ -89,6 +104,7 @@ export class AirdropContract extends AbstractContract {
 
     return new Promise((resolve, reject) => {
       Promise.all(promises).then((result) => {
+        console.log(22, result);
         if (!result[0] || !result[1]) {
           return reject();
         }
