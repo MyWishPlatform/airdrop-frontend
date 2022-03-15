@@ -88,7 +88,7 @@ export class AirdropContract extends AbstractContract {
         value: fee,
         data,
         gasPrice: 0
-      }).then(res => console.log(555, res));
+      }).then(res => console.log('res', res));
 
 
       promises.push(
@@ -104,7 +104,6 @@ export class AirdropContract extends AbstractContract {
 
     return new Promise((resolve, reject) => {
       Promise.all(promises).then((result) => {
-        console.log(22, result);
         if (!result[0] || !result[1]) {
           return reject();
         }

@@ -216,7 +216,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
     this.tokensBalanceError = error;
 
-    return false;
+    return error;
   }
 
   private iniStartAirdropInfoData(): void {
