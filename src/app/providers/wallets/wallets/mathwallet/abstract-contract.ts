@@ -49,8 +49,8 @@ export class AbstractContract {
         apiUrl = 'https://api.etherscan.io/';
       }
 
-      if(chainParams.name === 'Ethereum Kovan Testnet') {
-        apiUrl = 'https://api-kovan.etherscan.io/';
+      if(chainParams.name === 'Ethereum Ropsten Testnet') {
+        apiUrl = 'https://api-ropsten.etherscan.io/';
       }
 
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;

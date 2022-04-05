@@ -56,11 +56,11 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   } = {};
 
   public testNets = {
-    ethereum: 'Kovan Test Network',
+    ethereum: 'Ropsten Test Network',
     binance: 'Test Network',
     polygon: 'Mumbai Test Network',
     tron: 'Shasta Test Network'
-  };
+  };l
 
   public selectChainState: any;
   private subscribers = new Subscriber();

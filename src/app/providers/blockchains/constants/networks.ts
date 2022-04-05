@@ -64,7 +64,43 @@ export const NETWORKS = {
     explorer: 'https://ropsten.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 3,
-    coin: 'rETH'
+    coin: 'rETH',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    },
+    apis: [
+      {
+        url: 'https://api-ropsten.etherscan.io/api',
+        params: {
+          module: 'gastracker',
+          action: 'gasoracle',
+          apikey: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+        },
+        responseFormat: {
+          result: {
+            safe: 'SafeGasPrice',
+            average: 'ProposeGasPrice',
+            fast: 'FastGasPrice'
+          }
+        },
+        multiplier: 9
+      },
+      {
+        url: 'https://api-ropsten.etherscan.io/api',
+        params: {
+          module: 'proxy',
+          action: 'eth_gasPrice',
+          apikey: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+        },
+        responseFormat: {
+          safe: 'result',
+          average: 'result',
+          fast: 'result'
+        },
+        multiplier: null
+      },
+    ]
   },
   'ethereum:rinkeby': {
     chain: 'ethereum',
