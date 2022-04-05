@@ -99,6 +99,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
               this.isDeflationaryConfirmed = true;
             }
           });
+          this.initAirdropInfoData();
+          
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
               this.iniAirdropInfo().then(() => {
@@ -202,9 +204,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const feeService = new BigNumber(await this.airdropContract.getFee());
       this.airdropInfoData.onceFee = feeService;
       console.log('fee', feeService.valueOf());
+      console.log('coinsBalance', coinsBalance.valueOf());
+      console.log('coinsBalance.minus(feeService)', coinsBalance.minus(feeService).valueOf());
       if (coinsBalance.minus(feeService).isNegative()) {
         const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
         const insufficientBalance = feeService.div(Math.pow(10, 18));
+        console.log(insufficientBalance.valueOf());
         const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
         const coinName = this.account.chainInfo.coin;
         error = {
@@ -293,10 +298,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.calculateCost();
       this.generateTransactionList();
     }, () => {
-      this.tokensBalanceError = {
-        code: 3,
-        message: 'Insufficient balance'
-      };
+      // this.tokensBalanceError = {
+      //   code: 3,
+      //   message: 'Insufficient balance'
+      // };
     });
   }
 
@@ -529,6 +534,15 @@ export class SubmitComponent implements OnInit, OnDestroy {
       return false;
     }).finally(() => {
       this.updateTxLisStorage();
+    });
+  }
+
+  public initAirdropInfoData(): void {
+    this.airdropContract.getFee().then((res) => {
+      this.airdropInfoData.onceFee = new BigNumber(res);
+    })
+    this.iniAirdropInfo().then(() => {
+      this.getInformationProgress = false;
     });
   }
 
