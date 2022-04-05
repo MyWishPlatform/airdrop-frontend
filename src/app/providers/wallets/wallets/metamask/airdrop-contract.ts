@@ -22,6 +22,7 @@ export class AirdropContract extends AbstractContract {
     return (await this.web3.eth.getBlock('latest')).gasLimit;
   }
 
+
   public async tokensMultiSendGas(testTokenAddress, isDeflationary, blockchainProvider): Promise<any> {
     const currentChain = blockchainProvider.activeChain.selectedChain;
     let addressesLengthTest = 300;
@@ -35,12 +36,15 @@ export class AirdropContract extends AbstractContract {
     const fee = await this.getFee();
 
     let blockGasLimit = await this.gasLimit();
+
     blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
 
-    // console.log(blockGasLimit);
     const web3 = new Web3();
+    
     const accounts = Array(addressesLengthTest).fill(null);
     const promises = [];
+    console.log("accounts:");
+    console.log(accounts);
 
     accounts.forEach((address, index) => {
       if ((index !== 0) && (index !== (addressesLengthTest - 1))) {
@@ -67,13 +71,18 @@ export class AirdropContract extends AbstractContract {
         amountsArray,
         amountsArray.length.toString(10)
       );
-
       const data = tx.encodeABI();
-      console.log('data', tx);
+      console.log('data', data);
       console.log('Fee: ', fee);
       console.log('walletAddress: ', this.walletAddress);
       console.log('contractAddress: ', this.contractAddress);
-
+      tx.estimateGas({
+        from: this.walletAddress,
+        gas: this.web3.utils.toWei('40000000', 'wei'),
+        value: web3.utils.toWei( (fee).toString() , 'ether'), 
+      }
+      ).then(res => {console.log('res'); console.log(res);})
+      .catch(err => {console.log(err)});     
       // if ((index === (addressesLengthTest - 1))) {
       //   let fileText = '';
       //   addresses.forEach((addr) => {
@@ -82,22 +91,24 @@ export class AirdropContract extends AbstractContract {
       //   window.open('data:text/csv;charset=utf-8,' + escape(fileText));
       // }
 
-      this.web3.eth.estimateGas({
-        from: this.walletAddress,
-        to: this.contractAddress,
-        value: fee,
-        data,
-        gasPrice: 0
-      }).then(res => console.log('res', res));
-
-
+      console.log(this.web3.eth);
+      
+      // this.web3.eth.estimateGas({
+      //   from: this.web3.eth.defaultAccount,
+      //   to: this.contractAddress,
+      //   value: fee,
+      //   data,
+      //   gas: this.web3.utils.toWei('4000000', 'wei')
+      // }).then(res => {console.log('res'); console.log(res);})
+      // .catch(err => {console.log(err)});  
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
           to: this.contractAddress,
           value: fee,
           data,
-          gasPrice: 0
+          gas: this.web3.utils.toWei('4000000', 'wei'),
+          gasPrice: this.web3.utils.toWei('4000000', 'wei'),
         })
       );
     });
@@ -107,6 +118,7 @@ export class AirdropContract extends AbstractContract {
         if (!result[0] || !result[1]) {
           return reject();
         }
+        console.log(result[1], result[0]);
         const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
         const initTransaction = result[0] - oneAddressAdding;
         let maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
@@ -153,7 +165,7 @@ export class AirdropContract extends AbstractContract {
     const txSend = tx.send({
       from: this.walletAddress,
       value: fee,
-      // gas: gasLimit,
+      gas: gasLimit,
       gasPrice
     });
 

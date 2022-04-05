@@ -55,7 +55,6 @@ export class AirdropContract extends AbstractContract {
         amountsArray,
         amountsArray.length.toString(10)
       );
-      console.log(tx);
       tx.send({
         callValue: fee
       });
