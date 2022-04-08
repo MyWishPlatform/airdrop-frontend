@@ -73,7 +73,6 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.blockchainsProvider
       .setTestnet(this.airdropParams.testnet, this.airdropParams.blockchain === 'ethereum' ? this.airdropParams.ethereumTestnet : null);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
-
     this.validateAddressesList();
     this.addressValidator = this.blockchainsProvider.addressFieldValidator;
 
@@ -216,7 +215,10 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.airdropParams.totalAmount = this.totalAmount;
     localStorage.setItem('proceedAirdrop', JSON.stringify(this.airdropParams));
     localStorage.setItem('airdropState', '2');
-    this.router.navigate(['submit']);
+    if(this.chainInfo.chain === 'tron')
+      this.router.navigate(['submit-tron']);
+    else
+      this.router.navigate(['submit']);
   }
 
 
