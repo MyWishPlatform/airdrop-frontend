@@ -1,16 +1,75 @@
 import {TRON_AIRDROP_ABI, TRON_AIRDROP_ADDRESSES} from '../../constants/contracts/tron-airdrop';
 import {AbstractContract} from './abstract-contract';
 
-
 export class AirdropContract extends AbstractContract {
+  isTestnet: boolean;
   constructor(
     tronLink,
-    chainId
+    chainId,
   ) {
     const airdropAddress = TRON_AIRDROP_ADDRESSES[chainId];
     super(tronLink, TRON_AIRDROP_ABI, airdropAddress);
+    this.isTestnet = chainId === "tron:shasta";
+    this.tronWeb.setTestnet(this.isTestnet);
   }
 
+  public async getDeployerData(): Promise<any> {
+    if(this.isTestnet){
+      let data = await fetch(this.isTestnet 
+        ? "https://api.shasta.trongrid.io/wallet/getaccountresource" : 
+        "https://api.trongrid.io/wallet/getaccountresource", {
+        method: "POST",
+        body: JSON.stringify({
+          address: this.tronWeb.chainClient.address.toHex(this.contractAddress),
+        })
+      });
+      data = await data.json();
+      return data;
+    }
+  }
+
+  public async getUserData(): Promise<any> {
+    console.log(this.walletAddress);
+    if(this.isTestnet){
+      let data = await fetch(this.isTestnet 
+        ? "https://api.shasta.trongrid.io/wallet/getaccountresource" : 
+        "https://api.trongrid.io/wallet/getaccountresource", {
+        method: "POST",
+        body: JSON.stringify({
+          address: this.tronWeb.chainClient.address.toHex(this.walletAddress),
+        })
+      });
+      data = await data.json();
+      return data;
+    }
+  }
+
+  private getAirdropContractBandwidthCost(N: Number | String): Number {
+    return 480 + 64 * +N;
+  }
+
+  private getAirdropContractEnergyCost(N: Number | String): Number {
+    return 48600 + 28746 * +N;
+  }
+
+  public async checkDeployerEnergy(N: Number | String): Promise<any> {
+    const data = await this.getDeployerData();
+    console.log("Deployer:");
+    console.log(data);
+    return data.EnergyLimit || 0 - data.EnergyUsed || 0 >  this.getAirdropContractEnergyCost(N);
+  } 
+  public async checkUserEnergy(N: Number | String): Promise<any> {
+    const data = await this.getUserData();
+    console.log("Deployer:");
+    console.log(data);
+    return (data.EnergyLimit || 0 - data.EnergyUsed || 0) > this.getAirdropContractEnergyCost(N);
+  } 
+  public async checkUserBandwidth(N: Number | String): Promise<any> {
+    const data = await this.getUserData();
+    console.log("User:");
+    console.log(data);
+    return (data.freeNetLimit || 0 - data.freeNetUsed || 0) + (data.netLimit || 0 - data.netUsed || 0) > this.getAirdropContractBandwidthCost(N);
+  } 
 
   public async getFee(): Promise<any> {
     return this.contract.fee().call();
