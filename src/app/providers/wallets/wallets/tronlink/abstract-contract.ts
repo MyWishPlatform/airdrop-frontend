@@ -1,9 +1,9 @@
-import Web3 from 'web3';
+import { TronwebService } from "src/app/providers/blockchains/tronweb";
 
 export class AbstractContract {
 
   protected contract;
-  protected web3 = new Web3();
+  protected tronWeb;
   protected walletAddress;
   protected contractAddress;
   private httpClient;
@@ -13,6 +13,7 @@ export class AbstractContract {
     contractABI,
     contractAddress
   ) {
+    this.tronWeb = new TronwebService();
     this.contractAddress = contractAddress;
     this.walletAddress = this.tronLink.defaultAddress.base58;
     this.contract = this.tronLink.contract(

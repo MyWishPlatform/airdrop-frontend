@@ -115,4 +115,8 @@ export class TronLinkService {
     return new AirdropContract(this.tronLink, this.connectedAccount.chainId);
   }
 
+  public getBalance() {
+    console.log(this.tronLink);
+  }
+
 }
