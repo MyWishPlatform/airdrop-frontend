@@ -61,9 +61,9 @@
                        [(ngModel)]="airdropParams.blockchain"
                        value="tron">
                 <span class="radio-control_content">
-                  <img src="./assets/images/icons/coins/solana.svg" class="radio-control_content_icon">
+                  <img src="./assets/images/icons/coins/tron.svg" class="radio-control_content_icon">
                   <span class="radio-control_content_text">
-                    SOLANA
+                    Tron
                   </span>
                 </span>
               </label>
@@ -105,7 +105,7 @@
                      appTokenInput
                      autocomplete="off"
                      required="required"
-                     placeholder="0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518"
+                     [placeholder]="tokensPlaceholders[airdropParams.blockchain]"
                      [readonly]="airdropForm.controls.token?.pending"
                      [(ngModel)]="airdropParams.token"
                      name="token">

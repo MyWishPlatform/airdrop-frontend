@@ -124,7 +124,7 @@
             {{airdropInfoData.totalCost | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
-            Network fee energy(sum)
+            Network fee(burning trx for energy)
           </div>
         </div>
         <div class="airdrop-info_item">
@@ -153,39 +153,6 @@
             </div>
           </div>
         </div>
-
-        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'binance' || airdropParams.blockchain === 'polygon'">
-          <div class="params-controls_label">
-            Network speed (Gas price)
-          </div>
-          <div class="tokens-balance">
-            <div class="tokens-balance_text">
-              &nbsp;&nbsp;&nbsp;
-              <b>{{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}</b>
-            </div>
-          </div>
-        </div>
-
-        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'ethereum'">
-          <div class="params-controls_label">&nbsp;</div>
-          <div class="gas-price-control">
-            <div class="params-controls_label">Selected network speed (Gas Price)</div>
-            <div class="gas-price-control_value">
-              {{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}
-            </div>
-          </div>
-
-          <div class="custom-mat-slider">
-            <mat-slider class="custom"
-                        [disabled]="airdropParams.completed"
-                        [min]="airdropInfoData.gasPrices[0]"
-                        [max]="airdropInfoData.gasPrices[1]"
-                        step="500000000"
-                        value="{{airdropInfoData.selectedGasPrice}}"
-                        (input)="changeGasPrice($event)">
-            </mat-slider>
-          </div>
-        </div>
       </div>
 
       <button class="btn btn__success width-100"
@@ -207,7 +174,6 @@
           <div class="message-block_info_text">
             <span [innerHTML]="tokensBalanceError.message"></span>
           </div>
-
           <app-approve
             *ngIf="tokensBalanceError.code === 2"
             [token]="airdropParams.token"

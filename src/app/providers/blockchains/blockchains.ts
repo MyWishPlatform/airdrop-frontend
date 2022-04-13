@@ -100,6 +100,7 @@ export class BlockchainsProvider {
 
 
   public addressFieldValidator = (control: AbstractControl) => {
+    console.log(control);
     const address = control.value || '';
     if (!this.isAddress(address)) {
       return {
