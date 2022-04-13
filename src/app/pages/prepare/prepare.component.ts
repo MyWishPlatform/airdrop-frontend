@@ -49,7 +49,8 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   public tokensPlaceholders = {
     ethereum: '0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518',
     binance: '0x8aed24bf6e0247be51c57d68ad32a176bf86f4d9',
-    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f'
+    polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f',
+    tron: 'TYMp9gfnseBLdRMcKjNF9AeHJeJn9dJBDf',
   }
 
   public csvData: {
@@ -81,7 +82,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     private http: HttpClient,
     private renderer: Renderer2
   ) {
-    this.airdropParams = {};
+    this.airdropParams = {blockchain: 'ethereum'};
 
     if (this.activatedRoute.snapshot.data.editMode) {
       this.iniEditAirdropParams();

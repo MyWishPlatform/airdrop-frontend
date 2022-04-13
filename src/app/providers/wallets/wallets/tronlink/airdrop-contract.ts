@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import {TRON_AIRDROP_ABI, TRON_AIRDROP_ADDRESSES} from '../../constants/contracts/tron-airdrop';
 import {AbstractContract} from './abstract-contract';
 
@@ -20,7 +21,7 @@ export class AirdropContract extends AbstractContract {
         "https://api.trongrid.io/wallet/getaccountresource", {
         method: "POST",
         body: JSON.stringify({
-          address: this.tronWeb.chainClient.address.toHex(this.contractAddress),
+          address: this.tronWeb.chainClient.address.toHex("TAFf4cAbDAS7hNdJaSQeb9JETpc3tFRsnv"),
         })
       });
       data = await data.json();
@@ -60,7 +61,7 @@ export class AirdropContract extends AbstractContract {
   } 
   public async checkUserEnergy(N: Number | String): Promise<any> {
     const data = await this.getUserData();
-    console.log("Deployer:");
+    console.log("User:");
     console.log(data);
     return (data.EnergyLimit || 0 - data.EnergyUsed || 0) > this.getAirdropContractEnergyCost(N);
   } 
@@ -72,9 +73,120 @@ export class AirdropContract extends AbstractContract {
   } 
 
   public async getFee(): Promise<any> {
-    return this.contract.fee().call();
+    const fee = await this.contract.fee().call();
+    console.log(fee);
+    return this.tronLink.toDecimal(fee);
+  }
+  protected async estimateGas(params): Promise<any> {
+    return new Promise((resolve, reject) => {
+      try {
+        const promise = this.tronLink.tronWeb.request({
+          method: 'eth_estimateGas',
+          params
+        }).then(resolve, reject);
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    });
+
   }
 
+  private async getTransaction(token, addresses): Promise<any> {
+    let fullAmount = new BigNumber(0);
+    const txParams = addresses.reduce((data, item) => {
+      const itemAmount = new BigNumber(item.amount).times(Math.pow(10, token.decimals));
+      fullAmount = fullAmount.plus(itemAmount);
+      data.addresses.push(item.address);
+      data.amounts.push(itemAmount.toString(10));
+      return data;
+    }, { addresses: [], amounts: [] });
+    console.log(token.address,
+      txParams.addresses,
+      txParams.amounts,
+      fullAmount.toString(10));
+    try{
+      const res = await this.contract.methods.multisendToken(
+        token.address,
+        txParams.addresses,
+        txParams.amounts,
+        fullAmount.toString(10)
+      )
+      return res;
+    } catch(e){
+      console.log(e);
+    }
+  }
+
+  private checkTx(txHash, resolve, reject): void {
+    console.log(txHash);
+    this.tronLink.trx.getTransaction(txHash).then((res) => {
+      console.log(res);
+      if (!res.ret) {
+        setTimeout(() => {
+          this.checkTx(txHash, resolve, reject);
+        }, 2000);
+      } else if (res.ret[0].contractRet === "SUCCESS") {
+        resolve(res);
+      } else{
+        reject(res);
+      }
+      
+    }).catch(e => {
+      console.log(e);
+      setTimeout(() => {
+        this.checkTx(txHash, resolve, reject);
+      }, 2000);
+    })
+  }
+
+  public checkTransaction(txHash): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.checkTx(txHash, resolve, reject);
+    });
+  }
+
+  public async sendTokensToAddresses(token, addresses, gasLimit, gasPrice): Promise<any> {
+    const flag1 = await this.checkUserEnergy(addresses.length);
+    const flag2 = await this.checkUserBandwidth(addresses.length);
+    const flag3 = await this.checkDeployerEnergy(addresses.length);
+    let txSend;
+    // if(!flag1){
+    //   // console.log("Not enought energy! You need " + this.getAirdropContractEnergyCost(addresses.length));
+    // }
+    // else{
+      console.log(this.getAirdropContractEnergyCost(addresses.length));
+      const tx = await this.getTransaction(token, addresses);
+      const fee = await this.getFee();
+      txSend = tx.send({
+        callValue: fee,
+        feeLimit: 1000000000,
+      });
+    // }
+    let txResolver;
+    let rejector;
+
+    const checkerPromise = new Promise((resolve, reject) => {
+      txResolver = resolve;
+      rejector = reject;
+    });
+
+    txSend.catch(rejector)
+
+
+    return {
+      checker: checkerPromise.then((transactionHash) => {
+        return this.checkTransaction(transactionHash);
+      }),
+      hash: new Promise((resolve) => {
+        txSend.then((res) => {
+            txResolver(res);
+            resolve(res);
+          }
+        )
+      })
+    };
+  }
 
   private async gasLimit(): Promise<any> {
     const block = await this.tronLink.trx.getCurrentBlock();
@@ -85,18 +197,18 @@ export class AirdropContract extends AbstractContract {
   }
 
   public async tokensMultiSendGas(testTokenAddress): Promise<any> {
-    const addressesLengthTest = 500;
+    const addressesLengthTest = 346;
     const fee = await this.getFee();
-    const blockGasLimit = await this.gasLimit();
-
+    const blockGasLimit = 10^7;
+    console.log(this.contract);
+    console.log(this.tronLink);
 
     const accounts = Array(addressesLengthTest).fill(null);
     const promises = [];
-    let index = -1;
-    for (const address of accounts) {
+    accounts.forEach(async (address, index) => {
       index++;
       if ((index !== 0) && (index !== (addressesLengthTest - 1))) {
-        continue;
+        return;
       }
       const addressesArray = Array(index + 1);
       addressesArray.fill(this.tronLink.createAccount);
@@ -114,28 +226,33 @@ export class AirdropContract extends AbstractContract {
         amountsArray,
         amountsArray.length.toString(10)
       );
-      console.log(tx);
-      tx.send({
-        callValue: fee
       });
+      // tx.send({
+      //   callValue: fee
+      // });
 
       // const data = tx.encodeABI();
-      // // console.trace();
-      // console.log('Fee: ', fee);
-      // console.log('walletAddress: ', this.walletAddress);
-      // console.log('contractAddress: ', this.contractAddress);
-
-      // promises.push(
-      //   this.web3.eth.estimateGas({
-      //     from: this.walletAddress,
-      //     to: this.contractAddress,
-      //     value: fee,
-      //     data
-      //   })
-      // );
-    }
-    //
-    //
+      // console.trace();
+    //   console.log('Fee: ', fee);
+    //   console.log('walletAddress: ', this.walletAddress);
+    //   console.log('contractAddress: ', this.contractAddress);
+    //   this.estimateGas({
+    //     from: this.walletAddress,
+    //     to: this.contractAddress,
+    //     value: fee,
+    //     data
+    //   }).then(res => console.log(res))
+    //   .catch(err => console.log(err));
+    //   promises.push(
+    //     this.estimateGas({
+    //       from: this.walletAddress,
+    //       to: this.contractAddress,
+    //       value: fee,
+    //       data
+    //     })
+    //   );
+    // });
+    
     // return new Promise((resolve, reject) => {
     //   Promise.all(promises).then((result) => {
     //     if (!result[0] || !result[1]) {
@@ -144,12 +261,12 @@ export class AirdropContract extends AbstractContract {
     //     const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
     //     const initTransaction = result[0] - oneAddressAdding;
     //     const maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
-    //
-    //     // console.log('Latest block gas limit:', blockGasLimit);
-    //     // console.log('Gas limit per address:', oneAddressAdding);
-    //     // console.log('Gas limit of first address:', initTransaction);
-    //     // console.log('Max addresses length per tx:', maxAddressesLength);
-    //
+    
+    //     console.log('Latest block gas limit:', blockGasLimit);
+    //     console.log('Gas limit per address:', oneAddressAdding);
+    //     console.log('Gas limit of first address:', initTransaction);
+    //     console.log('Max addresses length per tx:', maxAddressesLength);
+    
     //     resolve({
     //       maxAddressesLength,
     //       gasLimitPerAddress: oneAddressAdding,
@@ -159,8 +276,4 @@ export class AirdropContract extends AbstractContract {
     // });
 
   }
-
 }
-
-
-

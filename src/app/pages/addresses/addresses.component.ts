@@ -78,9 +78,6 @@ export class AddressesComponent implements OnInit, OnDestroy {
 
   }
 
-
-
-
   private validateAddressesList(): void {
 
     this.addressesList = this.airdropParams.addresses.reduce((tableData, oneTableItem, index) => {
@@ -88,12 +85,15 @@ export class AddressesComponent implements OnInit, OnDestroy {
       const errors = [];
 
       const {address, amount} = oneTableItem;
-
-      const isValidAddress = this.blockchainsProvider.isAddress(address);
+      let isValidAddress = this.blockchainsProvider.isAddress(address);
       if (isValidAddress) {
-        oneTableItem.address = '0x' + address.toLowerCase().replace(/^0x/, '');
+        if(this.chainInfo.chain === 'tron'){
+          oneTableItem.address = address;
+        } else{
+          oneTableItem.address = '0x' + address.toLowerCase().replace(/^0x/, '');
+        }
       }
-
+      
       const isNanAmount = isNaN(amount) || +amount === 0;
       const correctDecimals = (amount.split('.')[1] || '').length <= +this.airdropParams.token.decimals;
       const isValidAmount = !isNanAmount && correctDecimals;

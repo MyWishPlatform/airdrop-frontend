@@ -43,8 +43,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       return;
     }
 
-    this.iniStartAirdropInfoData();
-
     this.blockchainsProvider.setChain(this.airdropParams.blockchain);
     this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
@@ -88,10 +86,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
           );
 
           this.airdropContract = this.walletsProvider.getAirdropContract();
-          const data1 = await this.airdropContract.checkUserEnergy(100);
-          const data2 = await this.airdropContract.checkUserBandwidth(100);
-          console.log(data1);
-          console.log(data2);
           this.getInformationProgress = true;
           // this.initGasPriceInterval();
           // const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
@@ -154,11 +148,11 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
 
   public isDeflationaryConfirmed = true;
 
-  private initGasPriceInterval(): void {
-    this.gasPricesInterval = setInterval(() => {
-      this.updateGasPrices();
-    }, 10000);
-  }
+  // private initGasPriceInterval(): void {
+  //   this.gasPricesInterval = setInterval(() => {
+  //     this.updateGasPrices();
+  //   }, 10000);
+  // }
 
   private getLeftTokensTransfer(): BigNumber {
     const txList = this.getTxLisStorage();
@@ -199,11 +193,13 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   private async checkAccountTokensBalance(): Promise<any> {
     const balance = new BigNumber(await this.tokenContract.getBalance());
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
+    console.log(balance, allowance);
     this.approveTokens = this.getLeftTokensTransfer();
     let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
     if (!error) {
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
+      console.log(coinsBalance, feeService);
       this.airdropInfoData.onceFee = feeService;
       console.log('fee', feeService.valueOf());
       if (coinsBalance.minus(feeService).isNegative()) {
@@ -228,13 +224,11 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       addressesCount: this.airdropParams.addresses.length,
       transactionsCount: 0,
       tokens: this.airdropParams.totalAmount,
-      fullGasLimit: 0,
-      gasPrices: [0, 0],
+      energy: 0,
       fee: 0,
       onceFee: 0,
       tokenBalance: 0,
       totalCost: 0,
-      selectedGasPrice: 0
     };
   }
 
@@ -252,49 +246,19 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     });
   }
 
-  private getGasPrice(): Promise<any> {
-    return this.airdropContract.getGasPrice().then((responseGasPrices) => {
-      const gasPrices = [
-        responseGasPrices[0],
-        responseGasPrices[2]
-      ];
-
-      return {
-        gasPrices,
-        selectedGasPrice: responseGasPrices[1]
-      };
-    });
-  }
-
-  private updateGasPrices(): void {
-    this.getGasPrice().then((result) => {
-      this.airdropInfoData.gasPrices[0] = result.gasPrices[0];
-      this.airdropInfoData.gasPrices[1] = result.gasPrices[1];
-      this.airdropInfoData.selectedGasPrice = BigNumber.max(
-        BigNumber.min(
-          this.airdropInfoData.selectedGasPrice,
-          result.gasPrices[1]
-        ),
-        result.gasPrices[0]
-      );
-      this.calculateCost();
-    });
-  }
-
   private async iniAirdropInfo(): Promise<any> {
     if (this.airdropParams.deflationary && !this.isExcludedFromFee) {
       return;
     }
     const promises = [
       this.iniAirdropInfoData(),
-      this.getGasPrice(),
+      // this.getGasPrice(),
       this.getTokenBalance()
     ];
     return Promise.all(promises).then((results) => {
       results.forEach((res) => {
         this.airdropInfoData = { ...this.airdropInfoData, ...res };
       });
-      this.calculateCost();
       this.generateTransactionList();
     }, () => {
       this.tokensBalanceError = {
@@ -305,13 +269,8 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
-    console.log(11);
-    console.log('selectedGasPrice', new BigNumber(this.airdropInfoData.selectedGasPrice));
-    console.log('fullGasLimit', new BigNumber(this.airdropInfoData.fullGasLimit));
-    console.log('totalCost', new BigNumber(this.airdropInfoData.selectedGasPrice)
-      .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10));
     this.airdropInfoData.totalCost = new BigNumber(this.airdropInfoData.selectedGasPrice)
-      .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 18)).toString(10);
+      .times(this.airdropInfoData.fullGasLimit).div(Math.pow(10, 6)).toString(10);
   }
 
   public changeGasPrice($event): void {
@@ -320,24 +279,20 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
-    const { maxAddressesLength, gasLimitPerAddress, gasLimitForFirstAddress } =
-      await this.airdropContract.tokensMultiSendGas(this.airdropParams.token.address, this.airdropParams.deflationary, this.blockchainsProvider);
-    const gasLimitPerTx = gasLimitForFirstAddress + gasLimitPerAddress * maxAddressesLength;
+    const maxAddressesLength = 100;
+    const gasLimitPerTx = 10^7;
     const addressesCount = this.airdropParams.addresses.length;
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);
-    const latestTxGasLimit = gasLimitForFirstAddress + gasLimitPerAddress * (addressesCount % maxAddressesLength - 1);
+    const latestTxGasLimit = 10^7;
     const fullGasLimit = gasLimitPerTx * (transactionsCount - 1) + latestTxGasLimit;
-    console.log('Gas limit per full tx:', gasLimitPerTx);
-    console.log('Latest TX gas limit:', latestTxGasLimit);
-    console.log('Gas limit for all Airdrop:', fullGasLimit);
-
     return {
       transactionsCount,
-      fee: new BigNumber(this.airdropInfoData.onceFee * transactionsCount).div(Math.pow(10, 18)).toString(10),
+      fee: new BigNumber(this.airdropInfoData.onceFee * transactionsCount).div(Math.pow(10, 6)).toString(10),
       fullGasLimit,
       maxAddressesLength,
       gasLimitPerTx,
-      latestTxGasLimit
+      latestTxGasLimit,
+      totalCost: transactionsCount * 844
     };
 
   }
@@ -437,12 +392,9 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   private async checkTokensBalance(txItem): Promise<any> {
 
     try {
-
       const balance = new BigNumber(await this.tokenContract.getBalance());
       const allowance = new BigNumber(await this.tokenContract.getAllowance());
-
       const error = this.checkTokensErrors(balance, allowance, txItem.tokens);
-
       if (error) {
         switch (error?.code) {
           case 1:
@@ -492,26 +444,22 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   }
 
   private async sendTokens(txItem): Promise<any> {
-
     if (!await this.checkTokensBalance(txItem)) {
       console.error('token balance');
       return;
     }
 
     txItem.state = 1;
-    console.log('gasLimitPerTx', this.airdropInfoData.gasLimitPerTx);
-    console.log('addresses', txItem.addresses);
     const tx = await this.airdropContract.sendTokensToAddresses(
       this.airdropParams.token,
       txItem.addresses,
       Math.floor(this.airdropInfoData.gasLimitPerTx),
       this.airdropInfoData.selectedGasPrice,
     );
-
     tx.hash.then((txHash: string) => {
       txItem.txHash = txHash;
       this.updateTxLisStorage();
-    }).catch(() => console.error('txhash'));
+    }).catch((e) => console.error(e));
     return this.getTxState(tx.checker, txItem);
   }
 
@@ -602,8 +550,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       this.startSending(true);
     } else {
       this.sendingInProgress = false;
-      this.updateGasPrices();
-      this.initGasPriceInterval();
 
       this.dialog.open(ModalMessageComponent, {
         width: '372px',
@@ -619,28 +565,15 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
 
   public async confirmDeflationary(): Promise<void>{
     this.getInformationProgress = true;
-    // console.log(this.tokenContract);
-    // console.log(3, this.tokenContract.isExcludedFromFee);
-    // let resultIsExcludedFromFee = await this.tokenContract.isExcludedFromFee();
-    // console.log(333, resultIsExcludedFromFee);
-    // if (typeof resultIsExcludedFromFee === 'string') {
-    //   resultIsExcludedFromFee = !!+(+resultIsExcludedFromFee).toString(2);
-    // }
 
     const resultOwner = await this.tokenContract.owner();
-    // console.log('resultOwner', resultOwner);
-    // console.log('address', this.account.address);
-    // console.log('resultIsExcludedFromFee', this.isExcludedFromFee);
-    // console.log('comprasion', resultOwner.toString(10) === this.tokenContract.walletAddress);
-    // console.log(2, this.isExcludedFromFee);
+
     if (this.isExcludedFromFee) {
       await this.iniAirdropInfo();
       this.getInformationProgress = false;
       this.isDeflationaryConfirmed = true;
       return;
     }
-    // const resultOwner = await this.tokenContract.owner();
-    // console.log('resultOwner', resultOwner);
     if ((+resultOwner).toString(16) !== (+this.account.address).toString(16)) {
       this.dialog.open(ModalMessageComponent, {
         width: '372px',
@@ -684,8 +617,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     });
 
     this.sendingInProgress = false;
-    this.updateGasPrices();
-    // this.initGasPriceInterval();
     clearInterval(this.gasPricesInterval);
 
     localStorage.setItem('airdropState', '4');

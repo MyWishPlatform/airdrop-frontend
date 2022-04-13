@@ -17,12 +17,24 @@ export class TokenContract extends AbstractContract {
 
 
   public async getBalance(): Promise<any> {
-    return this.contract.balanceOf(this.walletAddress).call();
+    // console.log();
+    try{
+      const balance = await this.contract.balanceOf(this.walletAddress).call();
+      console.log(this.tronLink.toDecimal(balance._hex));
+      return this.tronLink.toDecimal(balance._hex);
+    } catch(err) {
+      console.log(err);
+    }
   }
 
 
   public async getAllowance(): Promise<string> {
-    return this.contract.allowance(this.walletAddress, this.airdropAddress).call();
+    try{
+      const balance = await this.contract.allowance(this.walletAddress, this.airdropAddress).call();
+      return this.tronLink.toDecimal(balance._hex);
+    } catch(err) {
+      console.log(err);
+    }
   }
 
 
