@@ -71,32 +71,10 @@
             </div>
           </div>
           <div class="form_control testnet-control">
-            <div #toggleButton
-              (click)="openDropDown($event)"
-              class="form_control_label"
-              [ngClass]="{'testnet-control__pointer': airdropParams.blockchain === 'ethereum'}"
-            >
+            <div class="form_control_label">
               {{ airdropParams.blockchain ? testNets[airdropParams.blockchain] : "Test Network"}}
-              <span
-                *ngIf="airdropParams.blockchain === 'ethereum'"
-                [class.opened]="isDropDownOpen"
-                class="arrow opened"
-              ></span>
             </div>
-            <input [(ngModel)]="testNets['ethereum']"
-                   disabled
-                   value="Ropsten Test Network"
-                   name="ethereumTestnet"
-                   style="display: none;"
-            >
-            <div #dropdown *ngIf="isDropDownOpen" class="dropdown">
-              <ul class="submenu">
-                <li (click)="switchEthereumTestnet('ropsten')">Ropsten</li>
-                <li (click)="switchEthereumTestnet('kovan')">Kovan</li>
-              </ul>
-            </div>
-            <div class="form_control_buttons"
-            >
+            <div class="form_control_buttons">
               <label class="checkbox-control">
                 <input type="checkbox"
                        [(ngModel)]="airdropParams.testnet"
@@ -145,7 +123,7 @@
               Token symbol:
             </div>
             <a class="text-control as-link"
-               [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token': testNets.ethereum"
+               [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
                target="_blank">
               <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
                 {{ airdropParams.token.symbol }}

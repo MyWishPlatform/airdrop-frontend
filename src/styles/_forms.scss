@@ -188,11 +188,27 @@
       opacity: 0;
     }
   }
-
+  &-tron {
+    opacity: 0.7;
+    pointer-events: none;
+  }
   &_input:checked ~ &_rect {
     left: 100%;
     margin-left: -42px;
     background: url(/assets/images/icons/yes.svg) center center no-repeat #2873FB;
+  }
+  &-tron &_rect{
+    left: 100%;
+    margin-left: -42px;
+    background: url(/assets/images/icons/yes.svg) center center no-repeat #2873FB;
+  }
+  &-tron &_text {
+    &__on {
+      opacity: 1;
+    }
+    &__off {
+      opacity: 0;
+    }
   }
   &_input:checked ~ &_text {
     &__on {

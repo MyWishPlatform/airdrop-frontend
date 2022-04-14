@@ -1,13 +1,13 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BlockchainsProvider } from '../../providers/blockchains/blockchains';
 import { CsvParserService } from '../../services/csv-parser.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {combineLatest, EMPTY, merge, Observable, of, Subscriber, zip} from 'rxjs';
+import { combineLatest, EMPTY, merge, of, Subscriber, zip } from 'rxjs';
 import { WalletsProvider } from '../../providers/wallets/wallets';
 import { NETWORKS } from 'src/app/providers/blockchains/constants/networks';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { catchError, map, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, withLatestFrom } from 'rxjs/operators'
 import BigNumber from 'bignumber.js';
 
 export interface TokenInterface {
@@ -26,7 +26,6 @@ export interface AirdropParamsInterface {
   testnet?: boolean;
   token?: TokenInterface;
   deflationary?: boolean;
-  ethereumTestnet?: string;
 }
 
 interface ResponseFormatIterface {
@@ -42,8 +41,6 @@ interface ResponseFormatIterface {
 })
 export class PrepareComponent implements AfterViewInit, OnDestroy {
   @ViewChild('airdropForm') private airdropForm;
-  @ViewChild('toggleButton') toggleButton: ElementRef;
-  @ViewChild('dropdown') dropdown: ElementRef;
   public airdropParams: AirdropParamsInterface;
 
   public tokensPlaceholders = {
@@ -60,7 +57,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   } = {};
 
   public testNets = {
-    ethereum: 'Ropsten Test Network',
+    ethereum: 'Kovan Test Network',
     binance: 'Test Network',
     polygon: 'Mumbai Test Network',
     tron: 'Shasta Test Network'
@@ -69,9 +66,6 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   public selectChainState: any;
   private subscribers = new Subscriber();
   // private walletSubscriber;
-  public ethereumTestnet = 'Ropsten Test Network';
-
-  public isDropDownOpen = false;
 
   constructor(
     private blockchainsProvider: BlockchainsProvider,
@@ -79,8 +73,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private walletsProvider: WalletsProvider,
-    private http: HttpClient,
-    private renderer: Renderer2
+    private http: HttpClient
   ) {
     this.airdropParams = {blockchain: 'ethereum'};
 
@@ -94,11 +87,6 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     //     this.walletsProvider.validateWallet(this.selectChainState.chainId);
     //   }
     // });
-    this.renderer.listen('window', 'click', (e) => {
-      if (e.target !== this.toggleButton?.nativeElement && e.target !== this.dropdown?.nativeElement) {
-        this.isDropDownOpen = false;
-      }
-    });
   }
 
   private iniEditAirdropParams(): void {
@@ -106,23 +94,16 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     const airdropParams = airdropParamsStorage ? JSON.parse(airdropParamsStorage) : false;
 
 
-    if (!airdropParams) {
-      return;
-    }
+    if (!airdropParams) { return; }
 
     this.airdropParams.blockchain = airdropParams.blockchain;
-    this.blockchainsProvider
-      .setChain(airdropParams.blockchain, airdropParams.blockchain === 'ethereum' ? this.testNets.ethereum : null);
+    this.blockchainsProvider.setChain(airdropParams.blockchain);
     this.airdropParams.testnet = airdropParams.testnet;
-    this.blockchainsProvider
-      .setTestnet(airdropParams.testnet, airdropParams.blockchain === 'ethereum' ? this.testNets.ethereum : null);
+    this.blockchainsProvider.setTestnet(airdropParams.testnet);
 
     this.airdropParams.token = airdropParams.token;
     this.airdropParams.fileName = airdropParams.fileName;
     this.airdropParams.deflationary = airdropParams.deflationary;
-
-    this.airdropParams.ethereumTestnet = this.testNets.ethereum;
-
     this.csvData = {
       data: airdropParams.addresses,
       changed: airdropParams.changed
@@ -138,11 +119,11 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       const formControls = this.airdropForm.controls;
       this.subscribers.add(formControls.blockchain.valueChanges.subscribe((value) => {
-        this.blockchainsProvider.setChain(value, value === 'ethereum' ? this.testNets.ethereum : null);
+        this.blockchainsProvider.setChain(value);
       }));
 
       this.subscribers.add(formControls.testnet.valueChanges.subscribe((value) => {
-        this.blockchainsProvider.setTestnet(value, this.testNets.ethereum);
+        this.blockchainsProvider.setTestnet(value);
       }));
 
       this.subscribers.add(formControls.deflationary.valueChanges.subscribe((value) => {
@@ -156,10 +137,6 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
         this.selectChainState = state.chainParams;
         tokenAddressControl.setValue(tokenAddressControl.value);
         this.walletsProvider.setNetwork(state.state.chain, state.state.isTestnet);
-      }));
-
-      this.subscribers.add(formControls.ethereumTestnet.valueChanges.subscribe((value) => {
-        this.blockchainsProvider.setTestnet(this.airdropParams.testnet, this.testNets.ethereum);
       }));
     });
   }
@@ -180,7 +157,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
             const address = oneTableItem[0].replace([/^\s+/, /\s+$/], '');
             const amount = oneTableItem[1].replace([/^\s+/, /\s+$/], '').replace(/\.$/, '');
             const line = index + 1;
-            return {address, amount, line};
+            return { address, amount, line };
           }) : false
         };
       });
@@ -188,32 +165,14 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   }
 
   public proceedAirdrop(): void {
-    const formValues = {...this.airdropForm.value};
+    const formValues = { ...this.airdropForm.value };
     formValues.fileName = this.airdropParams.fileName;
     formValues.addresses = this.csvData.data;
     formValues.changed = this.csvData.changed;
     formValues.testnet = !!formValues.testnet;
-    formValues.ethereumTestnet = this.testNets.ethereum;
-
+    console.log(formValues);
     localStorage.setItem('proceedAirdrop', JSON.stringify(formValues));
     localStorage.setItem('airdropState', '1');
     this.router.navigate(['addresses']);
   }
-
-  public openDropDown(e): void {
-    if (this.airdropParams.blockchain !== 'ethereum') return;
-    this.isDropDownOpen = !this.isDropDownOpen;
-  }
-
-  public switchEthereumTestnet(net): void {
-   switch (net) {
-     case 'kovan':
-       this.testNets.ethereum = 'Kovan Test Network';
-       break;
-     case 'ropsten':
-       this.testNets.ethereum = 'Ropsten Test Network';
-       break;
-   }
-  }
 }
-
