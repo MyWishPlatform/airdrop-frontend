@@ -34,7 +34,6 @@ export class TronwebService {
 
   public async getContract(address): Promise<any> {
     const contract = await this.chainClient.trx.getContract(address).then((res) => {
-      console.log(res);
       return res;
     }, () => {
       return false;
@@ -50,7 +49,7 @@ export class TronwebService {
   }
 
 
-  public getTokenInfo(address): Promise<any> {
+  public async getTokenInfo(address): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const contractModel = await this.getContract(address);
       if (!contractModel) {
@@ -61,12 +60,12 @@ export class TronwebService {
         contractModel.symbol().call()
       ];
       Promise.all(tokenInfoPromises).then((result) => {
-        console.log(result[0].toNumber());
         resolve({
-          decimals: result[0].toNumber(),
+          decimals: result[0].toNumber ? result[0].toNumber() : result[0],
           symbol: result[1]
         });
-      }).catch(() => {
+      }).catch((e) => {
+        console.log(e);
         reject();
       });
     });

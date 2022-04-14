@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <div *ngIf="airdropParams.deflationary && !isDeflationaryConfirmed && account?.valid && !isExcludedFromFee && tokensBalanceError?.code !== 2" >
+    <div *ngIf="airdropParams.deflationary && !isDeflationaryConfirmed && account?.valid && !isExcludedFromFee" >
       <div><b>Token owner</b> must add <span style="color: #206eff; font-weight: 700">address of Airdrop contract</span> in <b>excludeFromFee</b> at the time of distribution</div>
       <br>
       <div style="opacity: .5">excludeFromFee <b>Airdrop contract address</b></div>
@@ -88,9 +88,8 @@
         <span  class="btn_text">Confirm</span>
       </button>
     </div>
-
-    <div *ngIf="airdropInfoData && !(!account?.valid || tokensBalanceError) && isDeflationaryConfirmed"
-         [ngClass]="{'with-errors': !airdropInfoData.transactionsCount}"
+    <div *ngIf="airdropInfoData && account?.valid && isDeflationaryConfirmed"
+         [ngClass]="{'with-errors': false}"
          class="airdrop-info-block">
 
       <span class="lds-ellipsis" *ngIf="getInformationProgress">
@@ -124,7 +123,7 @@
             {{airdropInfoData.totalCost | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
-            Network fee(burning trx for energy)
+            Network fee
           </div>
         </div>
         <div class="airdrop-info_item">
@@ -132,7 +131,7 @@
             {{airdropInfoData.fee | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
           </div>
           <div class="airdrop-info_item_label">
-            Platform fee trx(sum)
+            Platform fee
           </div>
         </div>
       </div>
@@ -153,10 +152,26 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <button class="btn btn__success width-100"
-              [disabled]="sendingInProgress"
+      <app-approve
+            *ngIf="tokensBalanceError?.code === 2"
+            [token]="airdropParams.token"
+            [amount]="approveTokens.toString(10) | bigNumberFormat : this.airdropParams.token.decimals"
+            [(approveType)]="approveType"></app-approve>
+
+      <div class="buttons-container">
+        <button class="btn btn__success"
+          (click)="approveLeftTransferTokens()"
+          [disabled]="errApproveInProgress || tokensBalanceError?.code !== 2">
+          <span class="lds-ellipsis" *ngIf="errApproveInProgress">
+            <span class="lds-ellipsis_container">
+              <span></span><span></span><span></span><span></span>
+            </span>
+          </span>
+          <span class="btn_text">Approve</span>
+        </button>
+        <button class="btn btn__success"
+              [disabled]="sendingInProgress || !airdropInfoData.transactionsCount || tokensBalanceError"
               (click)="startSending()"
               *ngIf="!airdropParams.completed">
         <span class="lds-ellipsis" *ngIf="sendingInProgress">
@@ -166,6 +181,9 @@
         </span>
         <span class="btn_text uppercase">Send</span>
       </button>
+      </div>
+
+      
     </div>
 
     <div *ngIf="!airdropParams.completed && (!account?.valid || tokensBalanceError)" class="airdrop-info-block">
@@ -174,26 +192,8 @@
           <div class="message-block_info_text">
             <span [innerHTML]="tokensBalanceError.message"></span>
           </div>
-          <app-approve
-            *ngIf="tokensBalanceError.code === 2"
-            [token]="airdropParams.token"
-            [amount]="approveTokens.toString(10) | bigNumberFormat : this.airdropParams.token.decimals"
-            [(approveType)]="approveType"></app-approve>
-
-          <div class="message-block_info_buttons">
-            <button class="btn btn__success"
-                    *ngIf="tokensBalanceError.code === 2" (click)="approveLeftTransferTokens()"
-                    [disabled]="errApproveInProgress">
-
-              <span class="lds-ellipsis" *ngIf="errApproveInProgress">
-                <span class="lds-ellipsis_container">
-                  <span></span><span></span><span></span><span></span>
-                </span>
-              </span>
-              <span class="btn_text">Approve</span>
-            </button>
+          <div class="message-block_info_buttons" *ngIf="tokensBalanceError.code === 1">
             <button class="btn btn__success" (click)="selectWallet()"
-                    *ngIf="tokensBalanceError.code === 1 || tokensBalanceError.code === 3"
                     [disabled]="errApproveInProgress">
               <span class="btn_text">Connect wallet</span>
             </button>

@@ -100,7 +100,6 @@ export class BlockchainsProvider {
 
 
   public addressFieldValidator = (control: AbstractControl) => {
-    console.log(control);
     const address = control.value || '';
     if (!this.isAddress(address)) {
       return {
@@ -124,7 +123,6 @@ export class BlockchainsProvider {
           invalidAddress: true
         });
       }
-
       const tokenPath = `${this.state.chain}:${this.state.isTestnet ? 'testnet' : 'mainnet'}:${address}`;
 
       const setTokenValues = (tokenData) => {

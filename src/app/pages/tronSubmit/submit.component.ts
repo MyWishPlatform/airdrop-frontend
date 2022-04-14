@@ -84,24 +84,23 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
           this.tokenContract = this.walletsProvider.getTokenContract(
             this.airdropParams.token.address
           );
-
+          const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
+            if (+res) {
+              res = true;
+            }
+            this.isExcludedFromFee = res;
+            if (this.isExcludedFromFee === true) {
+              this.isDeflationaryConfirmed = true;
+            }
+          });
           this.airdropContract = this.walletsProvider.getAirdropContract();
           this.getInformationProgress = true;
-          // this.initGasPriceInterval();
-          // const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
-          //   if (+res) {
-          //     res = true;
-          //   }
-          //   this.isExcludedFromFee = res;
-          //   if (this.isExcludedFromFee === true) {
-          //     this.isDeflationaryConfirmed = true;
-          //   }
-          // });
+          this.iniAirdropInfo().then(() => {
+            this.getInformationProgress = false;
+          });
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
-              this.iniAirdropInfo().then(() => {
-                this.getInformationProgress = false;
-              });
+              
             } else {
               this.getInformationProgress = false;
             }
@@ -172,7 +171,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   private checkTokensErrors(balance, allowance, tokens): any {
     let error;
     if (balance.minus(tokens).isNegative()) {
-
       const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
       const insufficientBalance = new BigNumber(tokens).minus(balance).div(Math.pow(10, this.airdropParams.token.decimals));
       const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
@@ -193,18 +191,14 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   private async checkAccountTokensBalance(): Promise<any> {
     const balance = new BigNumber(await this.tokenContract.getBalance());
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
-    console.log(balance, allowance);
     this.approveTokens = this.getLeftTokensTransfer();
     let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
     if (!error) {
       const coinsBalance = new BigNumber(await this.walletsProvider.getBalance());
       const feeService = new BigNumber(await this.airdropContract.getFee());
-      console.log(coinsBalance, feeService);
-      this.airdropInfoData.onceFee = feeService;
-      console.log('fee', feeService.valueOf());
       if (coinsBalance.minus(feeService).isNegative()) {
         const formatNumberParams = { groupSeparator: ',', groupSize: 3, decimalSeparator: '.' };
-        const insufficientBalance = feeService.div(Math.pow(10, 18));
+        const insufficientBalance = feeService.div(Math.pow(10, 6));
         const insufficientBalanceString = insufficientBalance.toFormat(formatNumberParams);
         const coinName = this.account.chainInfo.coin;
         error = {
@@ -219,7 +213,7 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     return error;
   }
 
-  private iniStartAirdropInfoData(): void {
+  private iniStartAirdropInfoData(){
     this.airdropInfoData = {
       addressesCount: this.airdropParams.addresses.length,
       transactionsCount: 0,
@@ -250,6 +244,8 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     if (this.airdropParams.deflationary && !this.isExcludedFromFee) {
       return;
     }
+    const feeService = new BigNumber(await this.airdropContract.getFee());
+    this.airdropInfoData.onceFee = feeService;
     const promises = [
       this.iniAirdropInfoData(),
       // this.getGasPrice(),
@@ -279,12 +275,13 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   }
 
   public async iniAirdropInfoData(): Promise<any> {
-    const maxAddressesLength = 100;
+    const maxAddressesLength = this.airdropParams.deflationary ? 70 : 100;
     const gasLimitPerTx = 10^7;
     const addressesCount = this.airdropParams.addresses.length;
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);
     const latestTxGasLimit = 10^7;
     const fullGasLimit = gasLimitPerTx * (transactionsCount - 1) + latestTxGasLimit;
+    console.log(this.airdropInfoData.onceFee, transactionsCount);
     return {
       transactionsCount,
       fee: new BigNumber(this.airdropInfoData.onceFee * transactionsCount).div(Math.pow(10, 6)).toString(10),
@@ -292,7 +289,7 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       maxAddressesLength,
       gasLimitPerTx,
       latestTxGasLimit,
-      totalCost: transactionsCount * 844
+      totalCost: this.airdropParams.deflationary ? transactionsCount * 790 : transactionsCount * 844
     };
 
   }
@@ -518,12 +515,11 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     this.tokenContract.sendApprove(totalAmount)
       .then(() => {
         this.tokensBalanceError = false;
-        this.getInformationProgress = true;
         this.checkAccountTokensBalance().then((error) => {
           if (!error) {
-            this.iniAirdropInfo().then(() => {
-              this.getInformationProgress = false;
-            });
+            // this.iniAirdropInfo().then(() => {
+            //   this.getInformationProgress = false;
+            // });
           } else {
             this.getInformationProgress = false;
           }
