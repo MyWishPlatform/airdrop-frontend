@@ -15,6 +15,31 @@ export class TokenContract extends AbstractContract {
     this.airdropAddress = TRON_AIRDROP_ADDRESSES[chainId];
   }
 
+  public async isExcludedFromFee(): Promise<any> {
+    return this.contract.methods.isExcludedFromFee ?
+    this.contract.methods
+      .isExcludedFromFee(this.airdropAddress)
+      .call()
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      }) : true;
+  }
+
+  public async excludeFromFee(): Promise<any> {
+    return this.contract.methods
+      .excludeFromFee(this.airdropAddress)
+      .send({from: this.walletAddress, account: this.airdropAddress})
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
 
   public async getBalance(): Promise<any> {
     // console.log();
@@ -38,8 +63,8 @@ export class TokenContract extends AbstractContract {
   }
 
 
-  public sendApprove(amount): Promise<string> {
-    return this.contract.approve(this.airdropAddress, amount)
+  public async sendApprove(amount): Promise<string> {
+    return await this.contract.approve(this.airdropAddress, amount)
       .send({
         from: this.walletAddress
       });

@@ -40,7 +40,6 @@ export class TokenContract extends AbstractContract {
       .excludeFromFee(this.airdropAddress)
       .send({from: this.walletAddress, account: this.airdropAddress})
       .then((result) => {
-        console.log(6969696, result);
         return result;
       })
       .catch((error) => {
