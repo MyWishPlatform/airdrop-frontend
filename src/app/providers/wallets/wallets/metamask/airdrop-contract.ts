@@ -25,7 +25,7 @@ export class AirdropContract extends AbstractContract {
   public async tokensMultiSendGas(testTokenAddress, isDeflationary, blockchainProvider): Promise<any> {
     const currentChain = blockchainProvider.activeChain.selectedChain;
     let addressesLengthTest = 300;
-    if (isDeflationary && currentChain !== 'binance') {
+    if ((isDeflationary && currentChain !== 'binance') || blockchainProvider.net === 'Ropsten Test Network') {
       addressesLengthTest = 150;
     }
     if (isDeflationary && currentChain === 'binance') {
@@ -56,11 +56,6 @@ export class AirdropContract extends AbstractContract {
       const amountsArray = Array(addresses.length);
       amountsArray.fill('1');
 
-      console.log(testTokenAddress,
-        addresses,
-        amountsArray,
-        amountsArray.length.toString(10));
-
       const tx = this.contract.methods.multisendToken(
         testTokenAddress,
         addresses,
@@ -69,10 +64,10 @@ export class AirdropContract extends AbstractContract {
       );
 
       const data = tx.encodeABI();
-      console.log('data', tx);
-      console.log('Fee: ', fee);
-      console.log('walletAddress: ', this.walletAddress);
-      console.log('contractAddress: ', this.contractAddress);
+      // console.log('data', tx);
+      // console.log('Fee: ', fee);
+      // console.log('walletAddress: ', this.walletAddress);
+      // console.log('contractAddress: ', this.contractAddress);
 
       // if ((index === (addressesLengthTest - 1))) {
       //   let fileText = '';
@@ -111,8 +106,12 @@ export class AirdropContract extends AbstractContract {
         const initTransaction = result[0] - oneAddressAdding;
         let maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
 
-        if (maxAddressesLength > 700 && currentChain === 'binance') {
+        if ((maxAddressesLength > 700 && currentChain === 'binance')){
           maxAddressesLength = 700;
+        }
+
+        if (maxAddressesLength > 200 && isDeflationary) {
+          maxAddressesLength = 200;
         }
         console.log('Latest block gas limit:', blockGasLimit);
         console.log('Gas limit per address:', oneAddressAdding);

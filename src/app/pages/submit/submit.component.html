@@ -292,7 +292,7 @@
           <div class="tx-list_scroll_cell tx-list_scroll_cell__tx-link">
             <a *ngIf="oneItem.txHash"
                target="_blank"
-               [href]="oneItem.txHash | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'tx'">
+               [href]="oneItem.txHash | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'tx' : airdropParams.ethereumTestnet">
 <!--              {{oneItem.txHash}}-->
               <span>Transaction Hash</span>
             </a>

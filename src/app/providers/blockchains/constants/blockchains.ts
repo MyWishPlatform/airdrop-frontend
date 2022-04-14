@@ -2,10 +2,18 @@ import {NETWORKS} from './networks';
 
 export const ETHEREUM = {
   testnet: {
-    providerParams: {
-      providerAddress: 'https://kovan.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007',
+    kovan: {
+      providerParams: {
+        providerAddress: 'https://kovan.infura.io/v3/9cf8f565468b4ff2b0a6bf474150b007',
+      },
+      chainInfo: NETWORKS['ethereum:kovan']
     },
-    chainInfo: NETWORKS['ethereum:kovan']
+    ropsten: {
+      providerParams: {
+        providerAddress: 'https://ropsten.infura.io/v3/773b33626f45459c8cc15a99e1ee959f',
+      },
+      chainInfo: NETWORKS['ethereum:ropsten']
+    }
   },
   mainnet: {
     providerParams: {

@@ -8,6 +8,9 @@
 .testnet-control {
   white-space: nowrap;
   text-align: right;
+  &__pointer {
+    cursor: pointer;
+  }
 }
 .wallets-control {
   .wallet-button {
@@ -193,5 +196,67 @@
         transform: scale(1.05);
       }
     }
+  }
+}
+
+.arrow {
+  margin-left: 20px;
+  cursor: pointer;
+  &:after {
+    box-sizing: border-box;
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-width: 2px 2px 0 0;
+    border-style: solid;
+    border-color: #999;
+    transform: rotate(135deg);
+    position: absolute;
+    right: 11px;
+    margin-top: -12px;
+    margin-right: 12px;
+    transition: transform .2s linear;
+  }
+  &.opened {
+    > a {
+      border: 1px solid #ddd;
+      border-radius: 5px 5px 0 0;
+    }
+    &:after {
+      transform: rotate(-45deg);
+      margin-top: -9px;
+    }
+  }
+}
+
+.dropdown {
+  position: absolute;
+  right: 20px;
+  z-index: 1;
+  transition: all 0.2s linear;
+}
+
+.submenu {
+  margin: 0;
+  padding: 0;
+  border: 1px solid #f0f0f0;
+  background-color: white;
+  height: 100%;
+  width: 85px;
+  list-style-type: none;
+  z-index: 1;
+
+  > li {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+  li:hover {
+    background-color: #f5f5f5;
+  }
+  li:last-child {
+    border-bottom: none;
   }
 }

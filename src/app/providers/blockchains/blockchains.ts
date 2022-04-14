@@ -27,28 +27,38 @@ export class BlockchainsProvider {
   } = {};
 
   private stateSubscribers: Subscriber<any>[] = [];
+  public ethereumTestnet: string;
 
   constructor(
     private web3Service: Web3Service,
     private tronwebService: TronwebService
   ) {}
 
-  public setChain(chain: string): void {
-
+  public setChain(chain: string, net?: string): void {
     if (this.state.chain === chain) {
       return;
+    }
+    if (net && this.state.chain === 'ethereum') {
+      this.ethereumTestnet = net;
+    } else {
+      this.ethereumTestnet = null;
     }
     this.state.chain = chain;
     this.activeChain = this.chains[chain];
     this.activeChain.setChain(chain);
-    this.setTestnet(this.state.isTestnet);
+    this.setTestnet(this.state.isTestnet, net);
     // this.setDeflationary(this.state.isDeflationary);
   }
 
-  public setTestnet(testnet: boolean): void {
+  public setTestnet(testnet: boolean, net?: string): void {
     this.state.isTestnet = !!testnet;
+    if (net && this.state.chain === 'ethereum') {
+      this.ethereumTestnet = net;
+    } else {
+      this.ethereumTestnet = null;
+    }
     if (this.activeChain) {
-      this.activeChain.setTestnet(this.state.isTestnet);
+      this.activeChain.setTestnet(this.state.isTestnet, net);
       this.applyChainState();
     }
   }
@@ -124,7 +134,8 @@ export class BlockchainsProvider {
         });
       }
 
-      const tokenPath = `${this.state.chain}:${this.state.isTestnet ? 'testnet' : 'mainnet'}:${address}`;
+      const tokenPath = `${this.state.chain}:${this.state.isTestnet ? 'testnet' : 'mainnet'}:
+        ${this.ethereumTestnet ? this.ethereumTestnet?.split(' ')[0].toLowerCase() : 'null'}:${address}`;
 
       const setTokenValues = (tokenData) => {
         const tokenInfoKeys = Object.keys(tokenData);
@@ -303,8 +314,8 @@ export class ExplorerUrl implements PipeTransform {
     private blockchainsProvider: BlockchainsProvider
   ) {
   }
-  transform(address, chain, isTestnet, addressType?): BigNumber {
-    return this.blockchainsProvider.getChainProvider(chain).getExplorerLink(chain, isTestnet, address, addressType);
+  transform(address, chain, isTestnet, addressType?, ethereumTestnet?): BigNumber {
+    return this.blockchainsProvider.getChainProvider(chain).getExplorerLink(chain, isTestnet, address, addressType, ethereumTestnet);
   }
 }
 
