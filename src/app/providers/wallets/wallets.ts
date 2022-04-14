@@ -34,8 +34,12 @@ export class WalletsProvider {
     private httpClient: HttpClient
   ) {}
 
-  public setNetwork(blockchain, isTestnet): void {
-    this.selectedNetwork = `${blockchain}:${isTestnet ? 'testnet' : 'mainnet'}`;
+  public setNetwork(blockchain, isTestnet, ethereumTesnet?): void {
+    if (blockchain === 'ethereum' && isTestnet && ethereumTesnet) {
+      this.selectedNetwork = `${blockchain}:testnet:${ethereumTesnet.split(' ')[0].toLowerCase()}`;
+    } else {
+      this.selectedNetwork = `${blockchain}:${isTestnet ? 'testnet' : 'mainnet'}`;
+    }
     this.checkConnectedWallet();
   }
 

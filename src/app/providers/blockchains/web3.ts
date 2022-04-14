@@ -15,6 +15,7 @@ export class Web3Service {
   };
 
   private isTestnet = false;
+  private ethereumTestnet: string | undefined;
   private isDeflationary = false;
   private selectedChain: string;
   private provider;
@@ -23,11 +24,14 @@ export class Web3Service {
   constructor() {
   }
 
-  public setChain(chain: string): void {
+  public setChain(chain: string, net?: string): void {
+    if (net) this.ethereumTestnet = net;
     this.selectedChain = chain;
   }
 
-  public setTestnet(isTestnet: boolean): void {
+  public setTestnet(isTestnet: boolean, net?: string): void {
+    console.log('web3 setTestnet net', net);
+    this.ethereumTestnet = net;
     this.isTestnet = isTestnet;
     this.setProvider();
   }
@@ -38,6 +42,10 @@ export class Web3Service {
 
   private setProvider(): void {
     this.provider = this.chainsProviders[this.selectedChain][this.isTestnet ? 'testnet' : 'mainnet'];
+    if (this.selectedChain === 'ethereum' && this.isTestnet) {
+      const net = this.ethereumTestnet?.split(' ')[0].toLowerCase();
+      this.provider = this.provider[net];
+    }
     const currentProvider = new Web3.providers.HttpProvider(
       this.provider.providerParams.providerAddress
     );
@@ -54,7 +62,6 @@ export class Web3Service {
 
 
   public getTokenInfo(address): any {
-
     return new Promise((resolve, reject) => {
       const contractModel = this.getContract(address);
       try {
@@ -78,18 +85,22 @@ export class Web3Service {
   }
 
 
-  public getExplorerLink(chain, isTestnet, address, type?): string {
+  public getExplorerLink(chain, isTestnet, address, type?, ethereumTestnet?): string {
     type = type || 'address';
     const network = isTestnet ? 'testnet' : 'mainnet';
     const providerParams = this.chainsProviders[chain][network];
+    let chainInfo = providerParams.chainInfo;
+    if (chain === 'ethereum' && isTestnet) {
+      chainInfo = providerParams[ethereumTestnet?.split(' ')[0].toLowerCase() === 'ropsten' ? 'ropsten' : 'kovan'].chainInfo;
+    }
 
     switch (type) {
       case 'address':
-        return `${providerParams.chainInfo.explorer}/address/${address}`;
+        return `${chainInfo?.explorer}/address/${address}`;
       case 'token':
-        return `${providerParams.chainInfo.explorer}/token/${address}`;
+        return `${chainInfo?.explorer}/token/${address}`;
       case 'tx':
-        return `${providerParams.chainInfo.explorer}/tx/${address}`;
+        return `${chainInfo?.explorer}/tx/${address}`;
     }
   }
 

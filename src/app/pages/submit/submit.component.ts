@@ -45,8 +45,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     this.iniStartAirdropInfoData();
 
-    this.blockchainsProvider.setChain(this.airdropParams.blockchain);
-    this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
+    this.blockchainsProvider.setChain(this.airdropParams.blockchain, this.airdropParams.ethereumTestnet);
+    this.blockchainsProvider.setTestnet(this.airdropParams.testnet, this.airdropParams.ethereumTestnet);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
 
     this.isExcludedFromFee = true;
@@ -59,7 +59,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
     this.walletsProvider.setNetwork(
       this.airdropParams.blockchain,
-      this.airdropParams.testnet
+      this.airdropParams.testnet,
+      this.airdropParams.ethereumTestnet
     );
 
     this.walletSubscriber = this.walletsProvider.subscribe((account) => {
@@ -75,7 +76,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       if (this.gasPricesInterval) {
         clearInterval(this.gasPricesInterval);
       }
-      // console.log(22, this.walletsProvider);
 
       this.iniStartAirdropInfoData();
 
@@ -301,7 +301,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
-    console.log(11);
     console.log('selectedGasPrice', new BigNumber(this.airdropInfoData.selectedGasPrice));
     console.log('fullGasLimit', new BigNumber(this.airdropInfoData.fullGasLimit));
     console.log('totalCost', new BigNumber(this.airdropInfoData.selectedGasPrice)

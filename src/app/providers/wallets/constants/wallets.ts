@@ -12,7 +12,8 @@ export const WALLETS = [
     type: 'metamask',
     blockchains: [
       'ethereum:mainnet',
-      'ethereum:testnet',
+      'ethereum:testnet:kovan',
+      'ethereum:testnet:ropsten',
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',
@@ -57,7 +58,8 @@ export const WALLETS = [
     type: 'mathWallet',
     blockchains: [
       'ethereum:mainnet',
-      'ethereum:testnet',
+      'ethereum:testnet:kovan',
+      'ethereum:testnet:ropsten',
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',

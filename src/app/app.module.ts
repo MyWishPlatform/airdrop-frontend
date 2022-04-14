@@ -63,7 +63,7 @@ export function appInitializerFactory(): any {
     SubmitComponent,
     ApproveComponent,
     PageHeaderComponent,
-    FooterComponent
+    FooterComponent,
   ],
   imports: [
     BrowserAnimationsModule,

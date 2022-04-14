@@ -57,7 +57,8 @@ export class AddressesComponent implements OnInit, OnDestroy {
 
     this.walletsProvider.setNetwork(
       this.airdropParams.blockchain,
-      this.airdropParams.testnet
+      this.airdropParams.testnet,
+      this.airdropParams.ethereumTestnet
     );
 
     const airdropState = localStorage.getItem('airdropState');
@@ -67,8 +68,10 @@ export class AddressesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.blockchainsProvider.setChain(this.airdropParams.blockchain);
-    this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
+    this.blockchainsProvider
+      .setChain(this.airdropParams.blockchain, this.airdropParams.blockchain === 'ethereum' ? this.airdropParams.ethereumTestnet : null);
+    this.blockchainsProvider
+      .setTestnet(this.airdropParams.testnet, this.airdropParams.blockchain === 'ethereum' ? this.airdropParams.ethereumTestnet : null);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
 
     this.validateAddressesList();
