@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { PrepareComponent } from './pages/prepare/prepare.component';
 import {AddressesComponent} from './pages/addresses/addresses.component';
 import {SubmitComponent} from './pages/submit/submit.component';
+import { SubmitComponentTron } from './pages/tronSubmit/submit.component';
 
 
 const routes: Routes = [
@@ -21,6 +22,10 @@ const routes: Routes = [
   }, {
     component: SubmitComponent,
     path: 'submit'
+  },
+  {
+    component: SubmitComponentTron,
+    path: 'submit-tron'
   }
 ];
 

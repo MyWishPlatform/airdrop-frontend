@@ -19,6 +19,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ModalWalletsComponent} from './components/modal-wallets/modal-wallets';
 import { SubmitComponent } from './pages/submit/submit.component';
+import { SubmitComponentTron } from './pages/tronSubmit/submit.component';
 import {MatSliderModule} from '@angular/material/slider';
 import { ApproveComponent } from './components/approve/approve.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
@@ -61,6 +62,7 @@ export function appInitializerFactory(): any {
     ModalMessageComponent,
     ModalWalletsComponent,
     SubmitComponent,
+    SubmitComponentTron,
     ApproveComponent,
     PageHeaderComponent,
     FooterComponent,

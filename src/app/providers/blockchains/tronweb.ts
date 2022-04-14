@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {TRON} from './constants/blockchains';
 import TronWeb from 'tronweb';
 import {AbstractControl, AsyncValidatorFn} from '@angular/forms';
-
+import {TRC20_TOKEN_ABI} from './constants/trc20';
 
 
 @Injectable({
@@ -11,6 +11,7 @@ import {AbstractControl, AsyncValidatorFn} from '@angular/forms';
 export class TronwebService {
   private chainClient: TronWeb;
   private provider;
+  private isDeflationary = false;
   constructor() {}
 
   public setChain(chain: string): void {}
@@ -26,6 +27,10 @@ export class TronwebService {
     );
   }
 
+  public setDeflationary(isDeflationary: boolean): void {
+    this.isDeflationary = isDeflationary;
+  }
+
 
   public async getContract(address): Promise<any> {
     const contract = await this.chainClient.trx.getContract(address).then((res) => {
@@ -34,7 +39,7 @@ export class TronwebService {
       return false;
     });
     return contract ? this.chainClient.contract(
-      contract.abi.entrys,
+      contract.abi?.entrys || TRC20_TOKEN_ABI as any[],
       contract.contract_address
     ) : false;
   }
@@ -44,7 +49,7 @@ export class TronwebService {
   }
 
 
-  public getTokenInfo(address): Promise<any> {
+  public async getTokenInfo(address): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const contractModel = await this.getContract(address);
       if (!contractModel) {
@@ -56,10 +61,11 @@ export class TronwebService {
       ];
       Promise.all(tokenInfoPromises).then((result) => {
         resolve({
-          decimals: result[0],
+          decimals: result[0].toNumber ? result[0].toNumber() : result[0],
           symbol: result[1]
         });
-      }).catch(() => {
+      }).catch((e) => {
+        console.log(e);
         reject();
       });
     });
@@ -76,6 +82,8 @@ export class TronwebService {
         return `${providerParams.chainInfo.explorer}/#/address/${address}`;
       case 'token':
         return `${providerParams.chainInfo.explorer}/#/contract/${address}`;
+      case 'tx':
+        return `${providerParams.chainInfo.explorer}/#/transaction/${address}`
     }
   }
 

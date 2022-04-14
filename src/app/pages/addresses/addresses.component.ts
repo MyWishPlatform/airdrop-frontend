@@ -73,14 +73,10 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.blockchainsProvider
       .setTestnet(this.airdropParams.testnet, this.airdropParams.blockchain === 'ethereum' ? this.airdropParams.ethereumTestnet : null);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
-
     this.validateAddressesList();
     this.addressValidator = this.blockchainsProvider.addressFieldValidator;
 
   }
-
-
-
 
   private validateAddressesList(): void {
 
@@ -89,12 +85,15 @@ export class AddressesComponent implements OnInit, OnDestroy {
       const errors = [];
 
       const {address, amount} = oneTableItem;
-
-      const isValidAddress = this.blockchainsProvider.isAddress(address);
+      let isValidAddress = this.blockchainsProvider.isAddress(address);
       if (isValidAddress) {
-        oneTableItem.address = '0x' + address.toLowerCase().replace(/^0x/, '');
+        if(this.chainInfo.chain === 'tron'){
+          oneTableItem.address = address;
+        } else{
+          oneTableItem.address = '0x' + address.toLowerCase().replace(/^0x/, '');
+        }
       }
-
+      
       const isNanAmount = isNaN(amount) || +amount === 0;
       const correctDecimals = (amount.split('.')[1] || '').length <= +this.airdropParams.token.decimals;
       const isValidAmount = !isNanAmount && correctDecimals;
@@ -216,7 +215,10 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.airdropParams.totalAmount = this.totalAmount;
     localStorage.setItem('proceedAirdrop', JSON.stringify(this.airdropParams));
     localStorage.setItem('airdropState', '2');
-    this.router.navigate(['submit']);
+    if(this.chainInfo.chain === 'tron')
+      this.router.navigate(['submit-tron']);
+    else
+      this.router.navigate(['submit']);
   }
 
 

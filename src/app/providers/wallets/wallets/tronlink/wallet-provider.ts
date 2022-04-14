@@ -115,4 +115,8 @@ export class TronLinkService {
     return new AirdropContract(this.tronLink, this.connectedAccount.chainId);
   }
 
+  public async getBalance() {
+    return await this.tronLink.trx.getBalance(this.connectedAccount.address);
+  }
+
 }

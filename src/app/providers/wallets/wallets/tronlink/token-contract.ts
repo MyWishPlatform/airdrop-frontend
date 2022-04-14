@@ -15,19 +15,56 @@ export class TokenContract extends AbstractContract {
     this.airdropAddress = TRON_AIRDROP_ADDRESSES[chainId];
   }
 
+  public async isExcludedFromFee(): Promise<any> {
+    return this.contract.methods.isExcludedFromFee ?
+    this.contract.methods
+      .isExcludedFromFee(this.airdropAddress)
+      .call()
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      }) : true;
+  }
+
+  public async excludeFromFee(): Promise<any> {
+    return this.contract.methods
+      .excludeFromFee(this.airdropAddress)
+      .send({from: this.walletAddress, account: this.airdropAddress})
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
 
   public async getBalance(): Promise<any> {
-    return this.contract.balanceOf(this.walletAddress).call();
+    // console.log();
+    try{
+      const balance = await this.contract.balanceOf(this.walletAddress).call();
+      console.log(this.tronLink.toDecimal(balance._hex));
+      return this.tronLink.toDecimal(balance._hex);
+    } catch(err) {
+      console.log(err);
+    }
   }
 
 
   public async getAllowance(): Promise<string> {
-    return this.contract.allowance(this.walletAddress, this.airdropAddress).call();
+    try{
+      const balance = await this.contract.allowance(this.walletAddress, this.airdropAddress).call();
+      return this.tronLink.toDecimal(balance._hex);
+    } catch(err) {
+      console.log(err);
+    }
   }
 
 
-  public sendApprove(amount): Promise<string> {
-    return this.contract.approve(this.airdropAddress, amount)
+  public async sendApprove(amount): Promise<string> {
+    return await this.contract.approve(this.airdropAddress, amount)
       .send({
         from: this.walletAddress
       });
