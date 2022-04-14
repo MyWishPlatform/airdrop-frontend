@@ -24,7 +24,7 @@
 
 .airdrop-info {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   &_item {
     width: 20%;
@@ -56,13 +56,11 @@
 
 
 .params-controls {
-  display: flex;
-  justify-content: space-between;
   margin-top: 30px;
   margin-bottom: 30px;
   &_item {
-    width: 49%;
     position: relative;
+    margin-bottom: 30px;
   }
   &_label {
     text-transform: uppercase;
@@ -316,5 +314,14 @@
     font-size: 14px;
     color: rgba(0, 0, 0, 0.5);
     line-height: 27px;
+  }
+}
+
+
+.buttons-container{
+  display: flex;
+  justify-content: space-between;
+  .btn{
+    flex: 0 0 49%;
   }
 }

@@ -80,7 +80,10 @@ export class AirdropContract extends AbstractContract {
   protected async estimateGas(params): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        const promise = this.tronLink.tronWeb.request({
+        console.log(this.tronLink);
+        const promise = this.tronLink.request({
+          "jsonrpc": "2.0",
+          "id": 1,
           method: 'eth_estimateGas',
           params
         }).then(resolve, reject);
@@ -91,7 +94,40 @@ export class AirdropContract extends AbstractContract {
     });
 
   }
+  // private async tryEstimate(){
+  //   const addressesLengthTest = 100;
+  //   const fee = await this.getFee();
+  //   const blockGasLimit = 10^7;
 
+  //   const accounts = Array(addressesLengthTest).fill(null);
+  //     const addressesArray = Array(100);
+  //     addressesArray.fill(this.tronLink.createAccount);
+  //     const addresses = await Promise.all(addressesArray.map(async (creator) => {
+  //       const account = await creator();
+  //       return account.address.base58;
+  //     }));
+
+  //     const amountsArray = Array(addresses.length);
+  //     amountsArray.fill('1');
+
+  //     const data = this.decodeMethod('multisendToken', [
+  //       this.tronWeb.chainClient.address.toHex("TYMp9gfnseBLdRMcKjNF9AeHJeJn9dJBDf"),
+  //       addresses,
+  //       amountsArray,
+  //       amountsArray.length.toString(10)
+  //     ]
+  //     ).then(res => {
+  //       console.log(res);
+  //       this.estimateGas({
+  //         from: this.walletAddress,
+  //         to: this.contractAddress,
+  //         value: fee,
+  //         res
+  //       }).then(res => console.log(res))
+  //       .catch(err => console.log(err));
+  //     }).catch(err => console.log(err));
+      
+  // }
   private async getTransaction(token, addresses): Promise<any> {
     let fullAmount = new BigNumber(0);
     const txParams = addresses.reduce((data, item) => {
@@ -186,94 +222,5 @@ export class AirdropContract extends AbstractContract {
         )
       })
     };
-  }
-
-  private async gasLimit(): Promise<any> {
-    const block = await this.tronLink.trx.getCurrentBlock();
-    console.log(this.tronLink);
-    console.log(this.tronLink.trx);
-    console.log(block);
-    // return (await this.web3.eth.getBlock('latest')).gasLimit;
-  }
-
-  public async tokensMultiSendGas(testTokenAddress): Promise<any> {
-    const addressesLengthTest = 346;
-    const fee = await this.getFee();
-    const blockGasLimit = 10^7;
-    console.log(this.contract);
-    console.log(this.tronLink);
-
-    const accounts = Array(addressesLengthTest).fill(null);
-    const promises = [];
-    accounts.forEach(async (address, index) => {
-      index++;
-      if ((index !== 0) && (index !== (addressesLengthTest - 1))) {
-        return;
-      }
-      const addressesArray = Array(index + 1);
-      addressesArray.fill(this.tronLink.createAccount);
-      const addresses = await Promise.all(addressesArray.map(async (creator) => {
-        const account = await creator();
-        return account.address.base58;
-      }));
-
-      const amountsArray = Array(addresses.length);
-      amountsArray.fill('1');
-
-      const tx = this.contract.multisendToken(
-        testTokenAddress,
-        addresses,
-        amountsArray,
-        amountsArray.length.toString(10)
-      );
-      });
-      // tx.send({
-      //   callValue: fee
-      // });
-
-      // const data = tx.encodeABI();
-      // console.trace();
-    //   console.log('Fee: ', fee);
-    //   console.log('walletAddress: ', this.walletAddress);
-    //   console.log('contractAddress: ', this.contractAddress);
-    //   this.estimateGas({
-    //     from: this.walletAddress,
-    //     to: this.contractAddress,
-    //     value: fee,
-    //     data
-    //   }).then(res => console.log(res))
-    //   .catch(err => console.log(err));
-    //   promises.push(
-    //     this.estimateGas({
-    //       from: this.walletAddress,
-    //       to: this.contractAddress,
-    //       value: fee,
-    //       data
-    //     })
-    //   );
-    // });
-    
-    // return new Promise((resolve, reject) => {
-    //   Promise.all(promises).then((result) => {
-    //     if (!result[0] || !result[1]) {
-    //       return reject();
-    //     }
-    //     const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
-    //     const initTransaction = result[0] - oneAddressAdding;
-    //     const maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;
-    
-    //     console.log('Latest block gas limit:', blockGasLimit);
-    //     console.log('Gas limit per address:', oneAddressAdding);
-    //     console.log('Gas limit of first address:', initTransaction);
-    //     console.log('Max addresses length per tx:', maxAddressesLength);
-    
-    //     resolve({
-    //       maxAddressesLength,
-    //       gasLimitPerAddress: oneAddressAdding,
-    //       gasLimitForFirstAddress: result[0]
-    //     });
-    //   }, reject);
-    // });
-
   }
 }
