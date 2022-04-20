@@ -68,6 +68,19 @@
                 </span>
               </label>
 
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="solana">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/solana.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Solana
+                  </span>
+                </span>
+              </label>
+
             </div>
           </div>
           <div class="form_control testnet-control">
@@ -76,6 +89,7 @@
               class="form_control_label"
               [ngClass]="{'testnet-control__pointer': airdropParams.blockchain === 'ethereum'}"
             >
+            
               {{ airdropParams.blockchain ? testNets[airdropParams.blockchain] : "Test Network"}}
               <span
                 *ngIf="airdropParams.blockchain === 'ethereum'"
@@ -142,7 +156,7 @@
 
           <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
             <div class="form_control_label text-center">
-              Token symbol:
+              Token {{ airdropParams.blockchain === 'solana' ? 'link' : 'symbol' }}:
             </div>
             <a class="text-control as-link"
                [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token': testNets.ethereum"
@@ -162,7 +176,7 @@
               </div>
             </div>
           </div>
-          <div class="form_control testnet-control">
+          <div class="form_control testnet-control" [ngStyle]="{display: airdropParams.blockchain === 'solana' ? 'none' : 'block'}">
             <div class="form_control_label">
               {{ "Deflationary" }}
             </div>

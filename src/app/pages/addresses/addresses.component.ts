@@ -73,9 +73,63 @@ export class AddressesComponent implements OnInit, OnDestroy {
     this.blockchainsProvider
       .setTestnet(this.airdropParams.testnet, this.airdropParams.blockchain === 'ethereum' ? this.airdropParams.ethereumTestnet : null);
     this.chainInfo = this.blockchainsProvider.getChainInfo();
-    this.validateAddressesList();
+    if (this.blockchainsProvider.activeChain.selectedChain !== 'solana') {
+      this.validateAddressesList();
+    } else {
+      this.validateAddressesListSolana();
+    }
     this.addressValidator = this.blockchainsProvider.addressFieldValidator;
 
+  }
+
+  private async validateAddressesListSolana(): Promise<void> {
+    const validAddresses = [];
+    for (const oneTableItem of this.airdropParams.addresses) {
+      const isValidAddress = await this.blockchainsProvider.isAccountSolana(oneTableItem.address);
+      validAddresses.push(isValidAddress);
+    }
+    console.log(23, validAddresses);
+    this.addressesList = this.airdropParams.addresses.reduce((tableData, oneTableItem, index) => {
+      const errors = [];
+
+      const {address, amount} = oneTableItem;
+      const isValidAddress = validAddresses[index];
+
+      const isNanAmount = isNaN(amount) || +amount === 0;
+      const correctDecimals = (amount.split('.')[1] || '').length <= +this.airdropParams.token.decimals;
+      const isValidAmount = !isNanAmount && correctDecimals;
+
+      const isValidItem = isValidAddress && isValidAmount;
+
+      if (isValidItem) {
+        tableData.valid.push(oneTableItem);
+      } else {
+        if (!isValidAddress) {
+          if (!address) {
+            errors.push(1);
+          } else {
+            errors.push(2);
+          }
+        }
+
+        if (!isValidAmount) {
+          if (!amount || +amount === 0) {
+            errors.push(3);
+          } else if (isNanAmount) {
+            errors.push(4);
+          } else if (!correctDecimals) {
+            errors.push(5);
+          }
+        }
+        oneTableItem.errors = errors;
+        tableData.invalid.push(oneTableItem);
+      }
+
+      return tableData;
+
+    }, this.tableData);
+
+    this.calculateTotalTokensAmount();
   }
 
   private validateAddressesList(): void {
@@ -217,6 +271,8 @@ export class AddressesComponent implements OnInit, OnDestroy {
     localStorage.setItem('airdropState', '2');
     if(this.chainInfo.chain === 'tron')
       this.router.navigate(['submit-tron']);
+    else if(this.chainInfo.chain === 'solana')
+    this.router.navigate(['submit-solana']);
     else
       this.router.navigate(['submit']);
   }

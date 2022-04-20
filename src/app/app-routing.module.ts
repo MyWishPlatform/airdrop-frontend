@@ -4,6 +4,7 @@ import { PrepareComponent } from './pages/prepare/prepare.component';
 import {AddressesComponent} from './pages/addresses/addresses.component';
 import {SubmitComponent} from './pages/submit/submit.component';
 import { SubmitComponentTron } from './pages/tronSubmit/submit.component';
+import { SubmitComponentSolana } from './pages/submitSolana/submit.component';
 
 
 const routes: Routes = [
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     component: SubmitComponentTron,
     path: 'submit-tron'
+  },
+  {
+    component: SubmitComponentSolana,
+    path: 'submit-solana'
   }
 ];
 

@@ -3,7 +3,7 @@ import {WalletConnectService} from '../wallets/walletconnect/wallet-provider';
 import {BinanceSCService} from '../wallets/binancesc/wallet-provider';
 import {TronLinkService} from '../wallets/tronlink/wallet-provider';
 import {MathWalletService} from '../wallets/mathwallet/wallet-provider';
-
+import { PhantomService } from '../wallets/phantom/wallet-provider';
 export const WALLETS = [
   {
     icon: './assets/images/icons/wallets/metamask.svg',
@@ -65,5 +65,16 @@ export const WALLETS = [
       'polygon:mainnet',
       'polygon:testnet'
     ]
-  }
+  },
+  {
+    icon: './assets/images/icons/wallets/phantom.svg',
+    name: 'Phantom',
+    service: new PhantomService(),
+    type: 'phantom',
+    blockchains: [
+      'solana:mainnet',
+      'solana:testnet',
+      'solana:devnet'
+    ]
+  },
 ];

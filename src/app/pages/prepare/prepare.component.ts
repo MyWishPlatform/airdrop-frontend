@@ -51,6 +51,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     binance: '0x8aed24bf6e0247be51c57d68ad32a176bf86f4d9',
     polygon: '0xb33eaad8d922b1083446dc23f610c2567fb5180f',
     tron: 'TYMp9gfnseBLdRMcKjNF9AeHJeJn9dJBDf',
+    solana: 'HtHf9rJbEeWwpmAbNwZAg5H6sBkRRgwfpLE9ZpysiuQ9'
   }
 
   public csvData: {
@@ -63,7 +64,8 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     ethereum: 'Ropsten Test Network',
     binance: 'Test Network',
     polygon: 'Mumbai Test Network',
-    tron: 'Shasta Test Network'
+    tron: 'Shasta Test Network',
+    solana: 'Solana Devnet'
   };
 
   public selectChainState: any;

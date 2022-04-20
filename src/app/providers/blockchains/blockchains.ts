@@ -2,6 +2,7 @@ import {Directive, Injectable, Injector, Input, Pipe, PipeTransform} from '@angu
 import {Observable, Subscriber} from 'rxjs';
 
 import {TronwebService} from './tronweb';
+import { SolanaWeb3Service } from './solanaweb';
 import {Web3Service} from './web3';
 import {AbstractControl, NgControl} from '@angular/forms';
 import BigNumber from 'bignumber.js';
@@ -16,10 +17,11 @@ export class BlockchainsProvider {
     tron: this.tronwebService,
     ethereum: this.web3Service,
     binance: this.web3Service,
-    polygon: this.web3Service
+    polygon: this.web3Service,
+    solana: this.solanawebService,
   };
 
-  private activeChain: any;
+  public activeChain: any;
   private state: {
     chain?: string;
     isTestnet?: boolean;
@@ -31,7 +33,8 @@ export class BlockchainsProvider {
 
   constructor(
     private web3Service: Web3Service,
-    private tronwebService: TronwebService
+    private tronwebService: TronwebService,
+    private solanawebService: SolanaWeb3Service
   ) {}
 
   public setChain(chain: string, net?: string): void {
@@ -121,14 +124,24 @@ export class BlockchainsProvider {
   }
 
 
-  public tokenFieldValidator = (control: AbstractControl) => {
+  public tokenFieldValidator = async (control: AbstractControl) => {
+    const address = control.value ? control.value.address : '';
+    let resultIsAddressSolana;
+    if (this.activeChain?.selectedChain === 'solana') {
+      resultIsAddressSolana = await this.isAddressSolana(address);
+    }
     return new Promise((resolve) => {
       const address = control.value ? control.value.address : '';
       if (!this.activeChain) {
         resolve(null);
       }
-
-      if (!this.isAddress(address)) {
+      if (this.activeChain.selectedChain === 'solana') {
+        if (!resultIsAddressSolana) {
+          return resolve({
+            invalidAddress: true
+          });
+        }
+      } else if (!this.isAddress(address)) {
         return resolve({
           invalidAddress: true
         });
@@ -156,7 +169,7 @@ export class BlockchainsProvider {
         }
         setTokenValues(parsedToken);
       }
-
+      console.log(this.activeChain);
       this.activeChain.getTokenInfo(address).then((tokenData) => {
         setTokenValues(tokenData);
         const tokenValue = {...control.value};
@@ -176,6 +189,16 @@ export class BlockchainsProvider {
 
   public getChainInfo(): any {
     return this.activeChain.getChainParams();
+  }
+
+  public async isAddressSolana(address): Promise<any> {
+    const res = await this.activeChain.addressValidator(address);
+    return res;
+  }
+
+  public async isAccountSolana(address): Promise<any> {
+    const res = await this.activeChain.accountValidator(address);
+    return res;
   }
 
 }

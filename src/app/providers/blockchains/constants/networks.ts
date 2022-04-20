@@ -343,6 +343,96 @@ export const NETWORKS = {
         multiplier: null
       }
     ]
+  },
+  'solana:testnet': {
+    chain: 'solana',
+    icon: './assets/images/icons/coins/solana.svg',
+    name: 'Solana Devnet',
+    explorer: 'https://explorer.solana.com/?cluster=devnet',
+    csvExample: './assets/csv-examples/solana.csv',
+    chainId: 103,
+    coin: 'SOLANA',
+    apis: [
+      {
+        url: '',
+        params: null,
+        responseFormat: {
+          safe: 'safeLow',
+          average: 'standard',
+          fast: 'fast'
+        },
+        multiplier: 9
+      },
+      {
+        url: '',
+        params: null,
+        responseFormat: {
+          safe: 'safeLow',
+          average: 'standard',
+          fast: 'fast'
+        },
+        multiplier: 9
+      },
+      {
+        url: '',
+        params: {
+          module: 'proxy',
+          action: 'eth_gasPrice',
+          apikey: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
+        },
+        responseFormat: {
+          safe: 'result',
+          average: 'result',
+          fast: 'result'
+        },
+        multiplier: null
+      }
+    ]
+  },
+  'solana:mainnet': {
+    chain: 'solana',
+    icon: './assets/images/icons/coins/solana.svg',
+    name: 'Solana Devnet',
+    explorer: 'https://explorer.solana.com/?cluster=devnet',
+    csvExample: './assets/csv-examples/solana.csv',
+    chainId: 103,
+    coin: 'SOLANA',
+    apis: [
+      {
+        url: '',
+        params: null,
+        responseFormat: {
+          safe: 'safeLow',
+          average: 'standard',
+          fast: 'fast'
+        },
+        multiplier: 9
+      },
+      {
+        url: '',
+        params: null,
+        responseFormat: {
+          safe: 'safeLow',
+          average: 'standard',
+          fast: 'fast'
+        },
+        multiplier: 9
+      },
+      {
+        url: '',
+        params: {
+          module: 'proxy',
+          action: 'eth_gasPrice',
+          apikey: 'MTG1UGK2SCNNMYFSAPJTU8YPZSQCZU841Q'
+        },
+        responseFormat: {
+          safe: 'result',
+          average: 'result',
+          fast: 'result'
+        },
+        multiplier: null
+      }
+    ],
   }
 };
 
