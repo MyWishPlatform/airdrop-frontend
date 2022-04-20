@@ -127,7 +127,7 @@
                      appTokenInput
                      autocomplete="off"
                      required="required"
-                     [placeholder]="tokensPlaceholders[airdropParams.blockchain]"
+                     [placeholder]="tokensPlaceholders[airdropParams.blockchain]||tokensPlaceholders.ethereum"
                      [readonly]="airdropForm.controls.token?.pending"
                      [(ngModel)]="airdropParams.token"
                      name="token">

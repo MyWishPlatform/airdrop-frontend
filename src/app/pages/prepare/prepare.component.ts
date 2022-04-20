@@ -82,7 +82,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
     private http: HttpClient,
     private renderer: Renderer2
   ) {
-    this.airdropParams = {blockchain: 'ethereum'};
+    this.airdropParams = {};
 
     if (this.activatedRoute.snapshot.data.editMode) {
       this.iniEditAirdropParams();

@@ -136,7 +136,6 @@ export class BlockchainsProvider {
 
       const tokenPath = `${this.state.chain}:${this.state.isTestnet ? 'testnet' : 'mainnet'}:
         ${this.ethereumTestnet ? this.ethereumTestnet?.split(' ')[0].toLowerCase() : 'null'}:${address}`;
-
       const setTokenValues = (tokenData) => {
         const tokenInfoKeys = Object.keys(tokenData);
         for (const k of tokenInfoKeys) {
