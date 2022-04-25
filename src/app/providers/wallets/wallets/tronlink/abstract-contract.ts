@@ -18,10 +18,38 @@ export class AbstractContract {
     this.contractAddress = contractAddress;
     this.walletAddress = this.tronLink.defaultAddress.base58;
     this.contract = this.tronLink.contract(
-      contractABI,
+      this.contractABI,
       this.contractAddress
     );
   }
+
+  protected checkTx(txHash, resolve, reject): void {
+    this.tronLink.trx.getTransactionInfo(txHash).then((res) => {
+      console.log(res);
+      if (!res.ret) {
+        setTimeout(() => {
+          this.checkTx(txHash, resolve, reject);
+        }, 2000);
+      } else if (res.ret[0].contractRet === "SUCCESS") {
+        resolve(res);
+      } else{
+        reject(res);
+      }
+      
+    }).catch(e => {
+      console.log(e);
+      setTimeout(() => {
+        this.checkTx(txHash, resolve, reject);
+      }, 2000);
+    })
+  }
+
+  public checkTransaction(txHash): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.checkTx(txHash, resolve, reject);
+    });
+  }
+
 
 
   // protected async decodeMethod(methodName, params): Promise<any>{

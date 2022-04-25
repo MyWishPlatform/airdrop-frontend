@@ -12,10 +12,10 @@ export class AirdropContract extends AbstractContract {
     super(tronLink, TRON_AIRDROP_ABI, airdropAddress);
     this.isTestnet = chainId === "tron:shasta";
     this.tronWeb.setTestnet(this.isTestnet);
+    this.checkUserResource(100);
   }
 
   public async getDeployerData(): Promise<any> {
-    if(this.isTestnet){
       let data = await fetch(this.isTestnet 
         ? "https://api.shasta.trongrid.io/wallet/getaccountresource" : 
         "https://api.trongrid.io/wallet/getaccountresource", {
@@ -26,23 +26,23 @@ export class AirdropContract extends AbstractContract {
       });
       data = await data.json();
       return data;
-    }
   }
 
   public async getUserData(): Promise<any> {
-    console.log(this.walletAddress);
-    if(this.isTestnet){
-      let data = await fetch(this.isTestnet 
-        ? "https://api.shasta.trongrid.io/wallet/getaccountresource" : 
-        "https://api.trongrid.io/wallet/getaccountresource", {
-        method: "POST",
-        body: JSON.stringify({
-          address: this.tronWeb.chainClient.address.toHex(this.walletAddress),
-        })
-      });
-      data = await data.json();
-      return data;
-    }
+      try{
+        let data = await fetch(this.isTestnet 
+          ? "https://api.shasta.trongrid.io/wallet/getaccountresource" : 
+          "https://api.trongrid.io/wallet/getaccountresource", {
+          method: "POST",
+          body: JSON.stringify({
+            address: this.tronWeb.chainClient.address.toHex(this.walletAddress),
+          })
+        });
+        data = await data.json();
+        return data;
+      }catch(err){
+        console.log(err);
+      }
   }
 
   private getAirdropContractBandwidthCost(N: Number | String): Number {
@@ -50,31 +50,28 @@ export class AirdropContract extends AbstractContract {
   }
 
   private getAirdropContractEnergyCost(N: Number | String): Number {
-    return 48600 + 28746 * +N;
+    return 48600 + 28746 * (+N + 2);
   }
 
   public async checkDeployerEnergy(N: Number | String): Promise<any> {
+    console.log(await this.checkTransaction('732acbf3168f443aa534489d5fdfe9c39e7bf6be4988eb45f44b2846a6db5d04'));
     const data = await this.getDeployerData();
-    console.log("Deployer:");
-    console.log(data);
     return data.EnergyLimit || 0 - data.EnergyUsed || 0 >  this.getAirdropContractEnergyCost(N);
   } 
-  public async checkUserEnergy(N: Number | String): Promise<any> {
+  public async checkUserResource(N: Number | String): Promise<any> {
     const data = await this.getUserData();
-    console.log("User:");
-    console.log(data);
-    return (data.EnergyLimit || 0 - data.EnergyUsed || 0) > this.getAirdropContractEnergyCost(N);
+    const energyCost = this.getAirdropContractEnergyCost(N);
+    const trxBalance = new BigNumber(await this.tronWeb.chainClient.trx.getUnconfirmedBalance(this.walletAddress)).div(Math.pow(10,6));
+    const totalEnergy = trxBalance.multipliedBy(Math.pow(10,6)/280).plus((data.EnergyLimit || 0 - data.EnergyUsed || 0)); //10**6 / 280 - current energy for one trx
+    return totalEnergy.toNumber() > energyCost;
   } 
   public async checkUserBandwidth(N: Number | String): Promise<any> {
     const data = await this.getUserData();
-    console.log("User:");
-    console.log(data);
     return (data.freeNetLimit || 0 - data.freeNetUsed || 0) + (data.netLimit || 0 - data.netUsed || 0) > this.getAirdropContractBandwidthCost(N);
   } 
 
   public async getFee(): Promise<any> {
     const fee = await this.contract.fee().call();
-    console.log(fee);
     return this.tronLink.toDecimal(fee);
   }
   protected async estimateGas(params): Promise<any> {
@@ -154,51 +151,21 @@ export class AirdropContract extends AbstractContract {
     }
   }
 
-  private checkTx(txHash, resolve, reject): void {
-    console.log(txHash);
-    this.tronLink.trx.getTransaction(txHash).then((res) => {
-      console.log(res);
-      if (!res.ret) {
-        setTimeout(() => {
-          this.checkTx(txHash, resolve, reject);
-        }, 2000);
-      } else if (res.ret[0].contractRet === "SUCCESS") {
-        resolve(res);
-      } else{
-        reject(res);
-      }
-      
-    }).catch(e => {
-      console.log(e);
-      setTimeout(() => {
-        this.checkTx(txHash, resolve, reject);
-      }, 2000);
-    })
-  }
-
-  public checkTransaction(txHash): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.checkTx(txHash, resolve, reject);
-    });
-  }
-
   public async sendTokensToAddresses(token, addresses, gasLimit, gasPrice): Promise<any> {
-    const flag1 = await this.checkUserEnergy(addresses.length);
-    const flag2 = await this.checkUserBandwidth(addresses.length);
-    const flag3 = await this.checkDeployerEnergy(addresses.length);
+    const flag = await this.checkUserResource(addresses.length);
     let txSend;
-    // if(!flag1){
-    //   // console.log("Not enought energy! You need " + this.getAirdropContractEnergyCost(addresses.length));
-    // }
-    // else{
-      console.log(this.getAirdropContractEnergyCost(addresses.length));
+    console.log(flag);
+    if(!flag){
+      return'error';
+    }
+    else{
       const tx = await this.getTransaction(token, addresses);
       const fee = await this.getFee();
       txSend = tx.send({
         callValue: fee,
         feeLimit: 1000000000,
       });
-    // }
+    }
     let txResolver;
     let rejector;
 

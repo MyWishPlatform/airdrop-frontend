@@ -73,14 +73,12 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       if (this.gasPricesInterval) {
         clearInterval(this.gasPricesInterval);
       }
-      // console.log(22, this.walletsProvider);
 
       this.iniStartAirdropInfoData();
 
       if (this.account) {
         this.walletsProvider.validateWallet(this.chainInfo.chainId);
         if (this.account.valid) {
-
           this.tokenContract = this.walletsProvider.getTokenContract(
             this.airdropParams.token.address
           );
@@ -94,6 +92,7 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
             }
           });
           this.airdropContract = this.walletsProvider.getAirdropContract();
+          this.airdropContract.checkDeployerEnergy();
           this.getInformationProgress = true;
           this.iniAirdropInfo().then(() => {
             this.getInformationProgress = false;
@@ -191,6 +190,7 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   private async checkAccountTokensBalance(): Promise<any> {
     const balance = new BigNumber(await this.tokenContract.getBalance());
     const allowance = new BigNumber(await this.tokenContract.getAllowance());
+    console.log(allowance.toString());
     this.approveTokens = this.getLeftTokensTransfer();
     let error = this.checkTokensErrors(balance, allowance, this.approveTokens);
     if (!error) {
@@ -281,7 +281,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     const transactionsCount = Math.ceil(addressesCount / maxAddressesLength);
     const latestTxGasLimit = 10^7;
     const fullGasLimit = gasLimitPerTx * (transactionsCount - 1) + latestTxGasLimit;
-    console.log(this.airdropInfoData.onceFee, transactionsCount);
     return {
       transactionsCount,
       fee: new BigNumber(this.airdropInfoData.onceFee * transactionsCount).div(Math.pow(10, 6)).toString(10),
@@ -453,6 +452,10 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       Math.floor(this.airdropInfoData.gasLimitPerTx),
       this.airdropInfoData.selectedGasPrice,
     );
+    if(tx === 'error'){
+      txItem.state = 0;
+      return 'error';
+    }
     tx.hash.then((txHash: string) => {
       txItem.txHash = txHash;
       this.updateTxLisStorage();
@@ -471,7 +474,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
       }
       return txItem.txHash;
     }, (e) => {
-      console.error('tx state', e);
       if (txItem.txHash) {
         txItem.txHash = undefined;
       }
@@ -496,7 +498,7 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
   }
 
 
-  public approveLeftTransferTokens(): void {
+  public async approveLeftTransferTokens(): Promise<any> {
     const leftTransferTokens = this.getLeftTokensTransfer();
     let totalAmount;
     this.errApproveInProgress = true;
@@ -510,23 +512,18 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
         break;
     }
 
-    console.log('totalAmount is', totalAmount);
-
     this.tokenContract.sendApprove(totalAmount)
       .then(() => {
         this.tokensBalanceError = false;
+        this.getInformationProgress = true;
         this.checkAccountTokensBalance().then((error) => {
-          if (!error) {
-            // this.iniAirdropInfo().then(() => {
-            //   this.getInformationProgress = false;
-            // });
-          } else {
             this.getInformationProgress = false;
-          }
+            if(error){
+              console.log(error);
+            }
         });
-      }).finally(() => {
         this.errApproveInProgress = false;
-      });
+      }).catch(err => console.log(err));
   }
 
   public async startSending(withMsg?): Promise<any> {
@@ -543,10 +540,23 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
     }
     const tx = await this.sendTokens(currentTxItem);
     if (tx) {
-      this.startSending(true);
+      if(tx === 'error'){
+        this.sendingInProgress = false;
+        this.dialog.open(ModalMessageComponent, {
+          width: '372px',
+          panelClass: 'custom-dialog-container',
+          data: {
+            title: 'Oooops!!!',
+            text: "You haven't enought energy/trx for transaction.",
+            buttonText: 'Ok'
+          }
+        });
+        return;
+      } else {
+        this.startSending(true);
+      }
     } else {
       this.sendingInProgress = false;
-
       this.dialog.open(ModalMessageComponent, {
         width: '372px',
         panelClass: 'custom-dialog-container',
