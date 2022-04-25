@@ -45,7 +45,6 @@ export class TokenContract extends AbstractContract {
     // console.log();
     try{
       const balance = await this.contract.balanceOf(this.walletAddress).call();
-      console.log(this.tronLink.toDecimal(balance._hex));
       return this.tronLink.toDecimal(balance._hex);
     } catch(err) {
       console.log(err);
@@ -64,10 +63,10 @@ export class TokenContract extends AbstractContract {
 
 
   public async sendApprove(amount): Promise<string> {
-    return await this.contract.approve(this.airdropAddress, amount)
+    const txSend = await this.contract.approve(this.airdropAddress, amount)
       .send({
         from: this.walletAddress
-      });
+    });
+    return await this.checkTransaction(txSend);
   }
-
 }
