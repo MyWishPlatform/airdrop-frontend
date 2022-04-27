@@ -41,7 +41,7 @@ export const POLYGON = {
 export const BINANCE = {
   testnet: {
     providerParams: {
-      providerAddress: 'https://data-seed-prebsc-1-s2.binance.org:8545/',
+      providerAddress: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
     },
     chainInfo: NETWORKS['binance:testnet']
   },
