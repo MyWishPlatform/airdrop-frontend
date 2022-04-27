@@ -72,43 +72,14 @@ export class AirdropContract extends AbstractContract {
         amountsArray.length.toString(10)
       );
       const data = tx.encodeABI();
-      console.log('data', data);
-      console.log('Fee: ', fee);
-      console.log('walletAddress: ', this.walletAddress);
-      console.log('contractAddress: ', this.contractAddress);
-      tx.estimateGas({
-        from: this.walletAddress,
-        gas: this.web3.utils.toWei('40000000', 'wei'),
-        value: web3.utils.toWei( (fee).toString() , 'ether'), 
-      }
-      ).then(res => {console.log('res'); console.log(res);})
-      .catch(err => {console.log(err)});     
-      // if ((index === (addressesLengthTest - 1))) {
-      //   let fileText = '';
-      //   addresses.forEach((addr) => {
-      //     fileText += addr + ',' + '0.005' + '\n';
-      //   });
-      //   window.open('data:text/csv;charset=utf-8,' + escape(fileText));
-      // }
-
-      console.log(this.web3.eth);
-      
-      // this.web3.eth.estimateGas({
-      //   from: this.web3.eth.defaultAccount,
-      //   to: this.contractAddress,
-      //   value: fee,
-      //   data,
-      //   gas: this.web3.utils.toWei('4000000', 'wei')
-      // }).then(res => {console.log('res'); console.log(res);})
-      // .catch(err => {console.log(err)});  
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
           to: this.contractAddress,
           value: fee,
           data,
-          gas: this.web3.utils.toWei('4000000', 'wei'),
-          gasPrice: this.web3.utils.toWei('4000000', 'wei'),
+          gas: 0,
+          gasPrice: 0,
         })
       );
     });

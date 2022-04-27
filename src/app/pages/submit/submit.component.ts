@@ -9,6 +9,22 @@ import { ModalWalletsComponent } from '../../components/modal-wallets/modal-wall
 import { MatDialog } from '@angular/material/dialog';
 import { ModalMessageComponent } from '../../components/modal-message/modal-message.component';
 
+const networkFeePrice = {
+  testnet: {
+    'ethereum:ropsten': {price: 0.0076, addresses: 250, priceDef: 0.0076, addressesDef: 200},
+    'ethereum:kovan': {price: 0.011, addresses: 700, priceDef: 0.0049, addressesDef: 200},
+    'binance': {price: 0.027, addresses: 700, priceDef: 0.0087, addressesDef: 200},
+    'polygon': {price: 0.018, addresses: 570, priceDef: 0.018, addressesDef: 480}
+  },
+  mainnet: {
+    'ethereum': {price: 0.027, addresses: 860, priceDef: 0.0049, addressesDef: 200},
+    'binance': {price: 0.0317, addresses: 700, priceDef: 0.0087, addressesDef: 200},
+    'polygon': {price: 0.027, addresses: 890, priceDef: 0.027, addressesDef: 480}
+  }
+}
+
+
+
 @Component({
   selector: 'app-submit',
   templateUrl: './submit.component.html',
@@ -43,7 +59,19 @@ export class SubmitComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.iniStartAirdropInfoData();
+    this.airdropInfoData = {
+      addressesCount: this.airdropParams.addresses.length,
+      transactionsCount: 0,
+      tokens: this.airdropParams.totalAmount,
+      fullGasLimit: 0,
+      gasPrices: [0, 0],
+      fee: 0,
+      onceFee: 0,
+      tokenBalance: 0,
+      totalCost: 0,
+      selectedGasPrice: 0
+    };
+    
 
     this.blockchainsProvider.setChain(this.airdropParams.blockchain);
     this.blockchainsProvider.setTestnet(this.airdropParams.testnet);
@@ -62,6 +90,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.airdropParams.testnet
     );
 
+    // this.iniStartAirdropInfoData();
+
     this.walletSubscriber = this.walletsProvider.subscribe((account) => {
       const oldAccount = this.account;
       if (oldAccount && account && oldAccount.address === account.address && oldAccount.chainId === account.chainId) {
@@ -70,14 +100,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
       }
       this.account = account;
       this.tokenContract = undefined;
-      this.airdropContract = undefined;
+      // this.airdropContract = undefined;
       this.tokensBalanceError = false;
       if (this.gasPricesInterval) {
         clearInterval(this.gasPricesInterval);
       }
       // console.log(22, this.walletsProvider);
 
-      this.iniStartAirdropInfoData();
 
       if (this.account) {
         this.walletsProvider.validateWallet(this.chainInfo.chainId);
@@ -86,10 +115,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
           this.tokenContract = this.walletsProvider.getTokenContract(
             this.airdropParams.token.address
           );
-
           this.airdropContract = this.walletsProvider.getAirdropContract();
+
           this.getInformationProgress = true;
           this.initGasPriceInterval();
+          this.iniStartAirdropInfoData();
+          this.initAirdropInfoData();
           const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
             if (+res) {
               res = true;
@@ -99,8 +130,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
               this.isDeflationaryConfirmed = true;
             }
           });
-          this.initAirdropInfoData();
-          
+         
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
               this.iniAirdropInfo().then(() => {
@@ -224,10 +254,23 @@ export class SubmitComponent implements OnInit, OnDestroy {
     return error;
   }
 
-  private iniStartAirdropInfoData(): void {
+  private iniStartAirdropInfoData(): any {
+    if (this.airdropParams.deflationary && !this.isExcludedFromFee) {
+      return;
+    }
+    let currentNetwork = this.airdropParams.blockchain;
+    const currentTestnet = this.airdropParams.testnet;
+    const currentDeflationary = this.airdropParams.deflationary;
+    if(currentTestnet && currentNetwork === 'ethereum'){
+      const currentEthTestnet = this.airdropParams.ethereumTestnet;
+      currentNetwork =  !this.airdropParams.ethereumTestnet || currentEthTestnet?.match(/Kovan/) ? 'ethereum:kovan' : 'ethereum:ropsten';
+    }
+    const feeObj = (networkFeePrice[currentTestnet ? 'testnet' : 'mainnet'][currentNetwork]);
+    const transactionsCount = Math.ceil(this.airdropParams.addresses.length / feeObj[currentDeflationary ? 'addressesDef' : 'addresses']);
+    // const transactionsPrice = feeObj[currentDeflationary ? 'priceDef' : 'price'];
     this.airdropInfoData = {
       addressesCount: this.airdropParams.addresses.length,
-      transactionsCount: 0,
+      transactionsCount: transactionsCount,
       tokens: this.airdropParams.totalAmount,
       fullGasLimit: 0,
       gasPrices: [0, 0],
@@ -237,6 +280,22 @@ export class SubmitComponent implements OnInit, OnDestroy {
       totalCost: 0,
       selectedGasPrice: 0
     };
+    const promises = [
+      this.getGasPrice(),
+      this.getTokenBalance()
+    ];
+    return Promise.all(promises).then((results) => {
+      results.forEach((res) => {
+        this.airdropInfoData = { ...this.airdropInfoData, ...res };
+      });
+      // this.calculateCost();
+    }, () => {
+      // this.tokensBalanceError = {
+      //   code: 3,
+      //   message: 'Insufficient balance'
+      // };
+    });
+    
   }
 
   private updateTokenBalance(): void {
@@ -306,7 +365,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   public calculateCost(): void {
-    console.log(11);
     console.log('selectedGasPrice', new BigNumber(this.airdropInfoData.selectedGasPrice));
     console.log('fullGasLimit', new BigNumber(this.airdropInfoData.fullGasLimit));
     console.log('totalCost', new BigNumber(this.airdropInfoData.selectedGasPrice)
@@ -398,6 +456,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   private generateTransactionList(): void {
+    console.log(123);
     const storageTxList = this.getTxLisStorage();
     if (storageTxList) {
       this.transactionsList = storageTxList;
@@ -541,8 +600,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
   public initAirdropInfoData(): void {
     this.airdropContract.getFee().then((res) => {
       this.airdropInfoData.onceFee = new BigNumber(res);
-    })
-    this.iniAirdropInfo().then(() => {
+      this.airdropInfoData.fee = new BigNumber(this.airdropInfoData.onceFee * this.airdropInfoData.transactionsCount).div(Math.pow(10,18)).toString(10);
+      console.log(this.airdropInfoData.fee);
       this.getInformationProgress = false;
     });
   }

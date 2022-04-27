@@ -26,6 +26,7 @@ export interface AirdropParamsInterface {
   testnet?: boolean;
   token?: TokenInterface;
   deflationary?: boolean;
+  ethereumTestnet?: string;
 }
 
 interface ResponseFormatIterface {
