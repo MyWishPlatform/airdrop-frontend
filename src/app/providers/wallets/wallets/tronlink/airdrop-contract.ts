@@ -41,7 +41,7 @@ export class AirdropContract extends AbstractContract {
         data = await data.json();
         return data;
       }catch(err){
-        console.log(err);
+        console.warn(err);
       }
   }
 
@@ -54,7 +54,6 @@ export class AirdropContract extends AbstractContract {
   }
 
   public async checkDeployerEnergy(N: Number | String): Promise<any> {
-    console.log(await this.checkTransaction('732acbf3168f443aa534489d5fdfe9c39e7bf6be4988eb45f44b2846a6db5d04'));
     const data = await this.getDeployerData();
     return data.EnergyLimit || 0 - data.EnergyUsed || 0 >  this.getAirdropContractEnergyCost(N);
   } 
@@ -85,7 +84,7 @@ export class AirdropContract extends AbstractContract {
           params
         }).then(resolve, reject);
       } catch (err) {
-        console.log(err);
+        console.warn(err);
         reject(err);
       }
     });
@@ -147,7 +146,7 @@ export class AirdropContract extends AbstractContract {
       )
       return res;
     } catch(e){
-      console.log(e);
+      console.warn(e);
     }
   }
 

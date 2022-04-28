@@ -205,7 +205,7 @@
           <span class="btn_text">Approve</span>
         </button>
         <button class="btn btn__success"
-              [disabled]="sendingInProgress || !airdropInfoData.transactionsCount || tokensBalanceError"
+              [disabled]="sendingInProgress || !airdropInfoData.transactionsCount || tokensBalanceError || getInformationProgress"
               (click)="startSending()"
               *ngIf="!airdropParams.completed">
         <span class="lds-ellipsis" *ngIf="sendingInProgress">

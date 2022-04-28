@@ -57,7 +57,7 @@ export class TokenContract extends AbstractContract {
       const balance = await this.contract.allowance(this.walletAddress, this.airdropAddress).call();
       return this.tronLink.toDecimal(balance._hex);
     } catch(err) {
-      console.log(err);
+      console.warn(err);
     }
   }
 

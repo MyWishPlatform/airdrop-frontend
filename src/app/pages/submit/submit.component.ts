@@ -119,8 +119,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
           this.getInformationProgress = true;
           this.initGasPriceInterval();
-          this.iniStartAirdropInfoData();
-          this.initAirdropInfoData();
           const resultIsExcludedFromFee = this.tokenContract.isExcludedFromFee().then((res) => {
             if (+res) {
               res = true;
@@ -133,12 +131,16 @@ export class SubmitComponent implements OnInit, OnDestroy {
          
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
-              this.getInformationProgress = true;
               this.iniAirdropInfo().then(() => {
                 this.getInformationProgress = false;
               });
             } else {
-              this.getInformationProgress = false;
+              Promise.all([this.iniStartAirdropInfoData(), this.initAirdropInfoData()]).then(() => {
+                this.getInformationProgress = false;
+              }
+              ).catch(err => {
+                console.warn(err);
+              })
             }
           });
 

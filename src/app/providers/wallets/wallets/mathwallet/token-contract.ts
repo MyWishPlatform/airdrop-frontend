@@ -31,7 +31,7 @@ export class TokenContract extends AbstractContract {
         return result;
       })
       .catch((error) => {
-        console.error(error);
+        console.warn(error);
       });
   }
 
