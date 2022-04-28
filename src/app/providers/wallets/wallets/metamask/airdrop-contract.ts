@@ -73,9 +73,8 @@ export class AirdropContract extends AbstractContract {
           to: this.contractAddress,
           value: fee,
           data,
-          gas: 0,
           gasPrice: 0,
-        })
+          })
       );
     });
 

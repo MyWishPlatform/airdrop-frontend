@@ -133,6 +133,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
          
           this.checkAccountTokensBalance().then((error) => {
             if (!error) {
+              this.getInformationProgress = true;
               this.iniAirdropInfo().then(() => {
                 this.getInformationProgress = false;
               });
@@ -601,7 +602,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.airdropContract.getFee().then((res) => {
       this.airdropInfoData.onceFee = new BigNumber(res);
       this.airdropInfoData.fee = new BigNumber(this.airdropInfoData.onceFee * this.airdropInfoData.transactionsCount).div(Math.pow(10,18)).toString(10);
-      console.log(this.airdropInfoData.fee);
       this.getInformationProgress = false;
     });
   }
