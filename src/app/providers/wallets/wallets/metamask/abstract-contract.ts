@@ -3,6 +3,7 @@ import { WALLETS_NETWORKS } from '../../constants/networks';
 import BigNumber from 'bignumber.js';
 import { catchError, map } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 
 const BINANCE_MIN_GAS_PRICE = 5;
 const gasPricePercentage = 0.1;
@@ -90,7 +91,17 @@ export class AbstractContract {
         ];
       });
 
-    } else {
+    } else if(chainParams.chain === 'polygon'){
+      const apiUrl = chainParams.chainId === 37 ? 'https://gasstation-mainnet.matic.network/v2' : 'https://gasstation-mumbai.matic.today/v2';
+      return this.httpClient.get(apiUrl).toPromise().then((data) => {
+        return [
+          new BigNumber(data.safeLow.maxFee).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(data.standard.maxFee).times(Math.pow(10, 9)).toString(10),
+          new BigNumber(data.fast.maxFee).times(Math.pow(10, 9)).toString(10)
+        ];
+      });
+    } 
+    else {
 
       const requests = apis.reduce((acc, req) => {
 
@@ -100,9 +111,16 @@ export class AbstractContract {
           requestUrl += `${param}=${req.params[param]}&`
         }
 
+        const httpOptions = {
+          headers: new HttpHeaders()
+      }
+    
+        httpOptions.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+        httpOptions.headers.append('Access-Control-Allow-Methods', 'GET');
+        httpOptions.headers.append('Access-Control-Allow-Origin', '*');
         return [
           ...acc,
-          this.httpClient.get(requestUrl).pipe(
+          this.httpClient.get(requestUrl, httpOptions).pipe(
             map((gasPrices: { result: ResponseFormatIterface } | ResponseFormatIterface) => {
 
               let multiplier = req.multiplier;

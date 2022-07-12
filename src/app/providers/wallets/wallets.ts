@@ -4,7 +4,7 @@ import {Observable, Subscription} from 'rxjs';
 import {MetaMaskService} from './wallets/metamask/wallet-provider';
 import {WALLETS} from './constants/wallets';
 import {WALLETS_NETWORKS} from './constants/networks';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 export interface InterfaceAccount {
   chainInfo?: any;

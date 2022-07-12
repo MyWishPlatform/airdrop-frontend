@@ -568,7 +568,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.airdropParams.token,
       txItem.addresses,
       Math.floor(this.airdropInfoData.gasLimitPerTx),
-      this.airdropInfoData.selectedGasPrice,
+      Math.floor(this.airdropInfoData.selectedGasPrice),
     );
 
     tx.hash.then((txHash: string) => {

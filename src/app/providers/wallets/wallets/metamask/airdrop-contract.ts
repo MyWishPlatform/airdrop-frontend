@@ -26,7 +26,7 @@ export class AirdropContract extends AbstractContract {
   public async tokensMultiSendGas(testTokenAddress, isDeflationary, blockchainProvider): Promise<any> {
     const currentChain = blockchainProvider.activeChain.selectedChain;
     let addressesLengthTest = 300;
-    if ((isDeflationary && currentChain !== 'binance') || blockchainProvider.net === 'Ropsten Test Network') {
+    if ((isDeflationary && currentChain !== 'binance') || blockchainProvider.ethereumTestnet === 'Ropsten Test Network') {
       addressesLengthTest = 150;
     }
     if (isDeflationary && currentChain === 'binance') {
@@ -67,13 +67,13 @@ export class AirdropContract extends AbstractContract {
         amountsArray.length.toString(10)
       );
       const data = tx.encodeABI();
+      console.log(blockchainProvider.ethereumTestnet);
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
           to: this.contractAddress,
           value: fee,
           data,
-          gasPrice: 0,
           })
       );
     });
