@@ -48,6 +48,7 @@ export class TokenContract extends AbstractContract {
   }
   public async isExcludedFromFee(): Promise<any> {
     console.log(this.airdropAddress);
+    console.log(this.contract);
     return this.contract.methods
       .isExcludedFromFee(this.airdropAddress)
       .call({}, await this.web3.eth.getBlockNumber() - 1)
@@ -55,6 +56,7 @@ export class TokenContract extends AbstractContract {
         return result;
       })
       .catch((error) => {
+        console.log(321);
         console.error(error);
       });
   }
