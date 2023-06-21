@@ -30,7 +30,7 @@ export class WalletConnectService {
       infuraId: '9cf8f565468b4ff2b0a6bf474150b007',
       rpc: {
         56: 'https://bsc-dataseed1.binance.org',
-        97: 'https://data-seed-prebsc-1-s1.binance.org:8545'
+        97: 'https://data-seed-prebsc-1-s2.binance.org:8545/'
       },
       bridge: 'https://bridge.walletconnect.org'
     });

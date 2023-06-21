@@ -66,7 +66,7 @@ export class AbstractContract {
       }
       return this.checkTransaction(result);
     }, (err) => {
-      console.log(err);
+      console.warn(err);
       return err;
     });
   }
@@ -114,7 +114,7 @@ export class AbstractContract {
           params
         }).then(resolve, reject);
       } catch (err) {
-        console.log(err);
+        console.warn(err);
         reject(err);
       }
     });

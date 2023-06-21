@@ -17,7 +17,7 @@ export class TokenContract extends AbstractContract {
   public async getAllowance(): Promise<string> {
     return this.contract.methods
       .allowance(this.walletAddress, this.airdropAddress)
-      .call()
+      .call({}, await this.web3.eth.getBlockNumber() - 1)
       .then((result) => {
         return result;
       });
@@ -25,7 +25,7 @@ export class TokenContract extends AbstractContract {
   public async owner(): Promise<any> {
     return this.contract.methods
       .owner()
-      .call()
+      .call({}, await this.web3.eth.getBlockNumber() - 1)
       .then((result) => {
         console.log('owner', result);
         return result;
@@ -47,13 +47,16 @@ export class TokenContract extends AbstractContract {
       });
   }
   public async isExcludedFromFee(): Promise<any> {
+    console.log(this.airdropAddress);
+    console.log(this.contract);
     return this.contract.methods
       .isExcludedFromFee(this.airdropAddress)
-      .call()
+      .call({}, await this.web3.eth.getBlockNumber() - 1)
       .then((result) => {
         return result;
       })
       .catch((error) => {
+        console.log(321);
         console.error(error);
       });
   }

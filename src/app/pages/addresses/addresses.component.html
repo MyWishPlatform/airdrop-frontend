@@ -29,7 +29,7 @@
         <div class="form_control">
           <div class="form_control_label text-center">Token symbol:</div>
           <a class="text-control as-link"
-             [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
+             [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token': airdropParams.ethereumTestnet"
              target="_blank">
               <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
                 {{ airdropParams.token.symbol }}

@@ -318,3 +318,12 @@
     line-height: 27px;
   }
 }
+
+
+.buttons-container{
+  display: flex;
+  justify-content: space-between;
+  .btn{
+    flex: 0 0 49%;
+  }
+}

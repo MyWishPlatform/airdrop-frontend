@@ -24,21 +24,24 @@ export class AbstractContract {
   }
 
   protected checkTx(txHash, resolve, reject): void {
-    this.tronLink.trx.getTransactionInfo(txHash).then((res) => {
+    let timeout;
+    this.tronLink.trx.getTransaction(txHash).then((res) => {
       console.log(res);
       if (!res.ret) {
-        setTimeout(() => {
+        timeout = setTimeout(() => {
           this.checkTx(txHash, resolve, reject);
         }, 2000);
       } else if (res.ret[0].contractRet === "SUCCESS") {
+        clearTimeout(timeout);
         resolve(res);
       } else{
+        clearTimeout(timeout);
         reject(res);
       }
       
     }).catch(e => {
-      console.log(e);
-      setTimeout(() => {
+      console.warn(e, txHash);
+      timeout =setTimeout(() => {
         this.checkTx(txHash, resolve, reject);
       }, 2000);
     })
@@ -49,8 +52,6 @@ export class AbstractContract {
       this.checkTx(txHash, resolve, reject);
     });
   }
-
-
 
   // protected async decodeMethod(methodName, params): Promise<any>{
   //   const abiElement = this.contractABI.find((abiItem) => {

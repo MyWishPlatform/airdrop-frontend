@@ -92,7 +92,6 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
             }
           });
           this.airdropContract = this.walletsProvider.getAirdropContract();
-          this.airdropContract.checkDeployerEnergy();
           this.getInformationProgress = true;
           this.iniAirdropInfo().then(() => {
             this.getInformationProgress = false;
@@ -519,11 +518,11 @@ export class SubmitComponentTron implements OnInit, OnDestroy {
         this.checkAccountTokensBalance().then((error) => {
             this.getInformationProgress = false;
             if(error){
-              console.log(error);
+              console.warn(error);
             }
         });
         this.errApproveInProgress = false;
-      }).catch(err => console.log(err));
+      }).catch(err => console.warn(err));
   }
 
   public async startSending(withMsg?): Promise<any> {

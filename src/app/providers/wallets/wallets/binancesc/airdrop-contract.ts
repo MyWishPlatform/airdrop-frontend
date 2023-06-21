@@ -31,7 +31,6 @@ export class AirdropContract extends AbstractContract {
     if (isDeflationary) {
       addressesLengthTest = 150;
     }
-
     const walletAddress = (await this.binanceChain.request({ method: 'eth_requestAccounts' }))[0];
     const fee = await this.getFee();
     const blockGasLimit = +(await this.gasLimit());

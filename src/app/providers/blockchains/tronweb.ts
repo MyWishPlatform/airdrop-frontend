@@ -65,7 +65,7 @@ export class TronwebService {
           symbol: result[1]
         });
       }).catch((e) => {
-        console.log(e);
+        console.warn(e);
         reject();
       });
     });
