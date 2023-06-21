@@ -26,13 +26,11 @@ export class MetaMaskService {
     this.metaMaskProvider = Web3.givenProvider;
   }
 
-  public getConnectedAccount(cb?): Promise<InterfaceAccount> {
+  public getConnectedAccount(): Promise<InterfaceAccount> {
     return new Promise((resolve) => {
       if (this.isConnected()) {
         if (this.metaMaskWeb3.selectedAddress || this.metaMaskWeb3.address) {
           this.applyAccount().then(() => {
-            console.log('getConnectedAccount', this.connectedAccount);
-            cb?.();
             resolve(this.connectedAccount);
           });
         } else {
@@ -48,7 +46,6 @@ export class MetaMaskService {
     return this.metaMaskWeb3
       .request({ method: 'net_version' })
       .then((result) => {
-        console.log('applyAccount', { result });
         const address =
           this.metaMaskWeb3.selectedAddress ||
           this.metaMaskWeb3.address ||
@@ -115,16 +112,6 @@ export class MetaMaskService {
   }
 
   public isConnected(): boolean {
-    console.log(
-      'isConnected',
-      this.metaMaskWeb3.isMetaMask,
-      this.metaMaskWeb3.isTrust,
-      this?.metaMaskWeb3?.selectedAddress,
-      2,
-      this?.metaMaskWeb3?.address,
-      this?.metaMaskWeb3?.accounts,
-      this.metaMaskWeb3?.accounts?.[0]
-    );
     return (
       this.metaMaskWeb3 &&
       !this.metaMaskWeb3?.isMathWallet &&
