@@ -85,14 +85,13 @@
             </div>
             <input [(ngModel)]="testNets['ethereum']"
                    disabled
-                   value="Ropsten Test Network"
+                   value="Goerli Test Network"
                    name="ethereumTestnet"
                    style="display: none;"
             >
             <div #dropdown *ngIf="isDropDownOpen" class="dropdown">
               <ul class="submenu">
-                <li (click)="switchEthereumTestnet('ropsten')">Ropsten</li>
-                <li (click)="switchEthereumTestnet('kovan')">Kovan</li>
+                <li (click)="switchEthereumTestnet('goerli')">Goerli</li>
               </ul>
             </div>
             <div class="form_control_buttons"

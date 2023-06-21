@@ -13,6 +13,12 @@ export const ETHEREUM = {
         providerAddress: 'https://ropsten.infura.io/v3/773b33626f45459c8cc15a99e1ee959f',
       },
       chainInfo: NETWORKS['ethereum:ropsten']
+    },
+    goerli: {
+      providerParams: {
+        providerAddress: 'https://ethereum-goerli.publicnode.com',
+      },
+      chainInfo: NETWORKS['ethereum:goerli']
     }
   },
   mainnet: {

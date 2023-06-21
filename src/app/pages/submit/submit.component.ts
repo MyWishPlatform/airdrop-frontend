@@ -250,6 +250,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   private getGasPrice(): Promise<any> {
     return this.airdropContract.getGasPrice().then((responseGasPrices) => {
+      console.log({responseGasPrices})
       const gasPrices = [
         responseGasPrices[0],
         responseGasPrices[2]

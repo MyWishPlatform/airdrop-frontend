@@ -145,7 +145,6 @@ export class BlockchainsProvider {
       };
 
       const cachedToken = sessionStorage.getItem(tokenPath);
-
       if (cachedToken) {
         const parsedToken = JSON.parse(cachedToken);
         if (parsedToken === false) {
@@ -155,7 +154,6 @@ export class BlockchainsProvider {
         }
         setTokenValues(parsedToken);
       }
-
       this.activeChain.getTokenInfo(address).then((tokenData) => {
         setTokenValues(tokenData);
         const tokenValue = {...control.value};

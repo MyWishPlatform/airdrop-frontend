@@ -60,7 +60,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   } = {};
 
   public testNets = {
-    ethereum: 'Ropsten Test Network',
+    ethereum: 'Goerli Test Network',
     binance: 'Test Network',
     polygon: 'Mumbai Test Network',
     tron: 'Shasta Test Network'
@@ -69,7 +69,7 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
   public selectChainState: any;
   private subscribers = new Subscriber();
   // private walletSubscriber;
-  public ethereumTestnet = 'Ropsten Test Network';
+  public ethereumTestnet = 'Goerli Test Network';
 
   public isDropDownOpen = false;
 
@@ -207,12 +207,9 @@ export class PrepareComponent implements AfterViewInit, OnDestroy {
 
   public switchEthereumTestnet(net): void {
    switch (net) {
-     case 'kovan':
-       this.testNets.ethereum = 'Kovan Test Network';
-       break;
-     case 'ropsten':
-       this.testNets.ethereum = 'Ropsten Test Network';
-       break;
+    case 'goerli':
+      this.testNets.ethereum = 'Goerli Test Network';
+      break;
    }
   }
 }

@@ -57,7 +57,22 @@ export class AbstractContract {
         apiUrl = 'https://api-kovan.etherscan.io/';
       }
 
+      if (chainParams.name === 'Ethereum Goerli Testnet') {
+        apiUrl = 'https://api-goerli.etherscan.io';
+      }
+
       const apikey = chainParams.apiKey.name + '=' + chainParams.apiKey.value;
+
+      if (chainParams.name === 'Ethereum Goerli Testnet') {
+        return this.httpClient.get(apiUrl + '/api?module=proxy&action=eth_gasPrice&' + apikey).toPromise().then((data) => {
+          const result = data.result;
+          return [
+            2.5 * Math.pow(10, 9),
+            new BigNumber(result).toString(10),
+            new BigNumber(result).plus(30 * Math.pow(10, 9)).toString(10),
+          ];
+        });
+      }
 
       if (chainParams.name === 'Ethereum Ropsten Testnet') {
         return this.httpClient.get(apiUrl + '/api?module=proxy&action=eth_gasPrice&' + apikey).toPromise().then((data) => {

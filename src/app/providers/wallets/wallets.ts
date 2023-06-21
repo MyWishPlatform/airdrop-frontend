@@ -96,6 +96,7 @@ export class WalletsProvider {
 
   private applyAccount(): void {
     this.ngZone.run(() => {
+      console.log('this.account', this.account);
       this.accountsSubscribers.forEach((obs) => {
         obs.next(this.account);
       });
@@ -122,7 +123,7 @@ export class WalletsProvider {
       }
     });
     checkWallets.forEach((wallet) => {
-      walletsPromises.push(wallet.service.getConnectedAccount());
+      walletsPromises.push(wallet.service.getConnectedAccount(() => console.log('from check wallet')));
     });
 
     Promise.all(walletsPromises).then((result) => {
@@ -149,7 +150,9 @@ export class WalletsProvider {
     if (this.walletServicesSubscription) {
       this.walletServicesSubscription.unsubscribe();
     }
+
     this.walletServicesSubscription = wallet.service.subscribe((acc) => {
+      console.log({acc})
       this.setAccount(acc, wallet);
     });
   }
@@ -162,12 +165,11 @@ export class WalletsProvider {
 
   private connectToService(wallet, chainId): void {
     const isCurrent = this.account && this.account.wallet === wallet.type;
-
     wallet.service.connect(isCurrent, chainId).then(() => {
       if (!(this.account && this.account.wallet === wallet.type)) {
         this.setSubscriber(wallet);
       }
-    }, () => {});
+    }, (err) => console.error(err));
   }
 
 

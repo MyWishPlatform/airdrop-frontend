@@ -75,7 +75,7 @@ export class Web3Service {
             decimals: result[0],
             symbol: result[1]
           });
-        }).catch(() => {
+        }).catch((err) => {
           return reject();
         });
       } catch (err) {
@@ -91,7 +91,7 @@ export class Web3Service {
     const providerParams = this.chainsProviders[chain][network];
     let chainInfo = providerParams.chainInfo;
     if (chain === 'ethereum' && isTestnet) {
-      chainInfo = providerParams[ethereumTestnet?.split(' ')[0].toLowerCase() === 'ropsten' ? 'ropsten' : 'kovan'].chainInfo;
+      chainInfo = providerParams.goerli.chainInfo;
     }
 
     switch (type) {

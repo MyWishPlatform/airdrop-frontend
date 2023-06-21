@@ -157,6 +157,7 @@ export const NETWORKS = {
       },
     ]
   },
+
   'ethereum:goerli': {
     chain: 'ethereum',
     icon: './assets/images/icons/coins/ethereum.svg',
@@ -164,7 +165,44 @@ export const NETWORKS = {
     explorer: 'https://goerli.etherscan.io',
     csvExample: './assets/csv-examples/ethereum.csv',
     chainId: 5,
-    coin: 'gETH'
+    coin: 'gETH',
+    etherscanAPI: 'https://api-goerli.etherscan.io/api/',
+    apiKey: {
+      name: 'apikey',
+      value: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+    },
+    apis: [
+      {
+        url: 'https://api-goerli.etherscan.io/api',
+        params: {
+          module: 'gastracker',
+          action: 'gasoracle',
+          apikey: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+        },
+        responseFormat: {
+          result: {
+            safe: 'SafeGasPrice',
+            average: 'ProposeGasPrice',
+            fast: 'FastGasPrice'
+          }
+        },
+        multiplier: 9
+      },
+      {
+        url: 'https://api-goerli.etherscan.io/api',
+        params: {
+          module: 'proxy',
+          action: 'eth_gasPrice',
+          apikey: 'FHD3PHDXXPVBDCBT36DX8IUCDGM66756BD'
+        },
+        responseFormat: {
+          safe: 'result',
+          average: 'result',
+          fast: 'result'
+        },
+        multiplier: null
+      },
+    ]
   },
   'binance:mainnet': {
     chain: 'binance',

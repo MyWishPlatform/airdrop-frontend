@@ -13,6 +13,7 @@ export const WALLETS = [
     blockchains: [
       'ethereum:mainnet',
       'ethereum:testnet:kovan',
+      'ethereum:testnet:goerli',
       'ethereum:testnet:ropsten',
       'binance:mainnet',
       'binance:testnet',
@@ -27,6 +28,7 @@ export const WALLETS = [
     blockchains: [
       'ethereum:mainnet',
       'ethereum:testnet',
+      'ethereum:testnet:goerli',
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',
@@ -60,6 +62,7 @@ export const WALLETS = [
       'ethereum:mainnet',
       'ethereum:testnet:kovan',
       'ethereum:testnet:ropsten',
+      'ethereum:testnet:goerli',
       'binance:mainnet',
       'binance:testnet',
       'polygon:mainnet',
