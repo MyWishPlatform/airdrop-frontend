@@ -40,7 +40,7 @@ export class AirdropContract extends AbstractContract {
     blockGasLimit = new BigNumber(blockGasLimit).times(0.8).dp(0).toString(10);
 
     const web3 = new Web3();
-    
+
     const accounts = Array(addressesLengthTest).fill(null);
     const promises = [];
     console.log("accounts:");
@@ -134,7 +134,7 @@ export class AirdropContract extends AbstractContract {
     const txSend = tx.send({
       from: this.walletAddress,
       value: fee,
-      gas: gasLimit,
+      // gas: gasLimit,
       gasPrice
     });
 
