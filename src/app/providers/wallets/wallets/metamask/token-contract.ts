@@ -17,7 +17,7 @@ export class TokenContract extends AbstractContract {
   public async getAllowance(): Promise<string> {
     return this.contract.methods
       .allowance(this.walletAddress, this.airdropAddress)
-      .call({}, await this.web3.eth.getBlockNumber() - 1)
+      .call()
       .then((result) => {
         return result;
       });

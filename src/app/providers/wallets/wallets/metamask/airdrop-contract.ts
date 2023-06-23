@@ -67,7 +67,7 @@ export class AirdropContract extends AbstractContract {
         amountsArray.length.toString(10)
       );
       const data = tx.encodeABI();
-      console.log(blockchainProvider.ethereumTestnet);
+
       promises.push(
         this.web3.eth.estimateGas({
           from: this.walletAddress,
@@ -83,7 +83,6 @@ export class AirdropContract extends AbstractContract {
         if (!result[0] || !result[1]) {
           return reject();
         }
-        console.log(result[1], result[0]);
         const oneAddressAdding = (result[1] - result[0]) / (addressesLengthTest - 1);
         const initTransaction = result[0] - oneAddressAdding;
         let maxAddressesLength = Math.floor((blockGasLimit - initTransaction) / oneAddressAdding) - 1;

@@ -68,9 +68,9 @@ export class AbstractContract {
         return this.httpClient.get(apiUrl + '/api?module=proxy&action=eth_gasPrice&' + apikey).toPromise().then((data) => {
           const result = data.result;
           return [
-            2.5 * Math.pow(10, 9),
-            new BigNumber(result).toString(10),
-            new BigNumber(result).plus(30 * Math.pow(10, 9)).toString(10),
+            1.5 * Math.pow(10, 9),
+            new BigNumber(1.5 * Math.pow(10, 9),).toString(10),
+            new BigNumber(1.5 * Math.pow(10, 9),).plus(30 * Math.pow(10, 9)).toString(10),
           ];
         });
       }
@@ -115,7 +115,7 @@ export class AbstractContract {
           new BigNumber(data.fast.maxFee).times(Math.pow(10, 9)).toString(10)
         ];
       });
-    } 
+    }
     else {
 
       const requests = apis.reduce((acc, req) => {
@@ -129,7 +129,7 @@ export class AbstractContract {
         const httpOptions = {
           headers: new HttpHeaders()
       }
-    
+
         httpOptions.headers.append('Access-Control-Allow-Headers', 'Content-Type');
         httpOptions.headers.append('Access-Control-Allow-Methods', 'GET');
         httpOptions.headers.append('Access-Control-Allow-Origin', '*');

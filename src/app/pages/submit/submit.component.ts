@@ -265,6 +265,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   private updateGasPrices(): void {
     this.getGasPrice().then((result) => {
+      console.log('getGasPrice,',{result});
       this.airdropInfoData.gasPrices[0] = result.gasPrices[0];
       this.airdropInfoData.gasPrices[1] = result.gasPrices[1];
       this.airdropInfoData.selectedGasPrice = BigNumber.max(
@@ -293,7 +294,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
       });
       this.calculateCost();
       this.generateTransactionList();
-    }, () => {
+    }, (err) => {
+      console.log({err});
       this.tokensBalanceError = {
         code: 3,
         message: 'Insufficient balance'
