@@ -191,7 +191,8 @@
             *ngIf="tokensBalanceError?.code === 2"
             [token]="airdropParams.token"
             [amount]="approveTokens.toString(10) | bigNumberFormat : this.airdropParams.token.decimals"
-            [(approveType)]="approveType"></app-approve>
+            [(approveType)]="approveType"
+            ></app-approve>
 
       <div class="buttons-container">
         <button class="btn btn__success"

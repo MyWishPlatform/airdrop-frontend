@@ -107,7 +107,7 @@ export class AbstractContract {
       });
 
     } else if(chainParams.chain === 'polygon'){
-      const apiUrl = chainParams.chainId === 37 ? 'https://gasstation-mainnet.matic.network/v2' : 'https://gasstation-mumbai.matic.today/v2';
+      const apiUrl = chainParams.chainId === 37 ? 'https://gasstation.polygon.technology/v2' : 'https://gasstation-testnet.polygon.technology/v2';
       return this.httpClient.get(apiUrl).toPromise().then((data) => {
         return [
           new BigNumber(data.safeLow.maxFee).times(Math.pow(10, 9)).toString(10),

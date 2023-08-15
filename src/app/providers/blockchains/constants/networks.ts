@@ -302,7 +302,7 @@ export const NETWORKS = {
     coin: 'MATIC',
     apis: [
       {
-        url: 'https://gasstation-mainnet.matic.network/',
+        url: 'https://gasstation.polygon.technology/v2',
         params: null,
         responseFormat: {
           safe: 'safeLow',
@@ -347,7 +347,7 @@ export const NETWORKS = {
     coin: 'MATIC',
     apis: [
       {
-        url: 'https://gasstation-mumbai.matic.today/',
+        url: 'https://gasstation-testnet.polygon.technology/v2',
         params: null,
         responseFormat: {
           safe: 'safeLow',

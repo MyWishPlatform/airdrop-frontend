@@ -100,6 +100,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
             }
           });
           this.checkAccountTokensBalance().then((error) => {
+
             if (!error) {
               this.iniAirdropInfo().then(() => {
                 this.getInformationProgress = false;
@@ -241,6 +242,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   private getTokenBalance(): Promise<any> {
+    console.log(1123121, 'tokenBalance');
     return this.tokenContract.getBalance().then((tokenBalance) => {
       return {
         tokenBalance
@@ -283,6 +285,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     if (this.airdropParams.deflationary && !this.isExcludedFromFee) {
       return;
     }
+
     const promises = [
       this.iniAirdropInfoData(),
       this.getGasPrice(),
@@ -503,7 +506,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.airdropParams.token,
       txItem.addresses,
       Math.floor(this.airdropInfoData.gasLimitPerTx),
-      this.airdropInfoData.selectedGasPrice,
+      Math.floor(this.airdropInfoData.selectedGasPrice),
     );
 
     tx.hash.then((txHash: string) => {

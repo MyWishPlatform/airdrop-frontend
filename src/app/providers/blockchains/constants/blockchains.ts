@@ -32,7 +32,7 @@ export const ETHEREUM = {
 export const POLYGON = {
   testnet: {
     providerParams: {
-      providerAddress: 'https://matic-mumbai.chainstacklabs.com'
+      providerAddress: 'https://rpc-mumbai.maticvigil.com'
     },
     chainInfo: NETWORKS['polygon:testnet']
   },
